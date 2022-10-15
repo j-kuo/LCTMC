@@ -10,10 +10,11 @@ get_SE_lctmc_3x3(
   df.Xmat,
   df.Wmat,
   df.dt,
-  hessian.round,
   par_constraint,
   K,
   solve.tol = (.Machine$double.eps)^2,
+  symmetric.tol = 5e-11,
+  eigen0.tol = 1e-10,
   MyModelName
 )
 }
@@ -28,17 +29,16 @@ get_SE_lctmc_3x3(
 
 \item{df.dt}{a numeric vector with length equal to the number of rows as \code{df}. This vector contains the time difference between observations.}
 
-\item{hessian.round}{a numeric scalar. This variable is used to specified how many decimal point should the hessian approximation be rounded to. \cr
-Note that this is necessary because by definition the hessian matrix should be symmetric. However, due to it being obtained from numerical approximation, it will not always be symmetric (rounding errors).
-So, this variable is used to round to a reasonable number of decimal places to ensure the hessian is symmetric. \cr
-If this number is too small (i.e., large margin of error), then the hessian will be inaccurate. Contrary, if this number is too large, the approximated hessian will not be symmetric and an error will be returned.}
-
 \item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
 
 \item{K}{the number of categories the latent class variable has.}
 
 \item{solve.tol}{a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. Defaults to \code{(.Machine$double.eps)^2} if not specified.}
+
+\item{symmetric.tol}{a numeric scalar. Tolerane value for checking symmetric matrix. \cr Default is 5e-11}
+
+\item{eigen0.tol}{a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10}
 
 \item{MyModelName}{a character scalar. Gives the current model fitting process a name. This name will be used when the function is logging the algorithm progress.}
 }

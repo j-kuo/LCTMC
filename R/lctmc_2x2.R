@@ -204,7 +204,6 @@ lctmc_2x2 = function(data = data.frame(),
     df.Wmat = my_df.Wmat,
     df.dt = my_df.dt,
     par_constraint = par_constraint,
-    hessian.round = hessian.round,
     K = K,
     MyModelName = MyModelName
   )

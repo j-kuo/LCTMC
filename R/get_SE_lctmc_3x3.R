@@ -8,14 +8,12 @@
 #' @param df.Xmat a matrix object with same number of rows as `df`. This matrix object should contain the covariates which affect the CTMC part of the model
 #' @param df.Wmat a matrix object with number of rows equal to the unique number of individuals in `df`. This matrix object should contain the covariates which affect the latent class probability part of the model.
 #' @param df.dt a numeric vector with length equal to the number of rows as `df`. This vector contains the time difference between observations.
-#' @param hessian.round a numeric scalar. This variable is used to specified how many decimal point should the hessian approximation be rounded to. \cr
-#' Note that this is necessary because by definition the hessian matrix should be symmetric. However, due to it being obtained from numerical approximation, it will not always be symmetric (rounding errors).
-#' So, this variable is used to round to a reasonable number of decimal places to ensure the hessian is symmetric. \cr
-#' If this number is too small (i.e., large margin of error), then the hessian will be inaccurate. Contrary, if this number is too large, the approximated hessian will not be symmetric and an error will be returned.
 #' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 #' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
 #' @param K the number of categories the latent class variable has.
 #' @param solve.tol a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. Defaults to `(.Machine$double.eps)^2` if not specified.
+#' @param symmetric.tol a numeric scalar. Tolerane value for checking symmetric matrix. \cr Default is 5e-11
+#' @param eigen0.tol a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10
 #' @param MyModelName a character scalar. Gives the current model fitting process a name. This name will be used when the function is logging the algorithm progress.
 #'
 #' @return a list object containing 3 elements:
@@ -41,10 +39,6 @@
 #' Since this SE approximation relies on large sample, user should be cautious when considering sample size and number of model parameters.
 #'
 #' @importFrom numDeriv hessian
-#' @importFrom matrixcalc is.positive.definite
-#' @importFrom matrixcalc is.positive.semi.definite
-#' @importFrom matrixcalc is.negative.definite
-#' @importFrom matrixcalc is.negative.semi.definite
 #'
 #' @export
 #'
@@ -55,10 +49,11 @@ get_SE_lctmc_3x3 = function(em,
                             df.Xmat,
                             df.Wmat,
                             df.dt,
-                            hessian.round,
                             par_constraint,
                             K,
                             solve.tol = (.Machine$double.eps)^2,
+                            symmetric.tol = 5e-11,
+                            eigen0.tol = 1e-10,
                             MyModelName) {
   ### perform checks
   if (!"lctmc_3x3.mle" %in% class(em)) {
@@ -109,34 +104,40 @@ get_SE_lctmc_3x3 = function(em,
   ### Hessian and covariance matrix
   colnames(hess) = rownames(hess) = mle.names
   cov_mat = -1 * solve(a = hess, tol = solve.tol)
-  cov_mat = round(x = cov_mat, digits = hessian.round)
 
-  ### check for positive definite-ness
+  ### check for covariance matrix
   covariance_code = -1
-  hess_code = -1
-  tryCatch(
-    ## note: 2, 1, 0 = local extrmum, inconclusive, saddle point
-    expr = {
-      # perform check 1: Covariance matrix
-      if (matrixcalc::is.positive.definite(cov_mat)) {
-        covariance_code = 2
-      } else if (matrixcalc::is.positive.semi.definite(cov_mat)) {
-        covariance_code = 1
-      } else {
-        covariance_code = 0
-      }
+  if (isSymmetric(cov_mat, tol = symmetric.tol)) {
+    ## eigenvalues
+    covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
+    covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
 
-      # perform check 2: Hessian matrix
-      if (matrixcalc::is.negative.definite(hess)) {
-        hess_code = 2
-      } else if (matrixcalc::is.negative.semi.definite(hess)) {
-        hess_code = 1
-      } else {
-        hess_code = 0
-      }
-    },
-    error = function(e) cat("CAUTION: hessian/covariance matrix might not be symmetric \n\n", sep = "")
-  )
+    ## check definiteness
+    if (all(covariance.eigen > 0)) {
+      covariance_code = 2
+    } else if (all(covariance.eigen >= 0)) {
+      covariance_code = 1
+    } else {
+      covariance_code = 0
+    }
+  }
+
+  ### check for hessian matrix
+  hess_code = -1
+  if (isSymmetric(hess, tol = symmetric.tol)) {
+    ## eigenvalues
+    hess.eigen = eigen(hess, only.values = TRUE)$values
+    hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
+
+    ## check definiteness
+    if (all(hess.eigen < 0)) {
+      hess_code = 2
+    } else if (all(hess.eigen <= 0)) {
+      hess_code = 1
+    } else {
+      hess_code = 0
+    }
+  }
 
   ### a data frame with parameter names & respective SEs
   df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
