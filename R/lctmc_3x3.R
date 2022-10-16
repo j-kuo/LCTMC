@@ -40,9 +40,6 @@
 #' (1) `fnscale` a numeric scalar. This value scales the objective function. Additionally, its sign determines whether the algorithm is performing a maximization or minimization task. \cr
 #' (2) `maxit` a numeric scalar. This value specifies the max number of L-BFGS iterations. \cr
 #' (3) `factr` a numeric scalar. This value controls the tolerance of L-BFGS optimization. The smaller in magnitude this argument is the more precise the optimization algorithm will be.
-#' @param hessian.round a numeric integer, it is a rounding parameter for the approximated hessian. For example, `hessian.round = 2` when the hessian is 0.541 will round the value to 0.54. \cr
-#' The hessian matrix should be symmetric but due to numerical approximation, it may be slightly off. Thus, using this rounding parameter would allow the hessian matrix to be symmetric (if it is actually symmetric).
-#' Note that the larger the rounding value, the more accurate the SE estimation. But also the more likely to produce asymmetric hessian which will end up producing error messages.
 #' @param test_if_global_optim a list containing two elements: `test` and `true_params`. \cr
 #' (1) `test` is a logical scalar. It indicates whether the function should check whether the MLE is actually a global optimal point.
 #' This is done by comparing the observed log likelihood at MLE vs. the log likelihood at the true parameter value. Hence, the second element of the list is `true_params`.

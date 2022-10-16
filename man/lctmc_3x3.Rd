@@ -80,10 +80,6 @@ The following elements are necessary for running the algorithm: \cr
 (2) \code{maxit} a numeric scalar. This value specifies the max number of L-BFGS iterations. \cr
 (3) \code{factr} a numeric scalar. This value controls the tolerance of L-BFGS optimization. The smaller in magnitude this argument is the more precise the optimization algorithm will be.}
 
-\item{hessian.round}{a numeric integer, it is a rounding parameter for the approximated hessian. For example, \code{hessian.round = 2} when the hessian is 0.541 will round the value to 0.54. \cr
-The hessian matrix should be symmetric but due to numerical approximation, it may be slightly off. Thus, using this rounding parameter would allow the hessian matrix to be symmetric (if it is actually symmetric).
-Note that the larger the rounding value, the more accurate the SE estimation. But also the more likely to produce asymmetric hessian which will end up producing error messages.}
-
 \item{test_if_global_optim}{a list containing two elements: \code{test} and \code{true_params}. \cr
 (1) \code{test} is a logical scalar. It indicates whether the function should check whether the MLE is actually a global optimal point.
 This is done by comparing the observed log likelihood at MLE vs. the log likelihood at the true parameter value. Hence, the second element of the list is \code{true_params}.
