@@ -66,8 +66,6 @@ get_SE_lctmc_3x3 = function(em,
   df.theta = df.theta[!colnames(df.theta) %in% c("true_theta")]
 
   ### msg
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 27), sep = ""), " Computing Hessian Matrix for SE approx. ", paste(rep("#", times = 32), sep = ""), "\n", sep = "")
   cat(" - best EM run occurred at step ", best_index, "/", length(em), "\n", sep = "")
 
   ### get vector of the MLE (without constrained elements)

@@ -19,7 +19,7 @@
 #'
 #' @importFrom collapse fprod
 #'
-#' @export
+#' @seealso [get_P_3x3()], [bik_all_3x3()], [Li_2x2()]
 #'
 #' @example inst/examples/ex_Li_3x3.R
 

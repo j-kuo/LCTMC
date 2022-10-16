@@ -31,6 +31,8 @@
 #' }
 #' where \eqn{r=y_{i(j-1)}} and \eqn{s=y_{ij}}
 #'
+#' @seealso [get_P_3x3()], [Li_3x3()], [bik_all_2x2()]
+#'
 #' @example inst/examples/ex_bik_all_3x3.R
 
 bik_all_3x3 = function(theta = c(),

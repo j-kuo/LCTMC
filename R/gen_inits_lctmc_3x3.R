@@ -105,8 +105,6 @@ gen_inits_lctmc_3x3 = function(df,
   subject_list = subject_list[randID_select]
 
   ### STEP 1  ~~>  start
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 27), sep = ""), " Generating Initial Values -- Step 1 ", paste(rep("#", times = 36), sep = ""), "\n", sep = "")
   cat(" * using `N_sub` = ", step1_N, "/", length(unique(df$id)), " subjects for Step 1\n", sep = "")
 
   ### STEP 1  ~~>  estimate individual-wise CTMC
@@ -314,8 +312,8 @@ gen_inits_lctmc_3x3 = function(df,
   }
 
   ### STEP 2  ~~>  start msg
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 27), sep = ""), " Generating Initial Values -- Step 2 ", paste(rep("#", times = 36), sep = ""), "\n", sep = "")
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "init2", MyModelName = MyModelName)
   cat(" * using `which_step1` = '", which_step1, "' as the intial values for Step 2 \n", sep = "")
 
   ### STEP 2  ~~>  optimization

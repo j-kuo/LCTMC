@@ -129,14 +129,14 @@ EM_lctmc_2x2 = function(theta.init,
   )
 
   ### step 2 to step `EM.maxit`
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 25), sep = ""), " Starting Expectation-Maximization Algorithm ", paste(rep("#", times = 30), sep = ""), "\n", sep = "")
   EM.i = 1
   EM.condition = T
   while (EM.condition) {
     # increment while-loop counter + msg
     EM.i = EM.i + 1
-    cat("~!------------------ Starting ECM Step:", paste(rep(" ", 4-nchar(EM.i)), collapse = ""), EM.i, " ------------------------------------------------!~\n ", sep = "")
+    cat(" * ~~~~~ Starting EM Step:", rep(" ", 4-nchar(EM.i)), EM.i, " - - - (with ", length(theta.names), " sub-steps) ",
+        rep("~", 44),
+        " \n", rep(" ", 3), sep = "")
 
     # function evaluated at OLD theta
     ELL_prev = EM_output[[EM.i-1]]$ELL_value
@@ -146,7 +146,6 @@ EM_lctmc_2x2 = function(theta.init,
       # computes the "new" `bik_all.old` using theta from last round
       par_prev = par_curr
       bik_all.old = bik_all_2x2(theta = par_prev, data = df, Xmat = df.Xmat, Wmat = df.Wmat, dt = df.dt, K = K, P.rs = FALSE, theta.names = theta.names.bik)
-      # impute
       bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
       # get denom
       denom.old = Reduce(`+`, bik_all.old)
@@ -159,16 +158,10 @@ EM_lctmc_2x2 = function(theta.init,
     # optim
     for (p.i in 1:length(theta.names)) {
       # print message for current ECM step -- within step `EM.i`
-      cat(paste(p.i, "/", length(theta.names), sep = ""), " || ", sep = "")
+      cat(p.i, ".. ", sep = "")
       p = theta.names[[p.i]]
       # if running parallel, need to export variaable
       if (parallel_optim$run) {
-        parallel::clusterExport(
-          cl = parallel_optim$cl,
-          envir = environment(),
-          varlist = c("par_curr", "p", "bik_all.old", "denom.old", "df", "df.Xmat", "df.Wmat", "df.dt", "constraint_index", "par_constraint")
-        )
-
         opt = optim2(
           par = par_curr[p],
           fn = function(par) {
@@ -258,9 +251,10 @@ EM_lctmc_2x2 = function(theta.init,
     LPY_curr = sum(log(Reduce(`+`, b)))
 
     # print message for ending `EM.i` step
-    cat("\n Maximum Theta Difference:", sprintf("%.5f", max(abs(par_curr - par_prev))), "(", names(par_curr)[which.max(abs(par_curr - par_prev))], ")",
-        "\n           ELL Difference:", sprintf("%.5f", (opt$value - ELL_prev)), "(", opt$value, ")",
-        "\n           LPY Difference:", sprintf("%.5f", (LPY_curr - LPY_prev)), "(", LPY_curr, ")",
+    cat("\n   ", paste(rep("~", 97), collapse = ""),
+        "\n   Maximum Theta Difference:", sprintf("%.5f", max(abs(par_curr - par_prev))), "(", names(par_curr)[which.max(abs(par_curr - par_prev))], ")",
+        "\n             ELL Difference:", sprintf("%.5f", (opt$value - ELL_prev)), "(", opt$value, ")",
+        "\n             LPY Difference:", sprintf("%.5f", (LPY_curr - LPY_prev)), "(", LPY_curr, ")",
         "\n\n", sep = "")
 
     # update

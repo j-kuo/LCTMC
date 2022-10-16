@@ -20,7 +20,6 @@ lctmc_3x3(
   theta.names = list(),
   EM_controls = list(),
   optim_controls = list(),
-  hessian.round = 10,
   test_if_global_optim = list(test = FALSE, true_params = NA),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_3x3"

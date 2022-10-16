@@ -76,7 +76,7 @@ my_df = data.frame(
   w1 = w1, w2 = w2
 )
 
-my_df2 = fmt_rowwise_3x3trans(data = my_df)
+my_df2 = LCTMC:::fmt_rowwise_3x3trans(data = my_df)
 xmat = as.matrix(my_df2[c("x0", "x1", "x2")])
 wmat = unique(my_df2[c("id", "w0", "w1", "w2")])
 wmat = as.matrix(wmat[!colnames(wmat) \%in\% c("id")])
@@ -158,4 +158,7 @@ LCTMC:::bik_all_3x3(
   K = 4L,
   theta.names = gen_theta_names(K = 4L, type = "3x3", purpose = "bik")
 )
+}
+\seealso{
+\code{\link[=get_P_3x3]{get_P_3x3()}}, \code{\link[=Li_3x3]{Li_3x3()}}, \code{\link[=bik_all_2x2]{bik_all_2x2()}}
 }

@@ -43,3 +43,6 @@ time_diffs = c(1, 5, 10)
 # compute
 LCTMC:::get_P_3x3(q12 = q12, q21 = q21, q23 = q23, dt = time_diffs)
 }
+\seealso{
+\code{\link[=Li_3x3]{Li_3x3()}}, \code{\link[=bik_all_3x3]{bik_all_3x3()}}, \code{\link[=get_P_2x2]{get_P_2x2()}}
+}

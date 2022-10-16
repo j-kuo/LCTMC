@@ -114,14 +114,17 @@ lctmc_2x2 = function(data = data.frame(),
 
   ### starting time
   t0 = Sys.time()
+  cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
+  cat("--------------------\n\n", sep = "")
 
   ### data (transition indicators), X matrix, W matrix, and dt
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 25), sep = ""), " Format Data (my_df , X & W matrix , dt) ", paste(rep("#", times = 34), sep = ""), "\n", sep = "")
-    ## data frame and scaling factors
-    my_df = fmt_rowwise_2x2trans(data = data)
-    scaling = c(dt_scale, x_scale, w_scale)
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "format", MyModelName = MyModelName)
+  my_df = fmt_rowwise_2x2trans(data = data)
+  scaling = c(dt_scale, x_scale, w_scale)
 
+  ### if any scaling factor is not 1
+  if (any(scaling != 1)) {
     ## loop through each variable that need to be scaled
     for (sc in seq_along(scaling)) {
       if (scaling[sc] != 1) {
@@ -145,10 +148,16 @@ lctmc_2x2 = function(data = data.frame(),
 
     ## obtain data frame with row-wise transition indicators
     my_df = my_df[!colnames(my_df) %in% c(X_names, W_names, "dt")]
-  cat("\n", paste(rep(".", 73), collapse = ""), "  finished formatting #####\n\n\n", sep = "")
+  } else {
+    cat(" * no scaling were applied", "\n", sep = "")
+  }
+  trace_lctmc_progress(section = "tail1", type = "format", ref_t = t0, MyModelName = MyModelName)
+  trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
   ### generate initial values (step1 + step2)
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "init1", MyModelName = MyModelName)
   my_model.inits = gen_inits_lctmc_2x2(
     df = my_df,
     Xmat = my_df.Xmat,
@@ -164,10 +173,13 @@ lctmc_2x2 = function(data = data.frame(),
     parallel_optim = parallel_optim,
     MyModelName = MyModelName
   )
-  cat(paste(rep(".", 68), collapse = ""), "  generated initial valuesn\n", sep = "")
+  trace_lctmc_progress(section = "tail1", type = "init1", ref_t = t0, MyModelName = MyModelName)
+  trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
   ### fit EM
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "em", MyModelName = MyModelName)
   my_model.EM = EM_lctmc_2x2(
     # theta
     theta.init = my_model.inits$step2,
@@ -189,10 +201,13 @@ lctmc_2x2 = function(data = data.frame(),
     parallel_optim = parallel_optim,
     MyModelName = MyModelName
   )
-  cat(paste(rep(".", 70), collapse = ""), "  EM fitted successfully #####\n\n\n", sep = "")
+  trace_lctmc_progress(section = "tail1", type = "em", ref_t = t0, MyModelName = MyModelName)
+  trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
   ### compute information matrix
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "se", MyModelName = MyModelName)
   my_model.SE = get_SE_lctmc_2x2(
     em = my_model.EM,
     df = my_df,
@@ -203,12 +218,13 @@ lctmc_2x2 = function(data = data.frame(),
     K = K,
     MyModelName = MyModelName
   )
-  cat("\n", paste(rep(".", 61), collapse = ""), "  hessian approximation completed #####\n\n\n", sep = "")
+  trace_lctmc_progress(section = "tail1", type = "se", ref_t = t0, MyModelName = MyModelName)
+  trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
   ### re-scaling estimates
-  cat("####~{", MyModelName, "}~", paste(rep("#", times = 100 - 8 - nchar(MyModelName)), sep = ""),"\n", sep = "")
-  cat(paste(rep("#", times = 30), sep = ""), " Re-scaling Parameters ", paste(rep("#", times = 47), sep = ""), "\n", sep = "")
+  trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
+  trace_lctmc_progress(section = "header2", type = "rescale", MyModelName = MyModelName)
     ## constants
     MULTS_pars = c("mle_theta", "SE", "L_CI", "U_CI")
     ADD_pars = c("mle_theta", "L_CI", "U_CI")
@@ -243,7 +259,8 @@ lctmc_2x2 = function(data = data.frame(),
     ## update
     my_model.SE$SE = coef_df
     my_model.inits$step1_full = inits
-  cat("\n", paste(rep(".", 42), collapse = ""), "  parameters re-scaled to original covariates' units #####\n\n\n", sep = "")
+  trace_lctmc_progress(section = "tail1", type = "rescale", ref_t = t0, MyModelName = MyModelName)
+  trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
   ### test if global optimum has been reached by comparing with true parameter values (i.e., only used when evaluating simulation result)

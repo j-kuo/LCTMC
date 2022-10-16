@@ -15,6 +15,8 @@
 #' In addition, this function does not need to depend on the number of latent classes because what we are computing is
 #' the transition probability conditioned on the given latent class.
 #'
+#' @seealso [Li_2x2()], [bik_all_2x2()], [get_P_3x3()]
+#'
 #' @example inst/examples/ex_get_P_2x2.R
 
 get_P_2x2 = function(q12 = c(), q21 = c(), dt = c()) {

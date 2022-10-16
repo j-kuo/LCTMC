@@ -45,7 +45,7 @@ my_df = data.frame(
   w1 = w1, w2 = w2
 )
 
-my_df2 = fmt_rowwise_2x2trans(data = my_df)
+my_df2 = LCTMC:::fmt_rowwise_2x2trans(data = my_df)
 xmat = as.matrix(my_df2[c("x0", "x1", "x2")])
 wmat = unique(my_df2[c("id", "w0", "w1", "w2")])
 wmat = as.matrix(wmat[!colnames(wmat) \%in\% c("id")])

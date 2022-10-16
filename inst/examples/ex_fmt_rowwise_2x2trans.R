@@ -22,4 +22,4 @@ my_df = data.frame(
 )
 
 # use function
-fmt_rowwise_2x2trans(data = my_df)
+LCTMC:::fmt_rowwise_2x2trans(data = my_df)

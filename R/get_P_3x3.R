@@ -18,6 +18,8 @@
 #' the transition probability conditioned on the given latent class. \cr
 #' Additionally, when the absorbing state (Y=3) is exactly observed, such as in the case of deaths, the likelihood should use transition densities instead of probabilities.
 #'
+#' @seealso [Li_3x3()], [bik_all_3x3()], [get_P_2x2()]
+#'
 #' @example inst/examples/ex_get_P_3x3.R
 
 get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c()) {

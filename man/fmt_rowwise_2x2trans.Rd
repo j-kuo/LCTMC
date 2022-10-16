@@ -50,5 +50,8 @@ my_df = data.frame(
 )
 
 # use function
-fmt_rowwise_2x2trans(data = my_df)
+LCTMC:::fmt_rowwise_2x2trans(data = my_df)
+}
+\seealso{
+\code{\link[=fmt_rowwise_3x3trans]{fmt_rowwise_3x3trans()}}
 }

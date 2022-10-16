@@ -15,7 +15,7 @@
 #'   \item each person indicated by the "id" column should have at least 2 observation minimum
 #' }
 #'
-#' @export
+#' @seealso [fmt_rowwise_3x3trans()]
 #'
 #' @example inst/examples/ex_fmt_rowwise_2x2trans.R
 
