@@ -17,7 +17,8 @@ Note user can create this object without the 'LCTMC.simulate', as long as the li
 
 \item{mle}{a named numeric vector for the MLE of model parameters.}
 
-\item{K}{a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.}
+\item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
+Note that the number of latent classes will affect the number of parameters in the model, thus the argument \code{theta.name} should be in sync with \code{K}}
 }
 \value{
 A data frame object with the following columns:
@@ -81,4 +82,7 @@ LCTMC::align_MLE_3x3(mle = my_mle, K = my_K)
   # only works when `my_K` is equal to 3
   align_MLE_3x3(true = my_true, mle = my_mle, K = 3)
 }
+}
+\seealso{
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}, [\code{\link[=lctmc_3x3]{lctmc_3x3()}}]
 }

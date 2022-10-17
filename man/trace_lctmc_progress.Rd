@@ -84,5 +84,5 @@ This function is usually called within the \code{\link[=lctmc_2x2]{lctmc_2x2()}}
 }
 }
 \seealso{
-\code{\link[=lctmc_2x2]{lctmc_2x2()}}, \code{\link[=lctmc_3x3]{lctmc_3x3()}}
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}
 }

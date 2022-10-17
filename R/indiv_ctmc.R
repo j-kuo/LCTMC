@@ -7,19 +7,21 @@
 #'
 #' @param subject_list a vector of ID numbers (charcter or numeric) matching with the `df$id`. The IDs in this vector should be unique
 #' @param df a data frame object transformed via `fmt_rowwise_trans()`
-#' @param dt a numeric vector holding the time interval between observations
 #' @param Xmat a matrix of covariates that affects the CTMC process
+#' @param dt a numeric vector holding the time interval between observations
 #' @param trace a logical scalar. If TRUE then function will print progress update every 500 individuals fitted. If FALSE, no messages are printed.
 #'
 #' @return a matrix object housing the individual estimated CTMC parameter. \cr
 #' The number of rows is equal to the number of individuals fitted. \cr
 #' The number of columns is equal to 7, where the first six columns are the estimated coefficients and the last columns indicate whether convergence criteria is met for each person.
 #'
+#' @seealso [gen_inits01_lctmc_2x2()]; [gen_inits01_lctmc_3x3()]
+#'
 #' @example inst/examples/ex_indiv_ctmc.R
 NULL
 
 #' @rdname indiv_ctmc
-indiv_ctmc_2x2 = function(subject_list, df, dt, Xmat, trace) {
+indiv_ctmc_2x2 = function(subject_list, df, Xmat, dt, trace) {
   ### allocate space for each person's q_rs estimates
   person_logQ = matrix(NA, nrow = length(subject_list), ncol = 7)
 
@@ -88,7 +90,7 @@ indiv_ctmc_2x2 = function(subject_list, df, dt, Xmat, trace) {
 }
 
 #' @rdname indiv_ctmc
-indiv_ctmc_3x3 = function(subject_list, df, dt, Xmat, trace) {
+indiv_ctmc_3x3 = function(subject_list, df, Xmat, dt, trace) {
   ### allocate space for each person's q_rs estimates
   person_logQ = matrix(NA, nrow = length(subject_list), ncol = 10)
 

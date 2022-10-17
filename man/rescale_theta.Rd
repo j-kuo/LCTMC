@@ -41,5 +41,5 @@ This is the final step of fitting a latent class CTMC model (i.e., scaling estim
 ### TO BE ADDED ###
 }
 \seealso{
-\code{\link[=lctmc_2x2]{lctmc_2x2()}}, \code{\link[=lctmc_3x3]{lctmc_3x3()}}
+\code{\link[=lctmc_2x2]{lctmc_2x2()}} \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}}
 }

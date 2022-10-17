@@ -62,5 +62,5 @@ my_df = data.frame(
 LCTMC:::fmt_rowwise_trans(data = my_df, type = "2x2")
 }
 \seealso{
-\code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}}, \code{\link[=gen_inits01_lctmc_3x3]{gen_inits01_lctmc_3x3()}}, \code{\link[=lctmc_2x2]{lctmc_2x2()}}, [\code{\link[=lctmc_3x3]{lctmc_3x3()}}]
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}, \code{\link[=lctmc_3x3]{lctmc_3x3()}}
 }

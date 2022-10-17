@@ -17,7 +17,7 @@
 #'   \item each person indicated by the "id" column should have at least 2 observation minimum
 #' }
 #'
-#' @seealso [gen_inits01_lctmc_2x2()], [gen_inits01_lctmc_3x3()], [lctmc_2x2()], [[lctmc_3x3()]]
+#' @seealso [lctmc_2x2()], [lctmc_3x3()]
 #'
 #' @example inst/examples/ex_fmt_rowwise_trans.R
 

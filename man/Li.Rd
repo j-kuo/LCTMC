@@ -97,5 +97,5 @@ my_df2 = LCTMC:::fmt_rowwise_trans(data = my_df, type = "3x3")
 LCTMC:::Li_3x3(P = my_P, data = my_df2)
 }
 \seealso{
-\code{\link[=get_P_2x2]{get_P_2x2()}}, \code{\link[=bik_all_2x2]{bik_all_2x2()}}, \code{\link[=Li_3x3]{Li_3x3()}}, \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}
+\code{\link[=get_P_2x2]{get_P_2x2()}}; \code{\link[=bik_all_2x2]{bik_all_2x2()}}, \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}
 }

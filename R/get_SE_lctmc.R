@@ -6,21 +6,22 @@
 #'
 #' @name get_SE_lctmc
 #'
-#' @param em a list object of with the custom class 'lctmc_2x2.mle' or 'lctmc_3x3.mle'. This type of object is the output of the `EM_lctmc` functions
-#' @param df a data frame object containing the binary row-wise transition indicator variables
-#' @param df.Xmat a matrix object with same number of rows as `df`. This matrix object should contain the covariates which affect the CTMC part of the model
-#' @param df.Wmat a matrix object with number of rows equal to the unique number of individuals in `df`. \cr
-#' This matrix object should contain the covariates which affect the latent class probability part of the model.
-#' @param df.dt a numeric vector with length equal to the number of rows as `df`. This vector contains the time difference between observations.
-#' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-#' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
-#' @param K the number of categories the latent class variable has.
+#' @param em a list object of with the custom class 'lctmc_2x2.EM' or 'lctmc_3x3.EM'. This type of object is the output of the `EM_lctmc` functions
+#' @param df a data frame object containing row-wise transition data as binary variables. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
+#' @param df.Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' This matrix should have the same number of rows as the data frame object, `df`
+#' @param df.Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
+#' @param df.dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
+#' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param solve.tol a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. \cr
 #' Defaults to `(.Machine$double.eps)^2` if not specified.
 #' @param symmetric.tol a numeric scalar. Tolerane value for checking symmetric matrix. \cr Default is 5e-11
 #' @param eigen0.tol a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10
 #'
-#' @return a list object containing 3 elements:
+#' @return a list object containing 4 elements:
 #' \itemize{
 #'   \item `SE` is a data frame object containing columns for: the MLE, the approximated SE, and the 95% confidence interval for the MLE
 #'   \item `covariance_code` a numeric scalar that can take be one of three values. \cr
@@ -43,6 +44,8 @@
 #' where, \eqn{H(\hat\theta)} is the hessian of the observed log likelihood function evaluated at the MLE. And \eqn{\hat\theta} is the estimated MLE.
 #' Since this SE approximation relies on \eqn{N \rarr \infty}, user should be cautious when considering sample size and number of model parameters.
 #'
+#' @seealso [lctmc_2x2()]; [EM_lctmc_2x2()]; [rescale_theta()]
+#'
 #' @importFrom numDeriv hessian
 #'
 #' @example inst/examples/ex_get_SE_lctmc.R
@@ -54,14 +57,14 @@ get_SE_lctmc_2x2 = function(em,
                             df.Xmat,
                             df.Wmat,
                             df.dt,
-                            par_constraint,
                             K,
+                            par_constraint,
                             solve.tol = (.Machine$double.eps)^2,
                             symmetric.tol = 5e-11,
                             eigen0.tol = 1e-10) {
   ### perform checks
-  if (!("lctmc_2x2.mle" %in% class(em))) {
-    stop("`em` should be a custom class list object 'lctmc_2x2.mle' obtained from `EM_lctmc_2x2()`")
+  if (!("lctmc_2x2.EM" %in% class(em))) {
+    stop("`em` should be a custom class list object 'lctmc_2x2.EM' obtained from `EM_lctmc_2x2()`")
   }
 
   ### extract the EM run with best log(P(Y)) value
@@ -167,7 +170,7 @@ get_SE_lctmc_2x2 = function(em,
 
   ### output
   out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
-  class(out) = c("lctmc_2x2.se", "list")
+  class(out) = c("lctmc_2x2.SE", "list")
   return(out)
 }
 
@@ -177,14 +180,14 @@ get_SE_lctmc_3x3 = function(em,
                             df.Xmat,
                             df.Wmat,
                             df.dt,
-                            par_constraint,
                             K,
+                            par_constraint,
                             solve.tol = (.Machine$double.eps)^2,
                             symmetric.tol = 5e-11,
                             eigen0.tol = 1e-10) {
   ### perform checks
-  if (!("lctmc_3x3.mle" %in% class(em))) {
-    stop("`em` should be a custom class list object 'lctmc_3x3.mle' obtained from `EM_lctmc_3x3()`")
+  if (!("lctmc_3x3.EM" %in% class(em))) {
+    stop("`em` should be a custom class list object 'lctmc_3x3.EM' obtained from `EM_lctmc_3x3()`")
   }
 
   ### extract the EM run with best log(P(Y)) value
@@ -290,7 +293,7 @@ get_SE_lctmc_3x3 = function(em,
 
   ### output
   out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
-  class(out) = c("lctmc_3x3.se", "list")
+  class(out) = c("lctmc_3x3.SE", "list")
   return(out)
 }
 

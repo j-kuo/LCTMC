@@ -88,3 +88,6 @@ print(my_b)                          # before imputation
 my_b = LCTMC:::impute_bik(x = my_b)  # imputes
 print(my_b)                          # after imputation
 }
+\seealso{
+\code{\link[=bik_all_2x2]{bik_all_2x2()}}; \code{\link[=bik_all_3x3]{bik_all_3x3()}}
+}

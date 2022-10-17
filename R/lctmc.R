@@ -5,31 +5,30 @@
 #' @name lctmc
 #'
 #' @param data a data frame object with data stored in long-format
-#' @param dt_scale a named numeric scalar. It is a scaling parameter for observation time intervals. \cr
-#' For example, `dt_scale = c(dt = 1/10)` would converts a time unit from 10 to 1.
+#' @param X_names a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in `data`. Best set to x0, x1, x2 to avoid errors
+#' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. Best set to w0, w1, w2 to avoid errors
 #' @param x_scale a named numeric vector. It is a scaling parameters for covariates that affect the CTMC process. \cr
 #' For example, `x_scale = c(x0 = 1, x1 = 1/5, x2 = 1)` would convert x1 from 10 to 2.
 #' @param w_scale a named numeric vector. It is a scaling parameters for covariates that affect the latent class component of the model  \cr
 #' For example, `w_scale = c(w0 = 1, x1 = 1/3, x2 = 1)` would convert w1 from 12 to 4.
+#' @param dt_scale a named numeric scalar. It is a scaling parameter for observation time intervals. \cr
+#' For example, `dt_scale = c(dt = 1/10)` would converts a time unit from 10 to 1.
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
-#' Note that the number of latent classes will affect the number of parameters in the model.
-#' @param X_names a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in `data`. Best set to x0, x1, x2 to avoid errors
-#' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. Best set to w0, w1, w2 to avoid errors
+#' Note that the number of latent classes will affect the number of parameters in the model, thus the argument `theta.name` should be in sync with `K`
 #' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 #' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
 #' @param N_sub a numeric scalar. This is used for step 1 of initial value generation where the algorithm fits a traditional CTMC model for each individual. \cr
 #' Fitting the model for *all* individuals might have long run time without improvement in the accuracy of the estimation.
 #' Thus, using this argument to set a maximum number of individuals to use for the initial value generation could save some computation time.
-#' @param pct_keep a numeric vector where each element of the vector ranges from 0 to 1 (ideally, 0.50 to 0.95).
-#' This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation. The algorithm will consider all percentages specified in this vector. \cr
-#' For example, for `pct_keep = c(0.5)`, after individuals effects are estimated, only the 25th to 75th percentile are used for the K-Means algorithm to obtain cluster level estimates. \cr
-#' Additionally, note that the threshold "1" is always appended to `pct_keep`, so it will always at least consider the 100% case.
+#' @param pct_keep a numeric vector where each element of the vector ranges from 0 to 1.
+#' This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation.
+#' The algorithm will consider all percentages specified in this vector. \cr
+#' For example, for `pct_keep = c(0.5)`, after individuals effects are estimated, only the 25th to 75th percentile are fed into the K-Means algorithm to obtain cluster level estimates. \cr
+#' Additionally, note that the threshold "1" is always appended to `pct_keep`, so it will always consider the 100% case.
 #' @param parallelize a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized
 #' @param which_step1 a character scalar. Either "100%" or "best". The former will use 100% of the individual CTCM effects to perform the K-means algorithm. \cr
 #' The latter will compute the \eqn{log(P(Y))} value for all possible K-means result and use the thetas that yields the largest \eqn{log(P(Y))}.
-#' @param theta.names a list of parameter names, e.g., `list(c("alpha1.1", "alpha2.1"), c("beta0.21_1", "beta1.21_1", "beta2.21_1"))`. \cr
-#' This argument is used to determine the number of ECM sub-steps. Parameters within the same element of the list will be optimized together as a group. \cr
-#' User can use the function `gen_theta_names()` to generate this with ease.
+#' @param theta.names See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param EM_controls a list object holding the arguments to tune the EM algorithm.
 #' The following elements are necessary for running the algorithm: \cr
 #' (1) `maxit` a numeric scalar. This specifies the max number of EM iterations \cr
@@ -47,7 +46,7 @@
 #' This is done by comparing the observed log likelihood at MLE vs. the log likelihood at the true parameter value. Hence, the second element of the list is `true_params`.
 #' For this reason, it only makes sense to check when fitting simulated datasets where we would know the true parameter values. \cr
 #' (2) `true_params` should be generated using the "LCTMC.simulate" package via the `gen_true_param()` function.
-#' @param parallel_optim a list object telling the function whether parallel process should be used for the Step 2 of the initial value generation. \cr
+#' @param parallel_optim a list object telling the function whether parallel process should be used. \cr
 #' The list should contain **two** elements: \cr
 #' (1) `run` a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the `cl` argument is ignored. \cr
 #' (2) `cl` is an object obtained from the `parallel` package, for example \cr `cl = parallel::makeCluster(spec = 2)`
@@ -55,7 +54,8 @@
 #'
 #' @return A list object containing the 4 elements:
 #' \itemize{
-#'   \item **inits** a list object obtained from the `gen_inits_lctmc` functions
+#'   \item **init01** a list object obtained from the `gen_inits01_lctmc` functions
+#'   \item **init02** a named numeric vector obtained from the `gen_inits02_lctmc` functions
 #'   \item **EM** a list object obtained from the `EM_lctmc` functions
 #'   \item **SE** a list object obtained from the `get_SE_lctmc` functions
 #'   \item **global_optim** a numeric scalar that indicates whether the MLE has converged to the global optimal point. See notes on the input argument for `test_if_global_optim`.
@@ -78,18 +78,20 @@
 #'   \item (optional) test for global optimal if specified to be tested
 #' }
 #'
+#' @seealso [fmt_rowwise_trans()]; [gen_inits01_lctmc_2x2()]; [gen_inits02_lctmc_2x2()]; [EM_lctmc_2x2()]; [get_SE_lctmc_2x2()]; [rescale_theta()]
+#'
 #' @example inst/examples/ex_lctmc.R
 NULL
 
 #' @rdname lctmc
 #' @export
 lctmc_2x2 = function(data = data.frame(),
-                     dt_scale = c(),
-                     x_scale = c(),
-                     w_scale = c(),
-                     K = integer(),
                      X_names = c(),
                      W_names = c(),
+                     x_scale = c(),
+                     w_scale = c(),
+                     dt_scale = c(),
+                     K = integer(),
                      par_constraint,
                      N_sub,
                      pct_keep = c(),
@@ -110,6 +112,9 @@ lctmc_2x2 = function(data = data.frame(),
   }
   if (!all(names(par_constraint) %in% unlist(theta.names))) {
     stop("some constrained parameters are not specified in the `theta.names` argument")
+  }
+  if (any(par_constraint != 0)) {
+    stop("Currently the 'LCTMC' package only supports constraints equal to 0")
   }
   if (K <= 1 || !is.integer(K)) {
     stop("`K` should be greater than 1, and it should be of an 'integer' class object (e.g., K = 3L)")
@@ -350,12 +355,12 @@ lctmc_2x2 = function(data = data.frame(),
 #' @rdname lctmc
 #' @export
 lctmc_3x3 = function(data = data.frame(),
-                     dt_scale = c(),
-                     x_scale = c(),
-                     w_scale = c(),
-                     K = integer(),
                      X_names = c(),
                      W_names = c(),
+                     x_scale = c(),
+                     w_scale = c(),
+                     dt_scale = c(),
+                     K = integer(),
                      par_constraint,
                      N_sub,
                      pct_keep = c(),
@@ -376,6 +381,9 @@ lctmc_3x3 = function(data = data.frame(),
   }
   if (!all(names(par_constraint) %in% unlist(theta.names))) {
     stop("some constrained parameters are not specified in the `theta.names` argument")
+  }
+  if (any(par_constraint != 0)) {
+    stop("Currently the 'LCTMC' package only supports constraints equal to 0")
   }
   if (K <= 1 || !is.integer(K)) {
     stop("`K` should be greater than 1, and it should be of an 'integer' class object (e.g., K = 3L)")

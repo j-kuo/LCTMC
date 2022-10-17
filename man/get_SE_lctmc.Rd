@@ -12,8 +12,8 @@ get_SE_lctmc_2x2(
   df.Xmat,
   df.Wmat,
   df.dt,
-  par_constraint,
   K,
+  par_constraint,
   solve.tol = (.Machine$double.eps)^2,
   symmetric.tol = 5e-11,
   eigen0.tol = 1e-10
@@ -25,29 +25,30 @@ get_SE_lctmc_3x3(
   df.Xmat,
   df.Wmat,
   df.dt,
-  par_constraint,
   K,
+  par_constraint,
   solve.tol = (.Machine$double.eps)^2,
   symmetric.tol = 5e-11,
   eigen0.tol = 1e-10
 )
 }
 \arguments{
-\item{em}{a list object of with the custom class 'lctmc_2x2.mle' or 'lctmc_3x3.mle'. This type of object is the output of the \code{EM_lctmc} functions}
+\item{em}{a list object of with the custom class 'lctmc_2x2.EM' or 'lctmc_3x3.EM'. This type of object is the output of the \code{EM_lctmc} functions}
 
-\item{df}{a data frame object containing the binary row-wise transition indicator variables}
+\item{df}{a data frame object containing row-wise transition data as binary variables. \cr
+For example, if \code{trans.2_1} equals 1 then it means the observation was a transition from stage 2 to stage 1 within \code{dt} amount of time.}
 
-\item{df.Xmat}{a matrix object with same number of rows as \code{df}. This matrix object should contain the covariates which affect the CTMC part of the model}
+\item{df.Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+This matrix should have the same number of rows as the data frame object, \code{df}}
 
-\item{df.Wmat}{a matrix object with number of rows equal to the unique number of individuals in \code{df}. \cr
-This matrix object should contain the covariates which affect the latent class probability part of the model.}
+\item{df.Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
+This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
 
-\item{df.dt}{a numeric vector with length equal to the number of rows as \code{df}. This vector contains the time difference between observations.}
+\item{df.dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
 
-\item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
+\item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr}
 
-\item{K}{the number of categories the latent class variable has.}
+\item{par_constraint}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
 \item{solve.tol}{a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. \cr
 Defaults to \code{(.Machine$double.eps)^2} if not specified.}
@@ -57,7 +58,7 @@ Defaults to \code{(.Machine$double.eps)^2} if not specified.}
 \item{eigen0.tol}{a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10}
 }
 \value{
-a list object containing 3 elements:
+a list object containing 4 elements:
 \itemize{
 \item \code{SE} is a data frame object containing columns for: the MLE, the approximated SE, and the 95\% confidence interval for the MLE
 \item \code{covariance_code} a numeric scalar that can take be one of three values. \cr
@@ -88,4 +89,7 @@ Since this SE approximation relies on \eqn{N \rarr \infty}, user should be cauti
 }
 \examples{
 ## TO BE ADDED ##
+}
+\seealso{
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}}; \code{\link[=rescale_theta]{rescale_theta()}}
 }

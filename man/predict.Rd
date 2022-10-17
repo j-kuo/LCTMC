@@ -45,3 +45,6 @@ All covariates (x0, x1, x2, w0, w1, w2) should be included as well in the \code{
 \examples{
 ## TO BE ADDED ##
 }
+\seealso{
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}
+}

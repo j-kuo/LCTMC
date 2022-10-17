@@ -8,13 +8,13 @@
 \usage{
 EM_lctmc_2x2(
   EM_inits,
-  theta.names,
-  par_constraint,
-  K,
   df,
   df.Xmat,
   df.Wmat,
   df.dt,
+  K,
+  par_constraint,
+  theta.names,
   EM.maxit,
   ELL_diff.tol,
   LPY_diff.tol,
@@ -25,13 +25,13 @@ EM_lctmc_2x2(
 
 EM_lctmc_3x3(
   EM_inits,
-  theta.names,
-  par_constraint,
-  K,
   df,
   df.Xmat,
   df.Wmat,
   df.dt,
+  K,
+  par_constraint,
+  theta.names,
   EM.maxit,
   ELL_diff.tol,
   LPY_diff.tol,
@@ -44,21 +44,23 @@ EM_lctmc_3x3(
 \item{EM_inits}{a named numeric vector, where the names are the model parameter names. \cr
 Use this argument to specified the initial values for the EM algorithm}
 
-\item{theta.names}{a list of character vectors, where each element of this list is a character vector specifying the names of model parameters. \cr
-Note: model parameters grouped within the same element will be simultaneously optimized during the ECM step.}
+\item{df}{a data frame object containing row-wise transition data as binary variables. \cr
+For example, if \code{trans.2_1} equals 1 then it means the observation was a transition from stage 2 to stage 1 within \code{dt} amount of time.}
 
-\item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
+\item{df.Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+This matrix should have the same number of rows as the data frame object, \code{df}}
 
-\item{K}{an integer scalar. Used to determine the number of latent classes the model is fitting.}
-
-\item{df}{a data frame object holding the binary row-wise transition indicator variables}
-
-\item{df.Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. This matrix should have the same number of rows as the data frame object, \code{df}}
-
-\item{df.Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
+\item{df.Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
+This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
 
 \item{df.dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
+
+\item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr}
+
+\item{par_constraint}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
+
+\item{theta.names}{a list of character vectors, where each element of this list is a character vector specifying the names of model parameters. \cr
+Note: model parameters grouped within the same element will be simultaneously optimized during the ECM step.}
 
 \item{EM.maxit}{a numeric scalar. Use this argument to specify the maximum iteration the EM algorithm.
 Setting this variable too large will cause longer run time if optimal point is harder to reach. However, too low will lead to non-optimal points.
@@ -80,10 +82,7 @@ This list object should contain \strong{three} elements (see \code{?optim} for m
 (2) \code{maxit} is the maximum number of iterations the algorithm will run before terminating \cr
 (3) \code{factr} is tolerance parameter for algorithm convergence, the smaller the value, the better accracy but also longer run time}
 
-\item{parallel_optim}{a list object telling the function whether parallel process should be used for the Step 2 of the initial value generation. \cr
-The list should contain \strong{two} elements: \cr
-(1) \code{run} a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the \code{cl} argument is ignored. \cr
-(2) \code{cl} is an object obtained from the \code{parallel} package, for example \cr \code{cl = parallel::makeCluster(spec = 2)}}
+\item{parallel_optim}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 }
 \value{
 A list object containing as many elements as the number of EM iteration that were performed
@@ -114,4 +113,7 @@ Within each EM step, subsets of parameters are optimize one set at a time, the n
 }
 \examples{
 ## TO BE ADDED ##
+}
+\seealso{
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}}; \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}}
 }

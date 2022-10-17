@@ -24,7 +24,7 @@
 #'
 #' @note This is the final step of fitting a latent class CTMC model (i.e., scaling estimated parameters back to the original data's units).
 #'
-#' @seealso [lctmc_2x2()], [lctmc_3x3()]
+#' @seealso [lctmc_2x2()] [get_SE_lctmc_2x2()]
 #'
 #' @example inst/examples/ex_rescale_theta.R
 

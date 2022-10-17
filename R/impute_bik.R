@@ -14,6 +14,8 @@
 #'
 #' @note This function should not be called externally in most use cases. it is typically called within the EM algorithm and the initial value generation process.
 #'
+#' @seealso [bik_all_2x2()]; [bik_all_3x3()]
+#'
 #' @example inst/examples/ex_impute_bik.R
 
 impute_bik = function(x = list(), eps = 1e-3, EPS = 1e-24) {

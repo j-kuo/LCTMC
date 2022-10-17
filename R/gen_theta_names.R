@@ -11,6 +11,8 @@
 #'
 #' @return a list object containing the name of parameters
 #'
+#' @seealso [bik_all_2x2()]; [EM_lctmc_2x2()]
+#'
 #' @export
 #'
 #' @example inst/examples/ex_gen_theta_names.R

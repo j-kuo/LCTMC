@@ -20,7 +20,7 @@
 #'
 #' @importFrom collapse fprod
 #'
-#' @seealso [get_P_2x2()], [bik_all_2x2()], [Li_3x3()], [fmt_rowwise_trans()]
+#' @seealso [get_P_2x2()]; [bik_all_2x2()], [fmt_rowwise_trans()]
 #'
 #' @example inst/examples/ex_Li.R
 NULL

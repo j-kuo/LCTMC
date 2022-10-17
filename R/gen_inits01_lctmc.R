@@ -9,23 +9,16 @@
 #' @param df a data frame object containing row-wise transition data as binary variables. \cr
 #' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
 #' @param Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
-#' This matrix should have the same number of rows as the data frame object, `data`
+#' This matrix should have the same number of rows as the data frame object, `df`
 #' @param Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
-#' This matrix should have number of rows equal to unique number of individuals in the data frame object, `data`
-#' @param dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `data`
-#' @param N_sub a numeric scalar. This is used for Step 1 of initial value generation where the algorithm fits the traditional CTMC model for each individual. \cr
-#' Fitting the model for *all* individuals might have long run time without improvement in the accuracy of the estimation. Thus, setting a maximum number of individuals to use for the initial value generation could shorten run without sacrificing in estimation accuracy.
-#' @param pct_keep a numeric vector where each element of the vector ranges from 0 to 1 (ideally at minimum 0.50). \cr
-#' This argument controls what percentage of the individual level estimated effects to be used for the K-means algorithm for initial value generation.
-#' For example, for pct_keep = c(0.8), after individuals effects are estimated, only the 10th to 90th percentile are used for the K-Means algorithm to obtain cluster level estimates.
-#' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-#' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
-#' @param K the number of categories the latent class variable has
-#' @param parallelize a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized
-#' @param parallel_optim a list object telling the function whether parallel process should be used. \cr
-#' The list should contain **two** elements: \cr
-#' (1) `run` a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the `cl` argument is ignored. \cr
-#' (2) `cl` is an object obtained from the `parallel` package, for example \cr `cl = parallel::makeCluster(spec = 2)`
+#' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
+#' @param dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
+#' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
+#' @param N_sub See documentation in [lctmc_2x2()] or [lctmc_3x3()]
+#' @param pct_keep See documentation in [lctmc_2x2()] or [lctmc_3x3()]
+#' @param parallelize See documentation in [lctmc_2x2()] or [lctmc_3x3()]
+#' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #'
 #' @return A list containing the estimates obtained from the K-means algorithm.
 #' This step outputs 3 elements:
@@ -42,6 +35,8 @@
 #' Especially when there are only few observation per person, it becomes reliable when each individual has many observations. \cr
 #' Regardless, this approach will still produce usable initial values for the next steps.
 #'
+#' @seealso [lctmc_2x2()]; [fmt_rowwise_trans()]; [gen_inits02_lctmc_2x2()]; [indiv_ctmc_2x2()]
+#'
 #' @importFrom nnet multinom
 #' @importFrom foreach foreach
 #' @importFrom foreach %dopar%
@@ -57,9 +52,9 @@ gen_inits01_lctmc_2x2 = function(df,
                                  Wmat,
                                  dt,
                                  K,
+                                 par_constraint,
                                  N_sub,
                                  pct_keep,
-                                 par_constraint,
                                  parallelize,
                                  parallel_optim) {
   ### check specifications
@@ -281,9 +276,9 @@ gen_inits01_lctmc_3x3 = function(df,
                                  Wmat,
                                  dt,
                                  K,
+                                 par_constraint,
                                  N_sub,
                                  pct_keep,
-                                 par_constraint,
                                  parallelize,
                                  parallel_optim) {
   ### check specifications

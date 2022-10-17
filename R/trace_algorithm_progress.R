@@ -16,7 +16,7 @@
 #'
 #' @note This function is usually called within the [lctmc_2x2()] or [lctmc_3x3()] function
 #'
-#' @seealso [lctmc_2x2()], [lctmc_3x3()]
+#' @seealso [lctmc_2x2()]; [lctmc_3x3()]
 #'
 #' @example inst/examples/ex_trace_lctmc_progress.R
 

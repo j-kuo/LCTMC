@@ -12,9 +12,9 @@ gen_inits01_lctmc_2x2(
   Wmat,
   dt,
   K,
+  par_constraint,
   N_sub,
   pct_keep,
-  par_constraint,
   parallelize,
   parallel_optim
 )
@@ -25,9 +25,9 @@ gen_inits01_lctmc_3x3(
   Wmat,
   dt,
   K,
+  par_constraint,
   N_sub,
   pct_keep,
-  par_constraint,
   parallelize,
   parallel_optim
 )
@@ -37,31 +37,24 @@ gen_inits01_lctmc_3x3(
 For example, if \code{trans.2_1} equals 1 then it means the observation was a transition from stage 2 to stage 1 within \code{dt} amount of time.}
 
 \item{Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. \cr
-This matrix should have the same number of rows as the data frame object, \code{data}}
+This matrix should have the same number of rows as the data frame object, \code{df}}
 
 \item{Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
-This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{data}}
+This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
 
-\item{dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{data}}
+\item{dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
 
-\item{K}{the number of categories the latent class variable has}
+\item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr}
 
-\item{N_sub}{a numeric scalar. This is used for Step 1 of initial value generation where the algorithm fits the traditional CTMC model for each individual. \cr
-Fitting the model for \emph{all} individuals might have long run time without improvement in the accuracy of the estimation. Thus, setting a maximum number of individuals to use for the initial value generation could shorten run without sacrificing in estimation accuracy.}
+\item{par_constraint}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{pct_keep}{a numeric vector where each element of the vector ranges from 0 to 1 (ideally at minimum 0.50). \cr
-This argument controls what percentage of the individual level estimated effects to be used for the K-means algorithm for initial value generation.
-For example, for pct_keep = c(0.8), after individuals effects are estimated, only the 10th to 90th percentile are used for the K-Means algorithm to obtain cluster level estimates.}
+\item{N_sub}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
+\item{pct_keep}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{parallelize}{a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized}
+\item{parallelize}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{parallel_optim}{a list object telling the function whether parallel process should be used. \cr
-The list should contain \strong{two} elements: \cr
-(1) \code{run} a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the \code{cl} argument is ignored. \cr
-(2) \code{cl} is an object obtained from the \code{parallel} package, for example \cr \code{cl = parallel::makeCluster(spec = 2)}}
+\item{parallel_optim}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 }
 \value{
 A list containing the estimates obtained from the K-means algorithm.
@@ -87,4 +80,7 @@ Regardless, this approach will still produce usable initial values for the next 
 }
 \examples{
 ## TO BE ADDED ##
+}
+\seealso{
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}}; \code{\link[=indiv_ctmc_2x2]{indiv_ctmc_2x2()}}
 }

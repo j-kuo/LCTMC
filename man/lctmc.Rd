@@ -8,12 +8,12 @@
 \usage{
 lctmc_2x2(
   data = data.frame(),
-  dt_scale = c(),
-  x_scale = c(),
-  w_scale = c(),
-  K = integer(),
   X_names = c(),
   W_names = c(),
+  x_scale = c(),
+  w_scale = c(),
+  dt_scale = c(),
+  K = integer(),
   par_constraint,
   N_sub,
   pct_keep = c(),
@@ -29,12 +29,12 @@ lctmc_2x2(
 
 lctmc_3x3(
   data = data.frame(),
-  dt_scale = c(),
-  x_scale = c(),
-  w_scale = c(),
-  K = integer(),
   X_names = c(),
   W_names = c(),
+  x_scale = c(),
+  w_scale = c(),
+  dt_scale = c(),
+  K = integer(),
   par_constraint,
   N_sub,
   pct_keep = c(),
@@ -51,8 +51,9 @@ lctmc_3x3(
 \arguments{
 \item{data}{a data frame object with data stored in long-format}
 
-\item{dt_scale}{a named numeric scalar. It is a scaling parameter for observation time intervals. \cr
-For example, \code{dt_scale = c(dt = 1/10)} would converts a time unit from 10 to 1.}
+\item{X_names}{a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in \code{data}. Best set to x0, x1, x2 to avoid errors}
+
+\item{W_names}{a named character vector. Hosting names of covariates for the latent class component. It should be a column in \code{data}. Best set to w0, w1, w2 to avoid errors}
 
 \item{x_scale}{a named numeric vector. It is a scaling parameters for covariates that affect the CTMC process. \cr
 For example, \code{x_scale = c(x0 = 1, x1 = 1/5, x2 = 1)} would convert x1 from 10 to 2.}
@@ -60,12 +61,11 @@ For example, \code{x_scale = c(x0 = 1, x1 = 1/5, x2 = 1)} would convert x1 from 
 \item{w_scale}{a named numeric vector. It is a scaling parameters for covariates that affect the latent class component of the model  \cr
 For example, \code{w_scale = c(w0 = 1, x1 = 1/3, x2 = 1)} would convert w1 from 12 to 4.}
 
+\item{dt_scale}{a named numeric scalar. It is a scaling parameter for observation time intervals. \cr
+For example, \code{dt_scale = c(dt = 1/10)} would converts a time unit from 10 to 1.}
+
 \item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
-Note that the number of latent classes will affect the number of parameters in the model.}
-
-\item{X_names}{a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in \code{data}. Best set to x0, x1, x2 to avoid errors}
-
-\item{W_names}{a named character vector. Hosting names of covariates for the latent class component. It should be a column in \code{data}. Best set to w0, w1, w2 to avoid errors}
+Note that the number of latent classes will affect the number of parameters in the model, thus the argument \code{theta.name} should be in sync with \code{K}}
 
 \item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
@@ -74,19 +74,18 @@ For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a
 Fitting the model for \emph{all} individuals might have long run time without improvement in the accuracy of the estimation.
 Thus, using this argument to set a maximum number of individuals to use for the initial value generation could save some computation time.}
 
-\item{pct_keep}{a numeric vector where each element of the vector ranges from 0 to 1 (ideally, 0.50 to 0.95).
-This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation. The algorithm will consider all percentages specified in this vector. \cr
-For example, for \code{pct_keep = c(0.5)}, after individuals effects are estimated, only the 25th to 75th percentile are used for the K-Means algorithm to obtain cluster level estimates. \cr
-Additionally, note that the threshold "1" is always appended to \code{pct_keep}, so it will always at least consider the 100\% case.}
+\item{pct_keep}{a numeric vector where each element of the vector ranges from 0 to 1.
+This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation.
+The algorithm will consider all percentages specified in this vector. \cr
+For example, for \code{pct_keep = c(0.5)}, after individuals effects are estimated, only the 25th to 75th percentile are fed into the K-Means algorithm to obtain cluster level estimates. \cr
+Additionally, note that the threshold "1" is always appended to \code{pct_keep}, so it will always consider the 100\% case.}
 
 \item{parallelize}{a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized}
 
 \item{which_step1}{a character scalar. Either "100\%" or "best". The former will use 100\% of the individual CTCM effects to perform the K-means algorithm. \cr
 The latter will compute the \eqn{log(P(Y))} value for all possible K-means result and use the thetas that yields the largest \eqn{log(P(Y))}.}
 
-\item{theta.names}{a list of parameter names, e.g., \code{list(c("alpha1.1", "alpha2.1"), c("beta0.21_1", "beta1.21_1", "beta2.21_1"))}. \cr
-This argument is used to determine the number of ECM sub-steps. Parameters within the same element of the list will be optimized together as a group. \cr
-User can use the function \code{gen_theta_names()} to generate this with ease.}
+\item{theta.names}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
 \item{EM_controls}{a list object holding the arguments to tune the EM algorithm.
 The following elements are necessary for running the algorithm: \cr
@@ -108,7 +107,7 @@ This is done by comparing the observed log likelihood at MLE vs. the log likelih
 For this reason, it only makes sense to check when fitting simulated datasets where we would know the true parameter values. \cr
 (2) \code{true_params} should be generated using the "LCTMC.simulate" package via the \code{gen_true_param()} function.}
 
-\item{parallel_optim}{a list object telling the function whether parallel process should be used for the Step 2 of the initial value generation. \cr
+\item{parallel_optim}{a list object telling the function whether parallel process should be used. \cr
 The list should contain \strong{two} elements: \cr
 (1) \code{run} a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the \code{cl} argument is ignored. \cr
 (2) \code{cl} is an object obtained from the \code{parallel} package, for example \cr \code{cl = parallel::makeCluster(spec = 2)}}
@@ -118,7 +117,8 @@ The list should contain \strong{two} elements: \cr
 \value{
 A list object containing the 4 elements:
 \itemize{
-\item \strong{inits} a list object obtained from the \code{gen_inits_lctmc} functions
+\item \strong{init01} a list object obtained from the \code{gen_inits01_lctmc} functions
+\item \strong{init02} a named numeric vector obtained from the \code{gen_inits02_lctmc} functions
 \item \strong{EM} a list object obtained from the \code{EM_lctmc} functions
 \item \strong{SE} a list object obtained from the \code{get_SE_lctmc} functions
 \item \strong{global_optim} a numeric scalar that indicates whether the MLE has converged to the global optimal point. See notes on the input argument for \code{test_if_global_optim}.
@@ -147,4 +147,7 @@ The model fitting process essentially breaks down into the following steps:
 }
 \examples{
 ## TO BE ADDED ##
+}
+\seealso{
+\code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}; \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}}; \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}}; \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}}; \code{\link[=rescale_theta]{rescale_theta()}}
 }

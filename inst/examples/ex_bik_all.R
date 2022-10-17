@@ -34,11 +34,12 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 2 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 2L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 2L, type = "2x2", purpose = "bik")
 )
 
@@ -57,11 +58,12 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 3 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 3L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 3L, type = "2x2", purpose = "bik")
 )
 
@@ -83,10 +85,11 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 4 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 4L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 4L, type = "2x2", purpose = "bik")
 )

@@ -19,7 +19,8 @@
 #' When this argument is specified we can compare the true parameter values vs. the estimated MLE. (only used for simulation study purposes). \cr
 #' Note user can create this object without the 'LCTMC.simulate', as long as the list is structured correctly.
 #' @param mle a named numeric vector for the MLE of model parameters.
-#' @param K a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.
+#' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
+#' Note that the number of latent classes will affect the number of parameters in the model, thus the argument `theta.name` should be in sync with `K`
 #'
 #' @return A data frame object with the following columns:
 #' \itemize{
@@ -29,6 +30,8 @@
 #' }
 #'
 #' @note Note that the argument `true` can be left unspecified so that we are only re-arranging the vector of MLE.
+#'
+#' @seealso [lctmc_2x2()], [[lctmc_3x3()]]
 #'
 #' @example inst/examples/ex_align_MLE.R
 NULL
@@ -40,7 +43,7 @@ align_MLE_2x2 = function(true, mle = c(), K = 3L) {
   if (missing(mle)) {
     stop("must specify a named numeric vector for the `mle` argument")
   }
-  if (is.null(names(mle))) {
+  if (!is.numeric(mle) || is.null(names(mle))) {
     stop("`mle` must be a named numeric vector where the names are model parameter names")
   }
 
@@ -188,7 +191,7 @@ align_MLE_3x3 = function(true, mle = numeric(), K = 3L) {
   if (missing(mle)) {
     stop("must specify a named numeric vector for the `mle` argument")
   }
-  if (is.null(names(mle))) {
+  if (!is.numeric(mle) || is.null(names(mle))) {
     stop("`mle` must be a named numeric vector where the names are model parameter names")
   }
 

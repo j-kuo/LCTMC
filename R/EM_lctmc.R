@@ -8,15 +8,17 @@
 #'
 #' @param EM_inits a named numeric vector, where the names are the model parameter names. \cr
 #' Use this argument to specified the initial values for the EM algorithm
+#' @param df a data frame object containing row-wise transition data as binary variables. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
+#' @param df.Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' This matrix should have the same number of rows as the data frame object, `df`
+#' @param df.Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
+#' @param df.dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
+#' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param theta.names a list of character vectors, where each element of this list is a character vector specifying the names of model parameters. \cr
 #' Note: model parameters grouped within the same element will be simultaneously optimized during the ECM step.
-#' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
-#' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
-#' @param K an integer scalar. Used to determine the number of latent classes the model is fitting.
-#' @param df a data frame object holding the binary row-wise transition indicator variables
-#' @param df.Xmat a matrix object housing the covariates that affect the CTMC portion of the model. This matrix should have the same number of rows as the data frame object, `df`
-#' @param df.Wmat a matrix object housing the covariates that affect the latent classification part of the model. This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param df.dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param EM.maxit a numeric scalar. Use this argument to specify the maximum iteration the EM algorithm.
 #' Setting this variable too large will cause longer run time if optimal point is harder to reach. However, too low will lead to non-optimal points.
 #' Typically, somewhere between 100-300 iterations is adequate depending on the problem.
@@ -32,10 +34,7 @@
 #' (1) `fnscale` is a negative real number, this is used to scale the value of the objective function. Setting it to negative implies that a maximization is being performed. \cr
 #' (2) `maxit` is the maximum number of iterations the algorithm will run before terminating \cr
 #' (3) `factr` is tolerance parameter for algorithm convergence, the smaller the value, the better accracy but also longer run time
-#' @param parallel_optim a list object telling the function whether parallel process should be used for the Step 2 of the initial value generation. \cr
-#' The list should contain **two** elements: \cr
-#' (1) `run` a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the `cl` argument is ignored. \cr
-#' (2) `cl` is an object obtained from the `parallel` package, for example \cr `cl = parallel::makeCluster(spec = 2)`
+#' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #'
 #' @return A list object containing as many elements as the number of EM iteration that were performed
 #' Each element is a sub list object with the following elements:
@@ -57,6 +56,8 @@
 #' This function is actually the Expected Conditional Maximization (ECM) algorithm.
 #' Within each EM step, subsets of parameters are optimize one set at a time, the number of ECM step is determined by `theta.names`. \cr
 #'
+#' @seealso [lctmc_2x2()]; [gen_inits02_lctmc_2x2()]; [get_SE_lctmc_2x2()]
+#'
 #' @importFrom optimParallel optimParallel
 #'
 #' @example inst/examples/ex_EM_lctmc.R
@@ -64,13 +65,13 @@ NULL
 
 #' @rdname EM_lctmc
 EM_lctmc_2x2 = function(EM_inits,
-                        theta.names,
-                        par_constraint,
-                        K,
                         df,
                         df.Xmat,
                         df.Wmat,
                         df.dt,
+                        K,
+                        par_constraint,
+                        theta.names,
                         EM.maxit,
                         ELL_diff.tol,
                         LPY_diff.tol,
@@ -299,19 +300,19 @@ EM_lctmc_2x2 = function(EM_inits,
   }
 
   ### output as custom class
-  class(EM_output) = c("lctmc_2x2.mle", "list")
+  class(EM_output) = c("lctmc_2x2.EM", "list")
   EM_output
 }
 
 #' @rdname EM_lctmc
 EM_lctmc_3x3 = function(EM_inits,
-                        theta.names,
-                        par_constraint,
-                        K,
                         df,
                         df.Xmat,
                         df.Wmat,
                         df.dt,
+                        K,
+                        par_constraint,
+                        theta.names,
                         EM.maxit,
                         ELL_diff.tol,
                         LPY_diff.tol,
@@ -540,6 +541,6 @@ EM_lctmc_3x3 = function(EM_inits,
   }
 
   ### output as custom class
-  class(EM_output) = c("lctmc_3x3.mle", "list")
+  class(EM_output) = c("lctmc_3x3.EM", "list")
   EM_output
 }

@@ -86,3 +86,6 @@ identical(
   gen_theta_names(K = 2L, type = "3x3", purpose = "em")
 )
 }
+\seealso{
+\code{\link[=bik_all_2x2]{bik_all_2x2()}}; \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}}
+}

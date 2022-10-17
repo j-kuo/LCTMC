@@ -12,8 +12,8 @@ bik_all_2x2(
   Xmat = matrix(),
   Wmat = matrix(),
   dt = c(),
-  P.rs = FALSE,
   K,
+  P.rs = FALSE,
   theta.names
 )
 
@@ -23,8 +23,8 @@ bik_all_3x3(
   Xmat = matrix(),
   Wmat = matrix(),
   dt = c(),
-  P.rs = FALSE,
   K,
+  P.rs = FALSE,
   theta.names
 )
 }
@@ -39,10 +39,10 @@ bik_all_3x3(
 
 \item{dt}{a vector of numeric values for the time interval between observations}
 
+\item{K}{a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.}
+
 \item{P.rs}{a logical scalar. If TRUE, then \eqn{P_{rs(k)}} is returned as a list object where each element of the list varies by \code{k}.
 If FALSE, then \eqn{b_{ik}} is returned as a list object where each element of the list varies by \code{k}.}
-
-\item{K}{a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.}
 
 \item{theta.names}{a list parameter names. It is nested by the value of \code{K}. This list object can be generated using \code{gen_theta_names(..., purpose = "bik")}. \cr
 Because this function is often using within the \code{optim()} function, it is inefficient to generate the names every iteration via \code{paste()}, hence having this pre-generated will help with speed.}
@@ -106,11 +106,12 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 2 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 2L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 2L, type = "2x2", purpose = "bik")
 )
 
@@ -129,11 +130,12 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 3 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 3L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 3L, type = "2x2", purpose = "bik")
 )
 
@@ -155,14 +157,15 @@ my_theta = c("alpha0.1" = 1.0, "alpha1.1" = 1.0, "alpha2.1" = 1.0,
 # use bik_all_2x2() ~ case of 4 latent classes
 LCTMC:::bik_all_2x2(
   theta = my_theta,
-  data = my_df2, dt = my_df2$dt,
+  data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  P.rs = FALSE,
+  dt = my_df2$dt,
   K = 4L,
+  P.rs = FALSE,
   theta.names = gen_theta_names(K = 4L, type = "2x2", purpose = "bik")
 )
 }
 \seealso{
-\code{\link[=get_P_2x2]{get_P_2x2()}}, \code{\link[=get_P_3x3]{get_P_3x3()}}, \code{\link[=Li_2x2]{Li_2x2()}}, \code{\link[=Li_3x3]{Li_3x3()}}
+\code{\link[=get_P_2x2]{get_P_2x2()}}; \code{\link[=Li_2x2]{Li_2x2()}}; \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}, \code{\link[=gen_theta_names]{gen_theta_names()}}; \code{\link[=impute_bik]{impute_bik()}}
 }

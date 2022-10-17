@@ -9,9 +9,9 @@
 #' @param Xmat a matrix object containing covariates "X" which are the covariates for the CTMC model
 #' @param Wmat a matrix object containing covariates "W" which are the covariates for the latent class component of the model
 #' @param dt a vector of numeric values for the time interval between observations
+#' @param K a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.
 #' @param P.rs a logical scalar. If TRUE, then \eqn{P_{rs(k)}} is returned as a list object where each element of the list varies by `k`.
 #' If FALSE, then \eqn{b_{ik}} is returned as a list object where each element of the list varies by `k`.
-#' @param K a integer scalar. Use this variable to tell the function how many latent classes there should be, The number of latent classes will affect the number of parameter in the model.
 #' @param theta.names a list parameter names. It is nested by the value of `K`. This list object can be generated using `gen_theta_names(..., purpose = "bik")`. \cr
 #' Because this function is often using within the `optim()` function, it is inefficient to generate the names every iteration via `paste()`, hence having this pre-generated will help with speed.
 #'
@@ -32,7 +32,7 @@
 #' }
 #' where \eqn{r=y_{i(j-1)}} and \eqn{s=y_{ij}}
 #'
-#' @seealso [get_P_2x2()], [get_P_3x3()], [Li_2x2()], [Li_3x3()]
+#' @seealso [get_P_2x2()]; [Li_2x2()]; [fmt_rowwise_trans()], [gen_theta_names()]; [impute_bik()]
 #'
 #' @example inst/examples/ex_bik_all.R
 NULL
@@ -43,8 +43,8 @@ bik_all_2x2 = function(theta = c(),
                        Xmat = matrix(),
                        Wmat = matrix(),
                        dt = c(),
-                       P.rs = FALSE,
                        K,
+                       P.rs = FALSE,
                        theta.names) {
   ## allocate some variables spaces
   e.pi.list = list()
@@ -100,8 +100,8 @@ bik_all_3x3 = function(theta = c(),
                        Xmat = matrix(),
                        Wmat = matrix(),
                        dt = c(),
-                       P.rs = FALSE,
                        K,
+                       P.rs = FALSE,
                        theta.names) {
   ## allocate some variables spaces
   e.pi.list = list()

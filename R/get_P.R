@@ -4,11 +4,10 @@
 #' The only transition rates in this model are \eqn{q_{12}, q_{21} > 0}
 #'
 #' @name get_P
-#'
-#' @param dt a numeric vector for the time difference between observations
 #' @param q12 a numeric vector for the transition rate from stage 1 to 2
 #' @param q21 a numeric vector for the transition rate from stage 2 to 1
-#' @param q23 a numeric vector for the transition rate from stage 2 to 3
+#' @param q23 a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)
+#' @param dt a numeric vector for the time difference between observations
 #'
 #' @return a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
 #' For the 2x2 case, the possible transitions are `1-1, 1-2, 2-1, 2-2`,
@@ -21,13 +20,13 @@
 #' In addition, this function does not need to depend on the number of latent classes because what we are computing is
 #' the transition probability conditioned on the given latent class.
 #'
-#' @seealso [Li_2x2()], [bik_all_2x2()], [get_P_3x3()]
+#' @seealso [Li_2x2()]; [bik_all_2x2()]
 #'
 #' @example inst/examples/ex_get_P.R
 NULL
 
 #' @rdname get_P
-get_P_2x2 = function(dt = c(), q12 = c(), q21 = c()) {
+get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c()) {
   # constants for both
   K = q12 + q21
   K_exp = (1-exp(-K*dt)) / K
@@ -52,7 +51,7 @@ get_P_2x2 = function(dt = c(), q12 = c(), q21 = c()) {
 }
 
 #' @rdname get_P
-get_P_3x3 = function(dt = c(), q12 = c(), q21 = c(), q23 = c()) {
+get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c()) {
   # constants for both
   K = q12 + q21 + q23
   discr = sqrt(K^2 - 4*q12*q23)

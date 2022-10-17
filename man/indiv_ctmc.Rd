@@ -6,18 +6,18 @@
 \alias{indiv_ctmc_3x3}
 \title{Estimate the CTMC parameters for each individual}
 \usage{
-indiv_ctmc_2x2(subject_list, df, dt, Xmat, trace)
+indiv_ctmc_2x2(subject_list, df, Xmat, dt, trace)
 
-indiv_ctmc_3x3(subject_list, df, dt, Xmat, trace)
+indiv_ctmc_3x3(subject_list, df, Xmat, dt, trace)
 }
 \arguments{
 \item{subject_list}{a vector of ID numbers (charcter or numeric) matching with the \code{df$id}. The IDs in this vector should be unique}
 
 \item{df}{a data frame object transformed via \code{fmt_rowwise_trans()}}
 
-\item{dt}{a numeric vector holding the time interval between observations}
-
 \item{Xmat}{a matrix of covariates that affects the CTMC process}
+
+\item{dt}{a numeric vector holding the time interval between observations}
 
 \item{trace}{a logical scalar. If TRUE then function will print progress update every 500 individuals fitted. If FALSE, no messages are printed.}
 }
@@ -32,4 +32,7 @@ Then the estimated effects are pooled and the K-means algorithm will be performe
 }
 \examples{
 ## TO BE ADDED ##
+}
+\seealso{
+\code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}}; \code{\link[=gen_inits01_lctmc_3x3]{gen_inits01_lctmc_3x3()}}
 }

@@ -29,6 +29,8 @@
 #' The `df_past` data frame should contain the disease history of each person that is to be predicted. \cr
 #' All covariates (x0, x1, x2, w0, w1, w2) should be included as well in the `df_past` data frame.
 #'
+#' @seealso [lctmc_2x2()]; [lctmc_3x3()]
+#'
 #' @example inst/examples/ex_predict.R
 NULL
 
