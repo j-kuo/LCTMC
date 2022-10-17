@@ -27,15 +27,20 @@ It performs the imputation by finding the minimum value greater than 0, then mul
 This function should not be called externally in most use cases. it is typically called within the EM algorithm and the initial value generation process.
 }
 \examples{
-# generate data (see documentation for fmt_rowwise_2x2trans())
-my_ids = c(1,1,1, 2,2, 3,3,3)
-c1 = c(0,1,1.5, 0,1, 0,2,5)
-c2 = c(1,2,2, 1,1, 2,1,2)
+# generate data
+my_ids = c(1, 1, 1,
+           2, 2,
+           3, 3, 3)
+c1 = c(0, 1, 1.5,
+       0, 1,
+       0, 2, 5)
+c2 = c(1, 2, 2,
+       1, 1,
+       2, 1, 2)
 x1 = c(rep(rnorm(n = 1), 3), rep(rnorm(n = 1), 2), rep(rnorm(n = 1), 3))
 x2 = c(rep(1, 3), rep(0, 2), rep(1, 3))
 w1 = c(rep(runif(n = 1), 3), rep(runif(n = 1), 2), rep(runif(n = 1), 3))
 w2 = c(rep(0, 3), rep(0, 2), rep(1, 3))
-latent_class = c(1,1,1, 1,1 ,2,2)
 
 # create data frame and matrix objects
 my_df = data.frame(
@@ -45,7 +50,7 @@ my_df = data.frame(
   w1 = w1, w2 = w2
 )
 
-my_df2 = LCTMC:::fmt_rowwise_2x2trans(data = my_df)
+my_df2 = LCTMC:::fmt_rowwise_trans(data = my_df, type = "2x2")
 xmat = as.matrix(my_df2[c("x0", "x1", "x2")])
 wmat = unique(my_df2[c("id", "w0", "w1", "w2")])
 wmat = as.matrix(wmat[!colnames(wmat) \%in\% c("id")])
@@ -79,7 +84,7 @@ my_b$bi1[2] = 0
 my_b$bi1[3] = -1
 my_b$bi3[1:3] = c(0, -1 , 0)
 
-print(my_b)                  # before imputation
+print(my_b)                          # before imputation
 my_b = LCTMC:::impute_bik(x = my_b)  # imputes
-print(my_b)                  # after imputation
+print(my_b)                          # after imputation
 }

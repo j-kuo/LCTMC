@@ -28,8 +28,14 @@ theta_names.2x2.K3 = list(
 )
 
 # print TRUE
-identical(theta_names.2x2.K2, gen_theta_names(K = 2L, type = "2x2", purpose = "em"))
-identical(theta_names.2x2.K3, gen_theta_names(K = 3L, type = "2x2", purpose = "em"))
+identical(
+  theta_names.2x2.K2,
+  gen_theta_names(K = 2L, type = "2x2", purpose = "em")
+)
+identical(
+  theta_names.2x2.K3,
+  gen_theta_names(K = 3L, type = "2x2", purpose = "em")
+)
 
 # 3x3 case with 2 latent classes
 theta_names.3x3.K2 = list(
@@ -46,4 +52,7 @@ theta_names.3x3.K2 = list(
 )
 
 # prints TRUE
-identical(theta_names.3x3.K2, gen_theta_names(K = 2L, type = "3x3", purpose = "em"))
+identical(
+  theta_names.3x3.K2,
+  gen_theta_names(K = 2L, type = "3x3", purpose = "em")
+)
