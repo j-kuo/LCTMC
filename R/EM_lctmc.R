@@ -9,12 +9,12 @@
 #' @param EM_inits a named numeric vector, where the names are the model parameter names. \cr
 #' Use this argument to specified the initial values for the EM algorithm
 #' @param df a data frame object containing row-wise transition data as binary variables. \cr
-#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
-#' @param df.Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `df_dt` amount of time.
+#' @param df_Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
 #' This matrix should have the same number of rows as the data frame object, `df`
-#' @param df.Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param df.dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param theta.names a list of character vectors, where each element of this list is a character vector specifying the names of model parameters. \cr
@@ -66,9 +66,9 @@ NULL
 #' @rdname EM_lctmc
 EM_lctmc_2x2 = function(EM_inits,
                         df,
-                        df.Xmat,
-                        df.Wmat,
-                        df.dt,
+                        df_Xmat,
+                        df_Wmat,
+                        df_dt,
                         K,
                         par_constraint,
                         theta.names,
@@ -79,14 +79,14 @@ EM_lctmc_2x2 = function(EM_inits,
                         L_BFGS_B.ctrl,
                         parallel_optim) {
   ### checks
-  if ((nrow(df) != nrow(df.Xmat)) || (nrow(df.Xmat) != length(df.dt))) {
-    stop("Mis-matching dimensions in either `df`, `df.Xmat`, or `df.dt`")
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
   }
-  if (length(unique(df$id)) != nrow(df.Wmat)) {
-    stop("Number of unique ID in `df` does not matches with number of individuals in `df.Wmat`")
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
   }
-  if (!is.numeric(df.dt)) {
-    stop("`dt` must be a numeric vector (indicating time intervals)")
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
   if (length(EM_inits) != length(unlist(theta.names))) {
     stop("Mis-matching dimensions in `EM_inits` and `theta.names`")
@@ -104,7 +104,16 @@ EM_lctmc_2x2 = function(EM_inits,
   EM_inits[constraint_index] = par_constraint
 
   ### step 1: function evaluated at OLD theta
-  bik_all.old = bik_all_2x2(theta = EM_inits, data = df, Xmat = df.Xmat, Wmat = df.Wmat, dt = df.dt, K = K, P.rs = FALSE, theta.names = theta.names.bik)
+  bik_all.old = bik_all_2x2(
+    theta = EM_inits,
+    data = df,
+    Xmat = df_Xmat,
+    Wmat = df_Wmat,
+    dt = df_dt,
+    K = K,
+    P.rs = FALSE,
+    theta.names = theta.names.bik
+  )
   bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
 
   ### step 1: compute log(P(Y)) and ELL
@@ -142,7 +151,16 @@ EM_lctmc_2x2 = function(EM_inits,
     if (EM.i > 2) {
       # computes the "new" `bik_all.old` using theta from last round
       par_prev = par_curr
-      bik_all.old = bik_all_2x2(theta = par_prev, data = df, Xmat = df.Xmat, Wmat = df.Wmat, dt = df.dt, K = K, P.rs = FALSE, theta.names = theta.names.bik)
+      bik_all.old = bik_all_2x2(
+        theta = par_prev,
+        data = df,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
+        K = K,
+        P.rs = FALSE,
+        theta.names = theta.names.bik
+      )
       bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
       # get denom
       denom.old = Reduce(`+`, bik_all.old)
@@ -171,9 +189,9 @@ EM_lctmc_2x2 = function(EM_inits,
             bik_all.theta = bik_all_2x2(
               theta = my_theta,
               data = df,
-              Xmat = df.Xmat,
-              Wmat = df.Wmat,
-              dt = df.dt,
+              Xmat = df_Xmat,
+              Wmat = df_Wmat,
+              dt = df_dt,
               K = K,
               P.rs = FALSE,
               theta.names = theta.names.bik
@@ -205,9 +223,9 @@ EM_lctmc_2x2 = function(EM_inits,
             bik_all.theta = bik_all_2x2(
               theta = my_theta,
               data = df,
-              Xmat = df.Xmat,
-              Wmat = df.Wmat,
-              dt = df.dt,
+              Xmat = df_Xmat,
+              Wmat = df_Wmat,
+              dt = df_dt,
               K = K,
               P.rs = FALSE,
               theta.names = theta.names.bik
@@ -237,9 +255,9 @@ EM_lctmc_2x2 = function(EM_inits,
     b = bik_all_2x2(
       theta = par_curr,
       data = df,
-      Xmat = df.Xmat,
-      Wmat = df.Wmat,
-      dt = df.dt,
+      Xmat = df_Xmat,
+      Wmat = df_Wmat,
+      dt = df_dt,
       K = K,
       P.rs = FALSE,
       theta.names = theta.names.bik
@@ -248,19 +266,27 @@ EM_lctmc_2x2 = function(EM_inits,
     LPY_curr = sum(log(Reduce(`+`, b)))
 
     # print message for ending `EM.i` step
+    temp1 = max(abs(par_curr - par_prev))
+    temp2 = names(par_curr)[which.max(abs(par_curr - par_prev))]
+    temp3 = opt$value - ELL_prev
+    temp4 = LPY_curr - LPY_prev
     cat("\n", rep(" ", 3), rep("~", 97),
-        "\n   Maximum Theta Difference:", sprintf("%.5f", max(abs(par_curr - par_prev))), "(", names(par_curr)[which.max(abs(par_curr - par_prev))], ")",
-        "\n             ELL Difference:", sprintf("%.5f", (opt$value - ELL_prev)), "(", opt$value, ")",
-        "\n             LPY Difference:", sprintf("%.5f", (LPY_curr - LPY_prev)), "(", LPY_curr, ")",
+        "\n   Maximum Theta Difference:", sprintf("%.5f", temp1), "(", temp2, ")",
+        "\n             ELL Difference:", sprintf("%.5f", temp3), "(", opt$value, ")",
+        "\n             LPY Difference:", sprintf("%.5f", temp4), "(", LPY_curr, ")",
         "\n", sep = "")
 
     # update
     EM_output[[EM.i]] = list(
       iter = EM.i,
       # store values
-      pars_value = par_curr, ELL_value = opt$value, LPY_value = LPY_curr,
+      pars_value = par_curr,
+      ELL_value = opt$value,
+      LPY_value = LPY_curr,
       # compute convergence criteria
-      par_diff.max = max(abs(par_curr - par_prev)), ELL_diff = (opt$value - ELL_prev), LPY_diff = (LPY_curr - LPY_prev),
+      par_diff.max = temp1,
+      ELL_diff = temp3,
+      LPY_diff = temp4,
       # misc
       time_at_finish = difftime(Sys.time(), t0, units = "mins")
     )
@@ -300,16 +326,16 @@ EM_lctmc_2x2 = function(EM_inits,
   }
 
   ### output as custom class
-  class(EM_output) = c("lctmc_2x2.EM", "list")
+  class(EM_output) = append("lctmc_2x2.EM", class(EM_output))
   EM_output
 }
 
 #' @rdname EM_lctmc
 EM_lctmc_3x3 = function(EM_inits,
                         df,
-                        df.Xmat,
-                        df.Wmat,
-                        df.dt,
+                        df_Xmat,
+                        df_Wmat,
+                        df_dt,
                         K,
                         par_constraint,
                         theta.names,
@@ -320,14 +346,14 @@ EM_lctmc_3x3 = function(EM_inits,
                         L_BFGS_B.ctrl,
                         parallel_optim) {
   ### checks
-  if ((nrow(df) != nrow(df.Xmat)) || (nrow(df.Xmat) != length(df.dt))) {
-    stop("Mis-matching dimensions in either `df`, `df.Xmat`, or `df.dt`")
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
   }
-  if (length(unique(df$id)) != nrow(df.Wmat)) {
-    stop("Number of unique ID in `df` does not matches with number of individuals in `df.Wmat`")
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
   }
-  if (!is.numeric(df.dt)) {
-    stop("`dt` must be a numeric vector (indicating time intervals)")
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
   if (length(EM_inits) != length(unlist(theta.names))) {
     stop("Mis-matching dimensions in `EM_inits` and `theta.names`")
@@ -345,7 +371,16 @@ EM_lctmc_3x3 = function(EM_inits,
   EM_inits[constraint_index] = par_constraint
 
   ### step 1: function evaluated at OLD theta
-  bik_all.old = bik_all_3x3(theta = EM_inits, data = df, Xmat = df.Xmat, Wmat = df.Wmat, dt = df.dt, K = K, P.rs = FALSE, theta.names = theta.names.bik)
+  bik_all.old = bik_all_3x3(
+    theta = EM_inits,
+    data = df,
+    Xmat = df_Xmat,
+    Wmat = df_Wmat,
+    dt = df_dt,
+    K = K,
+    P.rs = FALSE,
+    theta.names = theta.names.bik
+  )
   bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
 
   ### step 1: compute log(P(Y)) and ELL
@@ -383,7 +418,16 @@ EM_lctmc_3x3 = function(EM_inits,
     if (EM.i > 2) {
       # computes the "new" `bik_all.old` using theta from last round
       par_prev = par_curr
-      bik_all.old = bik_all_3x3(theta = par_prev, data = df, Xmat = df.Xmat, Wmat = df.Wmat, dt = df.dt, K = K, P.rs = FALSE, theta.names = theta.names.bik)
+      bik_all.old = bik_all_3x3(
+        theta = par_prev,
+        data = df,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
+        K = K,
+        P.rs = FALSE,
+        theta.names = theta.names.bik
+      )
       bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
       # get denom
       denom.old = Reduce(`+`, bik_all.old)
@@ -412,9 +456,9 @@ EM_lctmc_3x3 = function(EM_inits,
             bik_all.theta = bik_all_3x3(
               theta = my_theta,
               data = df,
-              Xmat = df.Xmat,
-              Wmat = df.Wmat,
-              dt = df.dt,
+              Xmat = df_Xmat,
+              Wmat = df_Wmat,
+              dt = df_dt,
               K = K,
               P.rs = FALSE,
               theta.names = theta.names.bik
@@ -446,9 +490,9 @@ EM_lctmc_3x3 = function(EM_inits,
             bik_all.theta = bik_all_3x3(
               theta = my_theta,
               data = df,
-              Xmat = df.Xmat,
-              Wmat = df.Wmat,
-              dt = df.dt,
+              Xmat = df_Xmat,
+              Wmat = df_Wmat,
+              dt = df_dt,
               K = K,
               P.rs = FALSE,
               theta.names = theta.names.bik
@@ -478,9 +522,9 @@ EM_lctmc_3x3 = function(EM_inits,
     b = bik_all_3x3(
       theta = par_curr,
       data = df,
-      Xmat = df.Xmat,
-      Wmat = df.Wmat,
-      dt = df.dt,
+      Xmat = df_Xmat,
+      Wmat = df_Wmat,
+      dt = df_dt,
       K = K,
       P.rs = FALSE,
       theta.names = theta.names.bik
@@ -489,19 +533,27 @@ EM_lctmc_3x3 = function(EM_inits,
     LPY_curr = sum(log(Reduce(`+`, b)))
 
     # print message for ending `EM.i` step
+    temp1 = max(abs(par_curr - par_prev))
+    temp2 = names(par_curr)[which.max(abs(par_curr - par_prev))]
+    temp3 = opt$value - ELL_prev
+    temp4 = LPY_curr - LPY_prev
     cat("\n", rep(" ", 3), rep("~", 97),
-        "\n   Maximum Theta Difference:", sprintf("%.5f", max(abs(par_curr - par_prev))), "(", names(par_curr)[which.max(abs(par_curr - par_prev))], ")",
-        "\n             ELL Difference:", sprintf("%.5f", (opt$value - ELL_prev)), "(", opt$value, ")",
-        "\n             LPY Difference:", sprintf("%.5f", (LPY_curr - LPY_prev)), "(", LPY_curr, ")",
+        "\n   Maximum Theta Difference:", sprintf("%.5f", temp1), "(", temp2, ")",
+        "\n             ELL Difference:", sprintf("%.5f", temp3), "(", opt$value, ")",
+        "\n             LPY Difference:", sprintf("%.5f", temp4), "(", LPY_curr, ")",
         "\n", sep = "")
 
     # update
     EM_output[[EM.i]] = list(
       iter = EM.i,
       # store values
-      pars_value = par_curr, ELL_value = opt$value, LPY_value = LPY_curr,
+      pars_value = par_curr,
+      ELL_value = opt$value,
+      LPY_value = LPY_curr,
       # compute convergence criteria
-      par_diff.max = max(abs(par_curr - par_prev)), ELL_diff = (opt$value - ELL_prev), LPY_diff = (LPY_curr - LPY_prev),
+      par_diff.max = temp1,
+      ELL_diff = temp3,
+      LPY_diff = temp4,
       # misc
       time_at_finish = difftime(Sys.time(), t0, units = "mins")
     )
@@ -541,6 +593,6 @@ EM_lctmc_3x3 = function(EM_inits,
   }
 
   ### output as custom class
-  class(EM_output) = c("lctmc_3x3.EM", "list")
+  class(EM_output) = append("lctmc_3x3.EM", class(EM_output))
   EM_output
 }

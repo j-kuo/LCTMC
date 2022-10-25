@@ -7,12 +7,12 @@
 #' @name gen_inits01_lctmc
 #'
 #' @param df a data frame object containing row-wise transition data as binary variables. \cr
-#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
-#' @param Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `df_dt` amount of time.
+#' @param df_Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
 #' This matrix should have the same number of rows as the data frame object, `df`
-#' @param Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param N_sub See documentation in [lctmc_2x2()] or [lctmc_3x3()]
@@ -48,9 +48,9 @@ NULL
 
 #' @rdname gen_inits01_lctmc
 gen_inits01_lctmc_2x2 = function(df,
-                                 Xmat,
-                                 Wmat,
-                                 dt,
+                                 df_Xmat,
+                                 df_Wmat,
+                                 df_dt,
                                  K,
                                  par_constraint,
                                  N_sub,
@@ -87,11 +87,10 @@ gen_inits01_lctmc_2x2 = function(df,
     person_logQ.orig = indiv_ctmc_2x2(
       subject_list = subject_list,
       df = df,
-      dt = dt,
-      Xmat = Xmat,
+      Xmat = df_Xmat,
+      dt = df_dt,
       trace = TRUE
     )
-
   } else if (parallel_optim$run && parallelize) {
     ## msg
     cat(" * starting parallelized individual fitting \n", sep = "")
@@ -118,8 +117,8 @@ gen_inits01_lctmc_2x2 = function(df,
       logQ = indiv_ctmc_2x2(
         subject_list = subject_list.sub,
         df = df,
-        dt = dt,
-        Xmat = Xmat,
+        Xmat = df_Xmat,
+        dt = df_dt,
         trace = FALSE
       )
 
@@ -172,9 +171,9 @@ gen_inits01_lctmc_2x2 = function(df,
     km$centers = km$centers[km.order, ]
     rownames(km$centers) = 1:K
 
-    ## `Wmat.df` is used for estimating alpha parameters
-    Wmat_sub = Wmat[randID_select, ]
-    Wmat.df = data.frame(cbind(Wmat_sub[keep_obs, ], cl = km$cluster))
+    ## `Wmat_sub` is used for estimating alpha parameters
+    Wmat_sub = df_Wmat[randID_select, ]
+    Wmat_sub = data.frame(cbind(Wmat_sub[keep_obs, ], cl = km$cluster))
 
     ## if `par_constraint` is not NULL, then apply constrain, otherwise skip this step
     if (!is.null(par_constraint)) {
@@ -184,12 +183,12 @@ gen_inits01_lctmc_2x2 = function(df,
       # loop through each ~ the sub(...) command extracts the covariate number e.g., alpha2.1 --> "2"
       for (pc in pc.par_names) {
         pc.data_name = paste("w", sub("(^alpha)(\\d)(\\.)(.+$)", "\\2", pc), sep = "")
-        Wmat.df[, pc.data_name] = par_constraint[pc] * Wmat.df[, pc.data_name]
+        Wmat_sub[, pc.data_name] = par_constraint[pc] * Wmat_sub[, pc.data_name]
       }
     }
 
     ## multinomial model to determine alphas (`trace = FALSE` to suppress messages)
-    multi_logistic = nnet::multinom(cl ~ w1 + w2, data = Wmat.df, trace = FALSE)
+    multi_logistic = nnet::multinom(cl ~ w1 + w2, data = Wmat_sub, trace = FALSE)
     multi_logistic.coef = stats::coef(multi_logistic)
 
     ## exception to handle `K=2L` case where stats::coef(multinom) output a vector instead of matrix
@@ -230,7 +229,7 @@ gen_inits01_lctmc_2x2 = function(df,
   step1_out[["person_logQ.orig"]] = person_logQ.orig
 
   ### STEP 1  ~~>  extract theta for the iteration where `pct_keep == 1`
-  step1_out.full = step1_out[["pct_keep=1.000"]]$theta
+  step1_out.full = step1_out[[length(step1_out)-1]]$theta
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
@@ -242,7 +241,16 @@ gen_inits01_lctmc_2x2 = function(df,
       x.theta = x$theta
       x.theta[constraint_index] = par_constraint
       ## compute log(P(Y))
-      y = bik_all_2x2(theta = x.theta, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+      y = bik_all_2x2(
+        theta = x.theta,
+        data = df,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
+        K = K,
+        P.rs = FALSE,
+        theta.names = theta.names.bik
+      )
       ## `bi = y$bi1 + y$bi2 + ... y$biK`
       bi = Reduce(`+`, y)
       sum(log(bi))
@@ -254,6 +262,9 @@ gen_inits01_lctmc_2x2 = function(df,
   ### STEP 1 ~~> constrain step 1 parameters
   step1_out.best[constraint_index] = par_constraint
   step1_out.full[constraint_index] = par_constraint
+  step1_out.full.df = align_MLE_2x2(mle = step1_out.full, K = K)
+  step1_out.full = step1_out.full.df$mle_theta
+  names(step1_out.full) = step1_out.full.df$names
 
   ### STEP 1 ~~> print concluding messages
   if (!is.null(par_constraint)) {
@@ -266,15 +277,15 @@ gen_inits01_lctmc_2x2 = function(df,
 
   ### STEP 1  ~~>  exits
   out = list(step1 = step1_out, step1_full = step1_out.full, step1_best = step1_out.best)
-  class(out) = c("lctmc_2x2.inits01", "list")
+  class(out) = append("lctmc_2x2.inits01", class(out))
   return(out)
 }
 
 #' @rdname gen_inits01_lctmc
 gen_inits01_lctmc_3x3 = function(df,
-                                 Xmat,
-                                 Wmat,
-                                 dt,
+                                 df_Xmat,
+                                 df_Wmat,
+                                 df_dt,
                                  K,
                                  par_constraint,
                                  N_sub,
@@ -311,11 +322,10 @@ gen_inits01_lctmc_3x3 = function(df,
     person_logQ.orig = indiv_ctmc_3x3(
       subject_list = subject_list,
       df = df,
-      dt = dt,
-      Xmat = Xmat,
+      Xmat = df_Xmat,
+      dt = df_dt,
       trace = TRUE
     )
-
   } else if (parallel_optim$run && parallelize) {
     ## msg
     cat(" * starting parallelized individual fitting \n", sep = "")
@@ -342,8 +352,8 @@ gen_inits01_lctmc_3x3 = function(df,
       logQ = indiv_ctmc_3x3(
         subject_list = subject_list.sub,
         df = df,
-        dt = dt,
-        Xmat = Xmat,
+        Xmat = df_Xmat,
+        dt = df_dt,
         trace = FALSE
       )
 
@@ -396,9 +406,9 @@ gen_inits01_lctmc_3x3 = function(df,
     km$centers = km$centers[km.order, ]
     rownames(km$centers) = 1:K
 
-    ## `Wmat.df` is used for estimating alpha parameters
-    Wmat_sub = Wmat[randID_select, ]
-    Wmat.df = data.frame(cbind(Wmat_sub[keep_obs, ], cl = km$cluster))
+    ## `Wmat_sub` is used for estimating alpha parameters
+    Wmat_sub = df_Wmat[randID_select, ]
+    Wmat_sub = data.frame(cbind(Wmat_sub[keep_obs, ], cl = km$cluster))
 
     ## if `par_constraint` is not NULL, then apply constrain, otherwise skip this step
     if (!is.null(par_constraint)) {
@@ -408,12 +418,12 @@ gen_inits01_lctmc_3x3 = function(df,
       # loop through each ~ the sub(...) command extracts the covariate number e.g., alpha2.1 --> "2"
       for (pc in pc.par_names) {
         pc.data_name = paste("w", sub("(^alpha)(\\d)(\\.)(.+$)", "\\2", pc), sep = "")
-        Wmat.df[, pc.data_name] = par_constraint[pc] * Wmat.df[, pc.data_name]
+        Wmat_sub[, pc.data_name] = par_constraint[pc] * Wmat_sub[, pc.data_name]
       }
     }
 
     ## multinomial model to determine alphas (`trace = FALSE` to suppress messages)
-    multi_logistic = nnet::multinom(cl ~ w1 + w2, data = Wmat.df, trace = FALSE)
+    multi_logistic = nnet::multinom(cl ~ w1 + w2, data = Wmat_sub, trace = FALSE)
     multi_logistic.coef = stats::coef(multi_logistic)
 
     ## exception to handle `K=2L` case where stats::coef(multinom) output a vector instead of matrix
@@ -454,7 +464,7 @@ gen_inits01_lctmc_3x3 = function(df,
   step1_out[["person_logQ.orig"]] = person_logQ.orig
 
   ### STEP 1  ~~>  extract theta for the iteration where `pct_keep == 1`
-  step1_out.full = step1_out[["pct_keep=1.000"]]$theta
+  step1_out.full = step1_out[[length(step1_out)-1]]$theta
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
@@ -466,7 +476,16 @@ gen_inits01_lctmc_3x3 = function(df,
       x.theta = x$theta
       x.theta[constraint_index] = par_constraint
       ## compute log(P(Y))
-      y = bik_all_3x3(theta = x.theta, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+      y = bik_all_3x3(
+        theta = x.theta,
+        data = df,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
+        K = K,
+        P.rs = FALSE,
+        theta.names = theta.names.bik
+      )
       ## `bi = y$bi1 + y$bi2 + ... y$biK`
       bi = Reduce(`+`, y)
       sum(log(bi))
@@ -478,6 +497,9 @@ gen_inits01_lctmc_3x3 = function(df,
   ### STEP 1 ~~> constrain step 1 parameters
   step1_out.best[constraint_index] = par_constraint
   step1_out.full[constraint_index] = par_constraint
+  step1_out.full.df = align_MLE_3x3(mle = step1_out.full, K = K)
+  step1_out.full = step1_out.full.df$mle_theta
+  names(step1_out.full) = step1_out.full.df$names
 
   ### STEP 1 ~~> print concluding messages
   if (!is.null(par_constraint)) {
@@ -490,6 +512,6 @@ gen_inits01_lctmc_3x3 = function(df,
 
   ### STEP 1  ~~>  exits
   out = list(step1 = step1_out, step1_full = step1_out.full, step1_best = step1_out.best)
-  class(out) = c("lctmc_3x3.inits01", "list")
+  class(out) = append("lctmc_3x3.inits01", class(out))
   return(out)
 }

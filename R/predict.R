@@ -104,7 +104,7 @@ predict.lctmc_2x2 = function(object, ...) {
     model_param = lctmc$SE$SE$mle_theta
     names(model_param) = lctmc$SE$SE$names
   } else if (param.type == "kmeans") {
-    model_param = lctmc$inits$step1_full
+    model_param = lctmc$init01$step1_full
   } else {
     stop("`param.type` should be either 'mle' or 'kmeans'")
   }
@@ -162,6 +162,7 @@ predict.lctmc_2x2 = function(object, ...) {
   my_df2 = merge(my_df2, df_pred, by = 'id', sort = FALSE, all.x = TRUE, suffixes = c(".past", ".pred"))
 
   ### data objects needed to compute probabilities
+  my_df2.IDs = my_df2$id
   my_df2.Xmat = as.matrix(my_df2[c("x0", "x1", "x2")])
   my_df2.Wmat = as.matrix(my_df2[c("w0", "w1", "w2")])
   my_df2.dt = my_df2$obsTime.pred - my_df2$obsTime.past
@@ -214,6 +215,7 @@ predict.lctmc_2x2 = function(object, ...) {
   df.P.rs_k$P.ds1.z = df.P.rs_k$P.ds1 * df.P.rs_k$P.z
   df.P.rs_k$P.ds2.z = df.P.rs_k$P.ds2 * df.P.rs_k$P.z
 
+
   ### prediction probability for the disease state
   df.P.rs = split(x = df.P.rs_k, f = df.P.rs_k$id)
   df.P.rs = Map(
@@ -225,6 +227,7 @@ predict.lctmc_2x2 = function(object, ...) {
     df.P.rs
   )
   df.P.rs = do.call(`rbind`, df.P.rs)
+
 
   ### out of the possible disease states, whats the largest probability mass?
   P.rs = list(P1 = df.P.rs$P.trans_to1, P2 = df.P.rs$P.trans_to2)
@@ -317,7 +320,7 @@ predict.lctmc_3x3 = function(object, ...) {
     model_param = lctmc$SE$SE$mle_theta
     names(model_param) = lctmc$SE$SE$names
   } else if (param.type == "kmeans") {
-    model_param = lctmc$inits$step1_full
+    model_param = lctmc$init01$step1_full
   } else {
     stop("`param.type` should be either 'mle' or 'kmeans'")
   }

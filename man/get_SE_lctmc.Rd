@@ -9,9 +9,9 @@
 get_SE_lctmc_2x2(
   em,
   df,
-  df.Xmat,
-  df.Wmat,
-  df.dt,
+  df_Xmat,
+  df_Wmat,
+  df_dt,
   K,
   par_constraint,
   solve.tol = (.Machine$double.eps)^2,
@@ -22,9 +22,9 @@ get_SE_lctmc_2x2(
 get_SE_lctmc_3x3(
   em,
   df,
-  df.Xmat,
-  df.Wmat,
-  df.dt,
+  df_Xmat,
+  df_Wmat,
+  df_dt,
   K,
   par_constraint,
   solve.tol = (.Machine$double.eps)^2,
@@ -36,15 +36,15 @@ get_SE_lctmc_3x3(
 \item{em}{a list object of with the custom class 'lctmc_2x2.EM' or 'lctmc_3x3.EM'. This type of object is the output of the \code{EM_lctmc} functions}
 
 \item{df}{a data frame object containing row-wise transition data as binary variables. \cr
-For example, if \code{trans.2_1} equals 1 then it means the observation was a transition from stage 2 to stage 1 within \code{dt} amount of time.}
+For example, if \code{trans.2_1} equals 1 then it means the observation was a transition from stage 2 to stage 1 within \code{df_dt} amount of time.}
 
-\item{df.Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+\item{df_Xmat}{a matrix object housing the covariates that affect the CTMC portion of the model. \cr
 This matrix should have the same number of rows as the data frame object, \code{df}}
 
-\item{df.Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
+\item{df_Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
 This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
 
-\item{df.dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
+\item{df_dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
 
 \item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr}
 

@@ -8,12 +8,12 @@
 #'
 #' @param em a list object of with the custom class 'lctmc_2x2.EM' or 'lctmc_3x3.EM'. This type of object is the output of the `EM_lctmc` functions
 #' @param df a data frame object containing row-wise transition data as binary variables. \cr
-#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
-#' @param df.Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `df_dt` amount of time.
+#' @param df_Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
 #' This matrix should have the same number of rows as the data frame object, `df`
-#' @param df.Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param df.dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param solve.tol a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. \cr
@@ -54,9 +54,9 @@ NULL
 #' @rdname get_SE_lctmc
 get_SE_lctmc_2x2 = function(em,
                             df,
-                            df.Xmat,
-                            df.Wmat,
-                            df.dt,
+                            df_Xmat,
+                            df_Wmat,
+                            df_dt,
                             K,
                             par_constraint,
                             solve.tol = (.Machine$double.eps)^2,
@@ -93,9 +93,9 @@ get_SE_lctmc_2x2 = function(em,
       bik_all.mle = bik_all_2x2(
         theta = x,
         data = df,
-        Xmat = df.Xmat,
-        Wmat = df.Wmat,
-        dt = df.dt,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
         K = K,
         theta.names = theta.names.bik
       )
@@ -170,16 +170,16 @@ get_SE_lctmc_2x2 = function(em,
 
   ### output
   out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
-  class(out) = c("lctmc_2x2.SE", "list")
+  class(out) = append("lctmc_2x2.SE", class(out))
   return(out)
 }
 
 #' @rdname get_SE_lctmc
 get_SE_lctmc_3x3 = function(em,
                             df,
-                            df.Xmat,
-                            df.Wmat,
-                            df.dt,
+                            df_Xmat,
+                            df_Wmat,
+                            df_dt,
                             K,
                             par_constraint,
                             solve.tol = (.Machine$double.eps)^2,
@@ -216,9 +216,9 @@ get_SE_lctmc_3x3 = function(em,
       bik_all.mle = bik_all_3x3(
         theta = x,
         data = df,
-        Xmat = df.Xmat,
-        Wmat = df.Wmat,
-        dt = df.dt,
+        Xmat = df_Xmat,
+        Wmat = df_Wmat,
+        dt = df_dt,
         K = K,
         theta.names = theta.names.bik
       )
@@ -293,7 +293,7 @@ get_SE_lctmc_3x3 = function(em,
 
   ### output
   out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
-  class(out) = c("lctmc_3x3.SE", "list")
+  class(out) = append("lctmc_3x3.SE", class(out))
   return(out)
 }
 

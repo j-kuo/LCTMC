@@ -13,12 +13,12 @@
 #' @param step2_inits a named numeric vector. This should be a vector of model parameters. \cr
 #' The names of the vector should be parameters names and the values are the initial value for direct likelihood optimization
 #' @param df a data frame object containing row-wise transition data as binary variables. \cr
-#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `dt` amount of time.
-#' @param Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
+#' For example, if `trans.2_1` equals 1 then it means the observation was a transition from stage 2 to stage 1 within `df_dt` amount of time.
+#' @param df_Xmat a matrix object housing the covariates that affect the CTMC portion of the model. \cr
 #' This matrix should have the same number of rows as the data frame object, `df`
-#' @param Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
+#' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
@@ -49,9 +49,9 @@ NULL
 #' @rdname gen_inits02_lctmc
 gen_inits02_lctmc_2x2 = function(step2_inits,
                                  df,
-                                 Xmat,
-                                 Wmat,
-                                 dt,
+                                 df_Xmat,
+                                 df_Wmat,
+                                 df_dt,
                                  K,
                                  par_constraint,
                                  parallel_optim) {
@@ -70,7 +70,16 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         ## constrain parameters
         par[constraint_index] = par_constraint
         ## compute log(P(Y))
-        y = bik_all_2x2(theta = par, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+        y = bik_all_2x2(
+          theta = par,
+          data = df,
+          Xmat = df_Xmat,
+          Wmat = df_Wmat,
+          dt = df_dt,
+          K = K,
+          P.rs = FALSE,
+          theta.names = theta.names.bik
+        )
         y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
@@ -78,7 +87,7 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(dt), trace = 1, maxit = 1000, factr = 1e-5),
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5),
       parallel = list(cl = parallel_optim$cl, forward = FALSE, loginfo = FALSE)
     )
   }
@@ -89,7 +98,16 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         ## constrain parameters
         par[constraint_index] = par_constraint
         ## compute log(P(Y))
-        y = bik_all_2x2(theta = par, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+        y = bik_all_2x2(
+          theta = par,
+          data = df,
+          Xmat = df_Xmat,
+          Wmat = df_Wmat,
+          dt = df_dt,
+          K = K,
+          P.rs = FALSE,
+          theta.names = theta.names.bik
+        )
         y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
@@ -97,23 +115,23 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(dt), trace = 1, maxit = 1000, factr = 1e-5)
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5)
     )
   }
   step2_out = step2_out$par
 
   ### STEP 2  ~~> exits
   out = step2_out
-  class(out) = c("lctmc_2x2.inits02", "list")
+  class(out) = append("lctmc_2x2.inits02", class(out))
   return(out)
 }
 
 #' @rdname gen_inits02_lctmc
 gen_inits02_lctmc_3x3 = function(step2_inits,
                                  df,
-                                 Xmat,
-                                 Wmat,
-                                 dt,
+                                 df_Xmat,
+                                 df_Wmat,
+                                 df_dt,
                                  K,
                                  par_constraint,
                                  parallel_optim) {
@@ -132,7 +150,16 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         ## constrain parameters
         par[constraint_index] = par_constraint
         ## compute log(P(Y))
-        y = bik_all_3x3(theta = par, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+        y = bik_all_3x3(
+          theta = par,
+          data = df,
+          Xmat = df_Xmat,
+          Wmat = df_Wmat,
+          dt = df_dt,
+          K = K,
+          P.rs = FALSE,
+          theta.names = theta.names.bik
+        )
         y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
@@ -140,7 +167,7 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(dt), trace = 1, maxit = 1000, factr = 1e-5),
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5),
       parallel = list(cl = parallel_optim$cl, forward = FALSE, loginfo = FALSE)
     )
   }
@@ -151,7 +178,16 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         ## constrain parameters
         par[constraint_index] = par_constraint
         ## compute log(P(Y))
-        y = bik_all_3x3(theta = par, data = df, Xmat = Xmat, Wmat = Wmat, dt = dt, K = K, theta.names = theta.names.bik)
+        y = bik_all_3x3(
+          theta = par,
+          data = df,
+          Xmat = df_Xmat,
+          Wmat = df_Wmat,
+          dt = df_dt,
+          K = K,
+          P.rs = FALSE,
+          theta.names = theta.names.bik
+        )
         y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
@@ -159,13 +195,13 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(dt), trace = 1, maxit = 1000, factr = 1e-5)
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5)
     )
   }
   step2_out = step2_out$par
 
   ### STEP 2  ~~> exits
   out = step2_out
-  class(out) = c("lctmc_3x3.inits02", "list")
+  class(out) = append("lctmc_3x3.inits02", class(out))
   return(out)
 }

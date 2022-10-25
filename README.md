@@ -15,7 +15,7 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
    * model seems to over predict disease state 1 when actual state is "death"
    * work out probability by hand and compare to those from prediction function
    * is there an improvement from by adding the "W" covariates when there are only few observations?
-1. Allow model to alternate between init 02 & EM until some criteria is met
+1. Add a "refit" function, that takes a fitted model and runs through init02 -> EM -> SE again
 1. Can model run smoothly for all 3 scenarios?
    * 2x2 model (only "X" covariate)
    * 3x3 model (only "X" covariate)
