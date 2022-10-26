@@ -17,7 +17,7 @@ get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c())
 
 \item{q23}{a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)}
 
-\item{dt}{a numeric vector for the time difference between observations}
+\item{dt}{a vector of numeric values for the time interval between observations}
 }
 \value{
 a data.frame object with each column being one of the transition probability in the respective model. \cr\cr

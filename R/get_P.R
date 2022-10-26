@@ -7,7 +7,7 @@
 #' @param q12 a numeric vector for the transition rate from stage 1 to 2
 #' @param q21 a numeric vector for the transition rate from stage 2 to 1
 #' @param q23 a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)
-#' @param dt a numeric vector for the time difference between observations
+#' @param dt a vector of numeric values for the time interval between observations
 #'
 #' @return a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
 #' For the 2x2 case, the possible transitions are `1-1, 1-2, 2-1, 2-2`,
