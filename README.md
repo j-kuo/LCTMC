@@ -10,21 +10,19 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
 
 ## Work in Progress
 
-1. Update on prediction function 
-   * ~~is the function working as intended?~~ (yes)
-   * ~~model seems to over predict disease state 1 when actual state is "death"~~ (it was issue with input data, not function itself)
-   * ~~work out probability by hand and compare to those from prediction function~~ (done)
-   * is there an improvement from by adding the "W" covariates when there are only few observations?
 1. Can model run smoothly for all 3 scenarios?
    * 2x2 model (only "X" covariate)
    * 3x3 model (only "X" covariate)
    * 3x3 model ("X" and "W" covariate)
    * Try for 10 sim, and how about 50?
-1. Add function to quickly compute various statistics from the model
-   * ~~**Q** matrix~~
-   * ~~**P** matrix~~
-   * Transition Rate ratio
-   * ~~Sojourn Time~~
+1. Add Examples
+   * lctmc, init01, init02, EM, SE, rescale bundled together (use \dontrun{} and code to generate example data, LCTMC.simulate())
+   * add output of model fit on example data
+   * use fitted model to create example for compute functions
+1. Miscelleneous
+   * add badge
+   * license
+   * is there an improvement from by adding the "W" covariates when there are only few observations
    * Other stats for between cluster comparisons?
 
 ## Authors
