@@ -21,7 +21,7 @@
 #'
 #' @seealso [compute_Q()]
 #'
-#' @example inst/examples/ex_compute_sojourn.R
+#' @example inst/examples/ex_compute_statistics.R
 compute_sojourn = function(m, x1, x2) {
   UseMethod("compute_sojourn")
 }

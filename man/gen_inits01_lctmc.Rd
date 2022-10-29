@@ -42,7 +42,8 @@ This matrix should have the same number of rows as the data frame object, \code{
 \item{df_Wmat}{a matrix object housing the covariates that affect the latent classification part of the model. \cr
 This matrix should have number of rows equal to unique number of individuals in the data frame object, \code{df}}
 
-\item{df_dt}{a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, \code{df}}
+\item{df_dt}{a numeric vector housing the length of time interval between observations.
+This vector's length should be equal to number of rows in the data frame object, \code{df}}
 
 \item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr}
 
@@ -60,8 +61,8 @@ This matrix should have number of rows equal to unique number of individuals in 
 A list containing the estimates obtained from the K-means algorithm.
 This step outputs 3 elements:
 \itemize{
-\item \strong{step1} - a list of possible initial values, each element is the result of the K-means algorithm by trimming the individual estimate by the \code{pct_keep} argument
-\item \strong{step1_full} - a single named numeric vector from the K-means using 100\% of individual estimates (no trimming outliers, when \code{pct_keep = 1})
+\item \strong{step1_full} - a list object containing the estimation from using 100\% of individual effects (no trimming outliers, when \code{pct_keep = 1}). \cr
+First is the the theta estimates, and second is a 'kmeans' object from \code{kmeans()}.
 \item \strong{step1_best} - a single named numeric vector that yielded the best observed log-likelihood value by testing trying each vector from \code{step1}
 }
 }
@@ -79,7 +80,77 @@ Especially when there are only few observation per person, it becomes reliable w
 Regardless, this approach will still produce usable initial values for the next steps.
 }
 \examples{
-## TO BE ADDED ##
+# The example below demonstrates how to specify the 'lctmc' functions correctly
+#   to perform the latent class CTMC model.
+# Both the 2x2 and 3x3 examples are listed below, however it should be noted
+#   that the model may take a while to run (approx. 10-30min on a high spec laptop)
+# In both examples, we set the number of latent classes, K, to be 3.
+# in the 2x2 model, we constrained the model so that the covariate effects on
+#   the latent class probability are equal to 0.
+# in the 3x3 model, we left the model un-constrained.
+
+
+\dontrun{
+  ## this is a 2x2 example, with 3 latent classes
+  data("example_df2x2", package = "LCTMC")
+  model_2x2 = LCTMC::lctmc_2x2(
+    # data
+    data = example_df2x2,
+    # any scaling transformation
+    dt_scale = c(dt = 1/365),
+    x_scale = c(x0 = 1, x1 = 1/7, x2 = 1),
+    w_scale = c(w0 = 1, w1 = 1/9, w2 = 1),
+    # general model specification
+    K = 3L,
+    X_names = c('x0', 'x1', 'x2'),
+    W_names = c('w0', 'w1', 'w2'),
+    par_constraint = c(alpha1.1 = 0, alpha1.2 = 0, alpha2.1 = 0, alpha2.2 = 0),
+    # controls ~ gen_inits
+    N_sub = Inf,
+    pct_keep = seq(0.40, 1.00, 0.001),
+    parallelize = TRUE,
+    which_step1 = "best",
+    # controls ~ EM
+    theta.names = LCTMC::gen_theta_names(K = 3L, type = "2x2", purpose = "em"),
+    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
+    optim_controls = list(fnscale = -nrow(example_df2x2), maxit = 1e8, factr = 1e-4),
+    # misc.
+    test_if_global_optim = list(test = FALSE, true_params = NA),
+    parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
+    MyModelName = "My 2x2 (K3) Model"
+  )
+
+  # - # - # - # - # - # - # - # - #
+
+  ## this is a 3x3 example, with 3 latent classes
+  data("example_df3x3", package = "LCTMC")
+  model_3x3 = LCTMC::lctmc_3x3(
+    # data
+    data = example_df3x3,
+    # any scaling transformation
+    dt_scale = c(dt = 1/365),
+    x_scale = c(x0 = 1, x1 = 1/8, x2 = 1),
+    w_scale = c(w0 = 1, w1 = 1/8, w2 = 1),
+    # general model specification
+    K = 3L,
+    X_names = c('x0', 'x1', 'x2'),
+    W_names = c('w0', 'w1', 'w2'),
+    par_constraint = NULL,
+    # controls ~ gen_inits
+    N_sub = Inf,
+    pct_keep = seq(0.40, 1.00, 0.001),
+    parallelize = TRUE,
+    which_step1 = "best",
+    # controls ~ EM
+    theta.names = LCTMC::gen_theta_names(K = 3L, type = "3x3", purpose = "em"),
+    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
+    optim_controls = list(fnscale = -nrow(example_df3x3), maxit = 1e8, factr = 1e-4),
+    # misc.
+    test_if_global_optim = list(test = FALSE, true_params = NA),
+    parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
+    MyModelName = "My 3x3 (K3) Model"
+  )
+}
 }
 \seealso{
 \code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}}; \code{\link[=indiv_ctmc_2x2]{indiv_ctmc_2x2()}}

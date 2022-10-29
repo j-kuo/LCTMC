@@ -5,8 +5,24 @@
 #'
 #' @param data a data frame object. Data should be stored in long format. See example for data structure
 #' @param type a character scalar. Equals either "2x2" or "3x3" to indicate the number of category in the outcome variable.
+#' @param X_names a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in `data`. \cr
+#' Best set to x0, x1, x2 to avoid errors
+#' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. \cr
+#' Best set to w0, w1, w2 to avoid errors
+#' @param scaling a named numeric vector indicating which covariate are scaled by how much. Set to 1 for no scaling. \cr
+#' For example, `scaling = c(x0 = 1, x1 = 0.01, x2 = 1, w0 = 1, w1 = 1, w2 = 1, dt = 0.002)`
+#' @param ... the following are optional parameters\
+#' \describe{
+#'   \item{trace}{a logical scalar, if TRUE, function will print which parameters were scaled. Default is FALSE which does not print messages}
+#' }
 #'
-#' @return a data.frame object which contains the data in row-wise transitions format.
+#' @return a list object containing the 4 major data objects needed to perform model fitting. The objects are the following:
+#' \describe{
+#'   \item{Xmat}{a numeric matrix of the "X" covariates which are variables that affect the CTMC process}
+#'   \item{Wmat}{a numeric matrix of the "W" covariates which are variables that affect the latent class probabilities}
+#'   \item{dt}{a numeric vector of the time interval between observations}
+#'   \item{df_trans}{a data.frame object containing the binary transition indicator variables}
+#' }
 #'
 #' @note This is the first step out of six of fitting a latent class CTMC model (i.e., data preparation). \cr\cr
 #' Four conditions of the input data frame, `data`, are checked. If any fails, then error will be returned
@@ -21,8 +37,17 @@
 #'
 #' @example inst/examples/ex_fmt_rowwise_trans.R
 
-fmt_rowwise_trans = function(data = data.frame(), type = c("2x2", "3x3")) {
-  ### checks
+fmt_rowwise_trans = function(data = data.frame(),
+                             type = c("2x2", "3x3"),
+                             X_names = c("x"),
+                             W_names = c("w"),
+                             scaling = c(x = 1, w = 1),
+                             ...) {
+  ### optional args
+  opt_args = list(...)
+  trace = ifelse(is.null(opt_args$trace), FALSE, opt_args$trace)
+
+  ### check (1)
   if (!"id" %in% colnames(data)) {
     stop("`id` should be a column name in `data` serving as the individual level identifier")
   }
@@ -36,12 +61,12 @@ fmt_rowwise_trans = function(data = data.frame(), type = c("2x2", "3x3")) {
     stop("`type` should be a length 1 character vector. Equals either '2x2' or '3x3'")
   }
 
-  ### check ... all people must have a least 1 transition
+  ### check (2) ... compute N per id
   temp = do.call(`c`, Map(`nrow`, split(x = data, f = data$id)))
   temp_obs_count = unname(temp)
   temp_id = names(temp)
 
-  ### messages
+  ### check (2) ... error if anyone has less than 2 obs
   if (any(temp_obs_count == 1)) {
     x = as.character(temp_id[temp_obs_count == 1])
 
@@ -92,7 +117,44 @@ fmt_rowwise_trans = function(data = data.frame(), type = c("2x2", "3x3")) {
   everything_else = colnames(data)[!colnames(data) %in% c("id", "obsTime")]
   data = data[, c("id", "obsTime", everything_else)]
 
-  ### return
+  ### no row names
   rownames(data) = NULL
-  data
+
+  ### covariate scaling
+  if (any(scaling != 1)) {
+    ## loop through each variable that need to be scaled
+    for (sc in seq_along(scaling)) {
+      if (scaling[sc] != 1) {
+        # msg
+        if (trace) {
+          sc_name = names(scaling)[sc]
+          sc_factor = sprintf("%.3f", scaling[sc])
+          cat(" * `", sc_name, "` being scaled by a factor of ", sc_factor, "\n", sep = "")
+        }
+
+        # scaling
+        data[[names(scaling)[sc]]] = data[[names(scaling)[sc]]] * scaling[sc]
+      }
+    }
+  } else {
+    if (trace) {
+      cat(" * no scaling were applied", "\n", sep = "")
+    }
+  }
+
+  ### create X mat
+  Xmat = as.matrix(data[, X_names])
+
+  ### create W mat
+  Wmat = unique(data[, c("id", W_names)])
+  Wmat = as.matrix(Wmat[!colnames(Wmat) %in% "id"])
+
+  ### dt
+  dt = data[["dt"]]
+
+  ### data frame with transition indicators
+  data = data[!colnames(data) %in% c(X_names, W_names, "dt")]
+
+  ### return
+  list(Xmat = Xmat, Wmat = Wmat, dt = dt, df_trans = data)
 }

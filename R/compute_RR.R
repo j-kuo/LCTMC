@@ -33,7 +33,7 @@
 #'
 #' @seealso [compute_Q()]
 #'
-#' @example inst/examples/ex_compute_RR.R
+#' @example inst/examples/ex_compute_statistics.R
 compute_RR = function(m, x1, x2) {
   UseMethod("compute_RR")
 }

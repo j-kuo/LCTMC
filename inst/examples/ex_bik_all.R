@@ -17,10 +17,17 @@ my_df = data.frame(
   w1 = w1, w2 = w2
 )
 
-my_df2 = LCTMC:::fmt_rowwise_trans(data = my_df, type = "2x2")
-xmat = as.matrix(my_df2[c("x0", "x1", "x2")])
-wmat = unique(my_df2[c("id", "w0", "w1", "w2")])
-wmat = as.matrix(wmat[!colnames(wmat) %in% c("id")])
+my_df2 = LCTMC:::fmt_rowwise_trans(
+  data = my_df,
+  type = "2x2",
+  X_names = c("x0", "x1", "x2"),
+  W_names = c("w0", "w1", "w2"),
+  scaling = 1
+)
+xmat = my_df2$Xmat
+wmat = my_df2$Wmat
+dt = my_df2$dt
+my_df2 = my_df2$df_trans
 
 # - # - # - # - # - # - # - # - # -
 
@@ -37,7 +44,7 @@ LCTMC:::bik_all_2x2(
   data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  dt = my_df2$dt,
+  dt = dt,
   K = 2L,
   P.rs = FALSE,
   theta.names = gen_theta_names(K = 2L, type = "2x2", purpose = "bik")
@@ -61,7 +68,7 @@ LCTMC:::bik_all_2x2(
   data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  dt = my_df2$dt,
+  dt = dt,
   K = 3L,
   P.rs = FALSE,
   theta.names = gen_theta_names(K = 3L, type = "2x2", purpose = "bik")
@@ -88,7 +95,7 @@ LCTMC:::bik_all_2x2(
   data = my_df2,
   Xmat = xmat,
   Wmat = wmat,
-  dt = my_df2$dt,
+  dt = dt,
   K = 4L,
   P.rs = FALSE,
   theta.names = gen_theta_names(K = 4L, type = "2x2", purpose = "bik")

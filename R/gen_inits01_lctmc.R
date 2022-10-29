@@ -12,7 +12,8 @@
 #' This matrix should have the same number of rows as the data frame object, `df`
 #' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations.
+#' This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param N_sub See documentation in [lctmc_2x2()] or [lctmc_3x3()]
@@ -23,8 +24,8 @@
 #' @return A list containing the estimates obtained from the K-means algorithm.
 #' This step outputs 3 elements:
 #' \itemize{
-#'   \item **step1** - a list of possible initial values, each element is the result of the K-means algorithm by trimming the individual estimate by the `pct_keep` argument
-#'   \item **step1_full** - a single named numeric vector from the K-means using 100% of individual estimates (no trimming outliers, when `pct_keep = 1`)
+#'   \item **step1_full** - a list object containing the estimation from using 100% of individual effects (no trimming outliers, when `pct_keep = 1`). \cr
+#'         First is the the theta estimates, and second is a 'kmeans' object from `kmeans()`.
 #'   \item **step1_best** - a single named numeric vector that yielded the best observed log-likelihood value by testing trying each vector from `step1`
 #' }
 #'
@@ -43,7 +44,7 @@
 #' @importFrom foreach registerDoSEQ
 #' @importFrom doParallel registerDoParallel
 #'
-#' @example inst/examples/ex_gen_inits01_lctmc.R
+#' @example inst/examples/ex_running_lctmc.R
 NULL
 
 #' @rdname gen_inits01_lctmc
@@ -226,10 +227,10 @@ gen_inits01_lctmc_2x2 = function(df,
     out_name = paste("pct_keep=", sprintf("%.3f", pk), sep = "")
     step1_out[[out_name]] = list(theta = unlist(theta), kmeans = km)
   }
-  step1_out[["person_logQ.orig"]] = person_logQ.orig
 
   ### STEP 1  ~~>  extract theta for the iteration where `pct_keep == 1`
-  step1_out.full = step1_out[[length(step1_out)-1]]$theta
+  step1_out.full = step1_out[[length(step1_out)]]$theta
+  step1_out.full.kmeans = step1_out[[length(step1_out)]]$kmeans
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
@@ -276,7 +277,11 @@ gen_inits01_lctmc_2x2 = function(df,
   cat(" * log(P(Y)) = ", step1_out.log_PY[step1_out.best_index], " when evaluated at step1's best theta (`pct_keep`=", pct_keep[step1_out.best_index], ") \n", sep = "")
 
   ### STEP 1  ~~>  exits
-  out = list(step1 = step1_out, step1_full = step1_out.full, step1_best = step1_out.best)
+  out = list(
+    # step1 = step1_out, <-- takes up a lot of memory to save
+    step1_full = list(theta = step1_out.full, kmeans = step1_out.full.kmeans),
+    step1_best = step1_out.best
+  )
   class(out) = append("lctmc_2x2.inits01", class(out))
   return(out)
 }
@@ -461,10 +466,10 @@ gen_inits01_lctmc_3x3 = function(df,
     out_name = paste("pct_keep=", sprintf("%.3f", pk), sep = "")
     step1_out[[out_name]] = list(theta = unlist(theta), kmeans = km)
   }
-  step1_out[["person_logQ.orig"]] = person_logQ.orig
 
   ### STEP 1  ~~>  extract theta for the iteration where `pct_keep == 1`
-  step1_out.full = step1_out[[length(step1_out)-1]]$theta
+  step1_out.full = step1_out[[length(step1_out)]]$theta
+  step1_out.full.kmeans = step1_out[[length(step1_out)]]$kmeans
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
@@ -511,7 +516,11 @@ gen_inits01_lctmc_3x3 = function(df,
   cat(" * log(P(Y)) = ", step1_out.log_PY[step1_out.best_index], " when evaluated at step1's best theta (`pct_keep`=", pct_keep[step1_out.best_index], ") \n\n", sep = "")
 
   ### STEP 1  ~~>  exits
-  out = list(step1 = step1_out, step1_full = step1_out.full, step1_best = step1_out.best)
+  out = list(
+    # step1 = step1_out, <-- takes up a lot of memory to save
+    step1_full = list(theta = step1_out.full, kmeans = step1_out.full.kmeans),
+    step1_best = step1_out.best
+  )
   class(out) = append("lctmc_3x3.inits01", class(out))
   return(out)
 }

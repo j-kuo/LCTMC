@@ -26,7 +26,7 @@
 #'
 #' @seealso [lctmc_2x2()] [get_SE_lctmc_2x2()]
 #'
-#' @example inst/examples/ex_rescale_theta.R
+#' @example inst/examples/ex_running_lctmc.R
 
 rescale_theta = function(df_theta = NULL, v_theta = NULL, scaling = numeric(), ...) {
   ### unpack ...

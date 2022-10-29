@@ -22,7 +22,13 @@ my_df = data.frame(
   x1 = x1, x2 = x2,
   w1 = w1, w2 = w2
 )
-my_df2 = LCTMC:::fmt_rowwise_trans(data = my_df, type = "2x2")
+my_df2 = LCTMC:::fmt_rowwise_trans(
+  data = my_df,
+  type = "2x2",
+  X_names = c("x0", "x1", "x2"),
+  W_names = c("w0", "w1", "w2"),
+  scaling = 1
+)$df_trans
 
 # use LCTMC:::Li_2x2()
 LCTMC:::Li_2x2(P = my_P, data = my_df2)
@@ -57,7 +63,13 @@ my_df = data.frame(
   x1 = x1, x2 = x2,
   w1 = w1, w2 = w2
 )
-my_df2 = LCTMC:::fmt_rowwise_trans(data = my_df, type = "3x3")
+my_df2 = LCTMC:::fmt_rowwise_trans(
+  data = my_df,
+  type = "3x3",
+  X_names = c("x0", "x1", "x2"),
+  W_names = c("w0", "w1", "w2"),
+  scaling = 1
+)$df_trans
 
 # use Li_3x3()
 LCTMC:::Li_3x3(P = my_P, data = my_df2)

@@ -18,7 +18,8 @@
 #' This matrix should have the same number of rows as the data frame object, `df`
 #' @param df_Wmat a matrix object housing the covariates that affect the latent classification part of the model. \cr
 #' This matrix should have number of rows equal to unique number of individuals in the data frame object, `df`
-#' @param df_dt a numeric vector housing the length of time interval between observations. This vector's length should be equal to number of rows in the data frame object, `df`
+#' @param df_dt a numeric vector housing the length of time interval between observations.
+#' This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
@@ -43,7 +44,7 @@
 #'
 #' @importFrom optimParallel optimParallel
 #'
-#' @example inst/examples/ex_gen_inits02_lctmc.R
+#' @example inst/examples/ex_running_lctmc.R
 NULL
 
 #' @rdname gen_inits02_lctmc

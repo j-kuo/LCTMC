@@ -16,7 +16,7 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
    * 3x3 model ("X" and "W" covariate)
    * Try for 10 sim, and how about 50?
 1. Add Examples
-   * lctmc, init01, init02, EM, SE, rescale bundled together (use \dontrun{} and code to generate example data, LCTMC.simulate())
+   * lctmc, init01, init02, EM, SE, rescale bundled together (use \dontrun{} and code to generate example data, `LCTMC.simulate`)
    * add output of model fit on example data
    * use fitted model to create example for compute functions
 1. Miscelleneous

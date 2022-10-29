@@ -29,7 +29,7 @@
 #'
 #' @seealso [compute_Q()]; [get_P_2x2()]; [lctmc_2x2()];
 #'
-#' @example inst/examples/ex_compute_P.R
+#' @example inst/examples/ex_compute_statistics.R
 compute_P = function(m, x1, x2, dt) {
   UseMethod("compute_P")
 }

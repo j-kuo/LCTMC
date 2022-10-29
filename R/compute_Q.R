@@ -24,7 +24,7 @@
 #'
 #' @seealso [lctmc_2x2()]; [lctmc_3x3()]
 #'
-#' @example inst/examples/ex_compute_Q.R
+#' @example inst/examples/ex_compute_statistics.R
 compute_Q = function(m, x1, x2) {
   UseMethod("compute_Q")
 }

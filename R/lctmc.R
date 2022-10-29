@@ -5,8 +5,10 @@
 #' @name lctmc
 #'
 #' @param data a data frame object with data stored in long-format
-#' @param X_names a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in `data`. Best set to x0, x1, x2 to avoid errors
-#' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. Best set to w0, w1, w2 to avoid errors
+#' @param X_names a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in `data`. \cr
+#' Best set to x0, x1, x2 to avoid errors
+#' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. \cr
+#' Best set to w0, w1, w2 to avoid errors
 #' @param x_scale a named numeric vector. It is a scaling parameters for covariates that affect the CTMC process. \cr
 #' For example, `x_scale = c(x0 = 1, x1 = 1/5, x2 = 1)` would convert x1 from 10 to 2.
 #' @param w_scale a named numeric vector. It is a scaling parameters for covariates that affect the latent class component of the model  \cr
@@ -52,16 +54,17 @@
 #' (2) `cl` is an object obtained from the `parallel` package, for example \cr `cl = parallel::makeCluster(spec = 2)`
 #' @param MyModelName a character scalar. Gives the current model fitting process a name. This name will be used when the function is logging the algorithm progress.
 #'
-#' @return A list object containing the 4 elements:
+#' @return A list object containing the following elements:
 #' \itemize{
 #'   \item **init01** a list object obtained from the `gen_inits01_lctmc` functions
 #'   \item **init02** a named numeric vector obtained from the `gen_inits02_lctmc` functions
 #'   \item **EM** a list object obtained from the `EM_lctmc` functions
 #'   \item **SE** a list object obtained from the `get_SE_lctmc` functions
-#'   \item **global_optim** a numeric scalar that indicates whether the MLE has converged to the global optimal point. See notes on the input argument for `test_if_global_optim`.
-#'   \item **data** a data.frame object that is identical to the input argument, `data`.
+#'   \item **global_optim** a numeric scalar that indicates whether the MLE has converged to the global optimal point.
+#'           See notes on the input argument for `test_if_global_optim`.
 #'   \item **K** an integer scalar that is identical to the input argument, `K`.
-#'   \item **n_pars** an integer scalar that indicates the number of parameters estimated (total number of parameter minus number of constrained parameters).
+#'   \item **n_pars** an integer scalar that indicates the number of parameters estimated
+#'           (total number of parameter minus number of constrained parameters).
 #'   \item **X_names** a character vector equivalent to the input argument `X_names`
 #'   \item **W_names** a character vector equivalent to the input argument `W_names`
 #'   \item **run_time** a "difftime" object. Indicating the total algorithm run time.
@@ -80,7 +83,7 @@
 #'
 #' @seealso [fmt_rowwise_trans()]; [gen_inits01_lctmc_2x2()]; [gen_inits02_lctmc_2x2()]; [EM_lctmc_2x2()]; [get_SE_lctmc_2x2()]; [rescale_theta()]
 #'
-#' @example inst/examples/ex_lctmc.R
+#' @example inst/examples/ex_running_lctmc.R
 NULL
 
 #' @rdname lctmc
@@ -128,39 +131,23 @@ lctmc_2x2 = function(data = data.frame(),
   cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
   cat("--------------------\n\n", sep = "")
 
-  ### data (transition indicators), X matrix, W matrix, and dt
+  ### process data + scaling if any
   trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
   trace_lctmc_progress(section = "header2", type = "format", MyModelName = MyModelName)
-  my_df = fmt_rowwise_trans(data = data, type = "2x2")
+
   scaling = c(dt_scale, x_scale, w_scale)
-
-  if (any(scaling != 1)) {
-    ## loop through each variable that need to be scaled
-    for (sc in seq_along(scaling)) {
-      if (scaling[sc] != 1) {
-        # msg
-        cat(" * `", names(scaling)[sc], "` being scaled by a factor of ", sprintf("%.3f", scaling[sc]), "\n", sep = "")
-
-        # scaling
-        my_df[[names(scaling)[sc]]] = my_df[[names(scaling)[sc]]] * scaling[sc]
-      }
-    }
-
-    ## obtain X mat, an observation level matrix
-    my_df.Xmat = as.matrix(my_df[, X_names])
-
-    ## obtain W mat, an individual level matrix
-    my_df.Wmat = unique(my_df[, c("id", W_names)])
-    my_df.Wmat = as.matrix(my_df.Wmat[!colnames(my_df.Wmat) %in% "id"])
-
-    ## obtain dt, an observation level vector
-    my_df.dt = my_df$dt
-
-    ## obtain data frame with row-wise transition indicators
-    my_df = my_df[!colnames(my_df) %in% c(X_names, W_names, "dt")]
-  } else {
-    cat(" * no scaling were applied", "\n", sep = "")
-  }
+  my_df = fmt_rowwise_trans(
+    data = data,
+    type = "2x2",
+    X_names = X_names,
+    W_names = W_names,
+    scaling = scaling,
+    trace = TRUE
+  )
+  my_df.Xmat = my_df[["Xmat"]]
+  my_df.Wmat = my_df[["Wmat"]]
+  my_df.dt = my_df[["dt"]]
+  my_df = my_df[["df_trans"]]
 
   trace_lctmc_progress(section = "tail1", type = "format", ref_t = t0, MyModelName = MyModelName)
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
@@ -192,8 +179,14 @@ lctmc_2x2 = function(data = data.frame(),
   trace_lctmc_progress(section = "header2", type = "init2", MyModelName = MyModelName)
   cat(" * using `which_step1` = '", which_step1, "' as the intial values for Step 2 \n", sep = "")
 
+  if (which_step1 == "100%") {
+    step2_inits = my_model.init01[["step1_full"]]$theta
+  } else {
+    step2_inits = my_model.init01[["step1_best"]]
+  }
+
   my_model.init02 = gen_inits02_lctmc_2x2(
-    step2_inits = my_model.init01[[ifelse(which_step1 == "100%", "step1_full", "step1_best")]],
+    step2_inits = step2_inits,
     df = my_df,
     df_Xmat = my_df.Xmat,
     df_Wmat = my_df.Wmat,
@@ -260,13 +253,13 @@ lctmc_2x2 = function(data = data.frame(),
 
   my_model.rescale = rescale_theta(
     df_theta = my_model.SE$SE,
-    v_theta = my_model.init01$step1_full,
+    v_theta = my_model.init01$step1_full$theta,
     scaling = scaling,
     mult_vars = c("mle_theta", "SE", "L_CI", "U_CI"),
     add_vars = c("mle_theta", "L_CI", "U_CI")
   )
   my_model.SE$SE = my_model.rescale$df_theta
-  my_model.init01$step1_full = my_model.rescale$v_theta
+  my_model.init01$step1_full$theta = my_model.rescale$v_theta
 
   trace_lctmc_progress(section = "tail1", type = "rescale", ref_t = t0, MyModelName = MyModelName)
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
@@ -279,12 +272,18 @@ lctmc_2x2 = function(data = data.frame(),
     theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
 
     ## various data objects (non-scaled) ~ this is because true parameter values are not scaled
-    my_df.test = fmt_rowwise_trans(data = data, type = "2x2")
-    my_df.Xmat.test = as.matrix(my_df.test[, X_names])
-    my_df.Wmat.test = unique(my_df.test[, c("id", W_names)])
-    my_df.Wmat.test = as.matrix(my_df.Wmat.test[!colnames(my_df.Wmat.test) %in% c("id")])
+    my_df.test = fmt_rowwise_trans(
+      data = data,
+      type = "2x2",
+      X_names = X_names,
+      W_names = W_names,
+      scaling = 1,
+      trace = FALSE
+    )
+    my_df.Xmat.test = my_df.test$Xmat
+    my_df.Wmat.test = my_df.test$Wmat
     my_df.dt.test = my_df.test$dt
-    my_df.test = my_df.test[!colnames(my_df.test) %in% c(X_names, W_names, "dt")]
+    my_df.test = my_df.test$df_trans
 
     ## get true parameter as a named vector
     mle_tht = my_model.SE$SE$mle_theta
@@ -341,7 +340,6 @@ lctmc_2x2 = function(data = data.frame(),
     EM = my_model.EM,
     SE = my_model.SE,
     global_optim = global_optim,
-    data = data,
     K = K,
     n_pars = n_pars,
     X_names = X_names,
@@ -397,39 +395,23 @@ lctmc_3x3 = function(data = data.frame(),
   cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
   cat("--------------------\n\n", sep = "")
 
-  ### data (transition indicators), X matrix, W matrix, and dt
+  ### process data + scaling if any
   trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
   trace_lctmc_progress(section = "header2", type = "format", MyModelName = MyModelName)
-  my_df = fmt_rowwise_trans(data = data, type = "3x3")
+
   scaling = c(dt_scale, x_scale, w_scale)
-
-  if (any(scaling != 1)) {
-    ## loop through each variable that need to be scaled
-    for (sc in seq_along(scaling)) {
-      if (scaling[sc] != 1) {
-        # msg
-        cat(" * `", names(scaling)[sc], "` being scaled by a factor of ", sprintf("%.3f", scaling[sc]), "\n", sep = "")
-
-        # scaling
-        my_df[[names(scaling)[sc]]] = my_df[[names(scaling)[sc]]] * scaling[sc]
-      }
-    }
-
-    ## obtain X mat, an observation level matrix
-    my_df.Xmat = as.matrix(my_df[, X_names])
-
-    ## obtain W mat, an individual level matrix
-    my_df.Wmat = unique(my_df[, c("id", W_names)])
-    my_df.Wmat = as.matrix(my_df.Wmat[!colnames(my_df.Wmat) %in% "id"])
-
-    ## obtain dt, an observation level vector
-    my_df.dt = my_df$dt
-
-    ## obtain data frame with row-wise transition indicators
-    my_df = my_df[!colnames(my_df) %in% c(X_names, W_names, "dt")]
-  } else {
-    cat(" * no scaling were applied", "\n", sep = "")
-  }
+  my_df = fmt_rowwise_trans(
+    data = data,
+    type = "3x3",
+    X_names = X_names,
+    W_names = W_names,
+    scaling = scaling,
+    trace = TRUE
+  )
+  my_df.Xmat = my_df[["Xmat"]]
+  my_df.Wmat = my_df[["Wmat"]]
+  my_df.dt = my_df[["dt"]]
+  my_df = my_df[["df_trans"]]
 
   trace_lctmc_progress(section = "tail1", type = "format", ref_t = t0, MyModelName = MyModelName)
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
@@ -461,8 +443,14 @@ lctmc_3x3 = function(data = data.frame(),
   trace_lctmc_progress(section = "header2", type = "init2", MyModelName = MyModelName)
   cat(" * using `which_step1` = '", which_step1, "' as the intial values for Step 2 \n", sep = "")
 
+  if (which_step1 == "100%") {
+    step2_inits = my_model.init01[["step1_full"]]$theta
+  } else {
+    step2_inits = my_model.init01[["step1_best"]]
+  }
+
   my_model.init02 = gen_inits02_lctmc_3x3(
-    step2_inits = my_model.init01[[ifelse(which_step1 == "100%", "step1_full", "step1_best")]],
+    step2_inits = step2_inits,
     df = my_df,
     df_Xmat = my_df.Xmat,
     df_Wmat = my_df.Wmat,
@@ -529,13 +517,13 @@ lctmc_3x3 = function(data = data.frame(),
 
   my_model.rescale = rescale_theta(
     df_theta = my_model.SE$SE,
-    v_theta = my_model.init01$step1_full,
+    v_theta = my_model.init01$step1_full$theta,
     scaling = scaling,
     mult_vars = c("mle_theta", "SE", "L_CI", "U_CI"),
     add_vars = c("mle_theta", "L_CI", "U_CI")
   )
   my_model.SE$SE = my_model.rescale$df_theta
-  my_model.init01$step1_full = my_model.rescale$v_theta
+  my_model.init01$step1_full$theta = my_model.rescale$v_theta
 
   trace_lctmc_progress(section = "tail1", type = "rescale", ref_t = t0, MyModelName = MyModelName)
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
@@ -548,12 +536,18 @@ lctmc_3x3 = function(data = data.frame(),
     theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
 
     ## various data objects (non-scaled) ~ this is because true parameter values are not scaled
-    my_df.test = fmt_rowwise_trans(data = data, type = "3x3")
-    my_df.Xmat.test = as.matrix(my_df.test[, X_names])
-    my_df.Wmat.test = unique(my_df.test[, c("id", W_names)])
-    my_df.Wmat.test = as.matrix(my_df.Wmat.test[!colnames(my_df.Wmat.test) %in% c("id")])
+    my_df.test = fmt_rowwise_trans(
+      data = data,
+      type = "3x3",
+      X_names = X_names,
+      W_names = W_names,
+      scaling = 1,
+      trace = FALSE
+    )
+    my_df.Xmat.test = my_df.test$Xmat
+    my_df.Wmat.test = my_df.test$Wmat
     my_df.dt.test = my_df.test$dt
-    my_df.test = my_df.test[!colnames(my_df.test) %in% c(X_names, W_names, "dt")]
+    my_df.test = my_df.test$df_trans
 
     ## get true parameter as a named vector
     mle_tht = my_model.SE$SE$mle_theta
@@ -610,7 +604,6 @@ lctmc_3x3 = function(data = data.frame(),
     EM = my_model.EM,
     SE = my_model.SE,
     global_optim = global_optim,
-    data = data,
     K = K,
     n_pars = n_pars,
     X_names = X_names,
