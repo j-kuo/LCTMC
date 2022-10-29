@@ -1,3 +1,8 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/j-kuo/LCTMC/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/j-kuo/LCTMC/actions/workflows/R-CMD-check.yaml)
+[![](https://img.shields.io/badge/R%20version-4.2.1-steelblue.svg)](https://cran.r-project.org/bin/windows/base/old/4.2.1)
+<!-- badges: end -->
+
 # The 'LCTMC' package
 
 This R package allows users to fit a **L**atent class **C**ontinuous-**T**ime **M**arkov **C**hain model to longitudinal categorical data. 
@@ -11,18 +16,14 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
 ## Work in Progress
 
 1. Can model run smoothly for all 3 scenarios?
-   * 2x2 model (only "X" covariate)
-   * 3x3 model (only "X" covariate)
-   * 3x3 model ("X" and "W" covariate)
-   * Try for 10 sim, and how about 50?
-1. ~~Add Examples~~
-   * ~~lctmc, init01, init02, EM, SE, rescale bundled together (use \dontrun{} and code to generate example data, `LCTMC.simulate`)~~
-   * ~~add output of model fit on example data~~
-   * ~~use fitted model to create example for compute functions~~
+   1. 2x2 model (only "X" covariate)
+   1. 3x3 model (only "X" covariate)
+   1. 3x3 model ("X" and "W" covariate)
+1. Try for 10 sim, and how about 50?
+   * How's the coverage & bias estimate
+   * Is there an improvement from by adding the "W" covariates when there are only few observations
 1. Miscelleneous
-   * add badge
-   * ~~license~~
-   * is there an improvement from by adding the "W" covariates when there are only few observations
+   * ~~add badge~~
 
 ## Authors
 
