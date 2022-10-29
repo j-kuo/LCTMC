@@ -101,23 +101,23 @@ Regardless, this approach will still produce usable initial values for the next 
     x_scale = c(x0 = 1, x1 = 1/7, x2 = 1),
     w_scale = c(w0 = 1, w1 = 1/9, w2 = 1),
     # general model specification
-    K = 3L,
+    K = 2L,
     X_names = c('x0', 'x1', 'x2'),
     W_names = c('w0', 'w1', 'w2'),
-    par_constraint = c(alpha1.1 = 0, alpha1.2 = 0, alpha2.1 = 0, alpha2.2 = 0),
+    par_constraint = c(alpha1.1 = 0, alpha2.1 = 0),
     # controls ~ gen_inits
     N_sub = Inf,
     pct_keep = seq(0.40, 1.00, 0.001),
     parallelize = TRUE,
     which_step1 = "best",
     # controls ~ EM
-    theta.names = LCTMC::gen_theta_names(K = 3L, type = "2x2", purpose = "em"),
+    theta.names = LCTMC::gen_theta_names(K = 2L, type = "2x2", purpose = "em"),
     EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
     optim_controls = list(fnscale = -nrow(example_df2x2), maxit = 1e8, factr = 1e-4),
     # misc.
     test_if_global_optim = list(test = FALSE, true_params = NA),
     parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
-    MyModelName = "My 2x2 (K3) Model"
+    MyModelName = "My 2x2 (K2) Model"
   )
 
   # - # - # - # - # - # - # - # - #

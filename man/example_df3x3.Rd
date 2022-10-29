@@ -18,7 +18,7 @@ in this case, stage 3 is set to be an absorbing state (e.g., death)}
 }
 }
 \usage{
-data(example_df3x3)
+data("example_df3x3")
 }
 \description{
 The data set was simulated using the 'LCTMC.simulate' package. This data set

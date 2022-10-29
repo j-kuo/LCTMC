@@ -72,9 +72,11 @@ get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c()) {
   D = -1 - C
   C_exp = C * exp(r1*dt)
   D_exp = D * exp(r2*dt)
-  p21 = -(r1*C_exp + r2*D_exp) / q23 - C_exp - D_exp
-  p23 = C_exp + D_exp + 1
-  p22 = 1 - p21 - p23
+  CD_exp = C_exp + D_exp
+  p22 = (r1*C_exp + r2*D_exp) / q23 # 1 - p21 - p23
+  p23 = CD_exp + 1 # C_exp + D_exp + 1
+  p21 = -p22 - CD_exp # -(r1*C_exp + r2*D_exp) / q23 - C_exp - D_exp
+
 
   # output as df
   data.frame(

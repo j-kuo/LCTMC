@@ -32,7 +32,7 @@
                                ref_t = tt,
                                MyModelName = xx)
 
-  cat(" * some stuff here \n * xxx \n * yyy \n * wow \n")
+  cat(" * some notes here \n * xyz \n * abc \n * wow~ \n * more notes \n")
 
   LCTMC:::trace_lctmc_progress(width = 101L,
                                section = "tail1", type = "rescale",

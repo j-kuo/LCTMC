@@ -17,7 +17,7 @@ A data frame with dimension \strong{60895 x 7}, columns have the following inter
 }
 }
 \usage{
-data(example_df2x2)
+data("example_df2x2")
 }
 \description{
 The data set was simulated using the 'LCTMC.simulate' package. This data set

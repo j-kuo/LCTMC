@@ -91,13 +91,18 @@ predict.lctmc_2x2 = function(object, ...) {
   df_pred = df_pred[order(df_pred$id, df_pred$obsTime), ]
 
   ### format data for computing `bik`
-  my_df1 = fmt_rowwise_trans(data = df_past, type = "2x2")
-  my_df1.IDs = unique(my_df1$id)
-  my_df1.Xmat = as.matrix(my_df1[, c("x0", "x1", "x2")])
-  my_df1.Wmat = unique(my_df1[, c("id", "w0", "w1", "w2")])
-  my_df1.Wmat = as.matrix(my_df1.Wmat[!colnames(my_df1.Wmat) %in% c("id")])
+  my_df1 = fmt_rowwise_trans(
+    data = df_past,
+    type = "2x2",
+    X_names = lctmc$X_names,
+    W_names = lctmc$W_names,
+    scaling = 1
+  )
+  my_df1.IDs = unique(my_df1$df_trans[["id"]])
+  my_df1.Xmat = my_df1$Xmat
+  my_df1.Wmat = my_df1$Wmat
   my_df1.dt = my_df1$dt
-
+  my_df1 = my_df1$df_trans
 
   ### which parameter vector to use
   if (param.type == "mle") {
@@ -307,12 +312,18 @@ predict.lctmc_3x3 = function(object, ...) {
   df_pred = df_pred[order(df_pred$id, df_pred$obsTime), ]
 
   ### format data for computing `bik`
-  my_df1 = fmt_rowwise_trans(data = df_past, type = "3x3")
-  my_df1.IDs = unique(my_df1$id)
-  my_df1.Xmat = as.matrix(my_df1[, c("x0", "x1", "x2")])
-  my_df1.Wmat = unique(my_df1[, c("id", "w0", "w1", "w2")])
-  my_df1.Wmat = as.matrix(my_df1.Wmat[!colnames(my_df1.Wmat) %in% c("id")])
+  my_df1 = fmt_rowwise_trans(
+    data = df_past,
+    type = "3x3",
+    X_names = lctmc$X_names,
+    W_names = lctmc$W_names,
+    scaling = 1
+  )
+  my_df1.IDs = unique(my_df1$df_trans[["id"]])
+  my_df1.Xmat = my_df1$Xmat
+  my_df1.Wmat = my_df1$Wmat
   my_df1.dt = my_df1$dt
+  my_df1 = my_df1$df_trans
 
 
   ### which parameter vector to use

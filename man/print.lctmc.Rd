@@ -15,14 +15,12 @@
 Prints estimated coefficient for a latent class CTMC model
 }
 \examples{
-\dontrun{
-  # first fit model via `lctmc_2x2()` or `lctmc_3x3()`
-  my_model = lctmc_2x2(...)
+# load model
+data('model_2x2', package = "LCTMC")
 
-  # prints
-  print(x = my_model)
+# prints
+LCTMC:::print.lctmc(x = model_2x2)
 
-  # prints alternative
-  my_model
-}
+# prints alternative
+model_2x2
 }
