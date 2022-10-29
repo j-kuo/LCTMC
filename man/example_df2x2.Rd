@@ -5,7 +5,7 @@
 \alias{example_df2x2}
 \title{A simulated data set for binary outcome.}
 \format{
-A data frame with dimension \strong{110000 x 7}, columns have the following interpretation:
+A data frame with dimension \strong{60895 x 7}, columns have the following interpretation:
 \describe{
 \item{id}{ID number as the individual/person identifier (character)}
 \item{obsTime}{time of observation/data collection (numeric)}

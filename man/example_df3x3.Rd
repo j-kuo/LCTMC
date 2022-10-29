@@ -5,11 +5,12 @@
 \alias{example_df3x3}
 \title{A simulated data set for 3-category outcome with one absorbing state.}
 \format{
-A data frame with dimension \strong{89985 x 7}, columns have the following interpretation:
+A data frame with dimension \strong{52243 x 7}, columns have the following interpretation:
 \describe{
 \item{id}{ID number as the individual/person identifier (character)}
 \item{obsTime}{time of observation/data collection (numeric)}
-\item{state_at_obsTime}{the observed outcome corresponding to the time of observation/data collection (numeric; 1, 2, or 3)}
+\item{state_at_obsTime}{the observed outcome corresponding to the time of observation/data collection (numeric; 1, 2, or 3). \cr
+in this case, stage 3 is set to be an absorbing state (e.g., death)}
 \item{x1}{variable #1 that can affect the CTMC process (numeric)}
 \item{x2}{variable #2 that can affect the CTMC process (numeric)}
 \item{w1}{variable #1 that can affect the latent class probabilities (numeric)}
