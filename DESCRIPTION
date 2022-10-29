@@ -6,7 +6,7 @@ Authors@R: c(
     person("Jacky", "Kuo", email = "jacky.kuo@uth.tmc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6825-9938")),
     person("Wenyaw", "Chan", email = "", role = c("ths"), comment = ""))
 Description: Fits a latent class continuous-time Markov chain model for longitudinal binary and 3-category outcomes. This model estimates the transition rates to move between disease states while assuming that K number of latent classes exists among the population. Each latent class characterized by difference in magnitude of the baseline transition rates and the transition rate ratios. The 'LCTMC' package fits the model through via a direct optimization approach and also the Expectation-Maximization algorithm. 
-License: MIT + file LICENSE
+License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
