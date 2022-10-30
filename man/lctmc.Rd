@@ -22,7 +22,6 @@ lctmc_2x2(
   theta.names = list(),
   EM_controls = list(),
   optim_controls = list(),
-  test_if_global_optim = list(test = FALSE, true_params = NA),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_2x2"
 )
@@ -43,7 +42,6 @@ lctmc_3x3(
   theta.names = list(),
   EM_controls = list(),
   optim_controls = list(),
-  test_if_global_optim = list(test = FALSE, true_params = NA),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_3x3"
 )
@@ -103,12 +101,6 @@ The following elements are necessary for running the algorithm: \cr
 (2) \code{maxit} a numeric scalar. This value specifies the max number of L-BFGS iterations. \cr
 (3) \code{factr} a numeric scalar. This value controls the tolerance of L-BFGS optimization. The smaller in magnitude this argument is the more precise the optimization algorithm will be.}
 
-\item{test_if_global_optim}{a list containing two elements: \code{test} and \code{true_params}. \cr
-(1) \code{test} is a logical scalar. It indicates whether the function should check whether the MLE is actually a global optimal point.
-This is done by comparing the observed log likelihood at MLE vs. the log likelihood at the true parameter value. Hence, the second element of the list is \code{true_params}.
-For this reason, it only makes sense to check when fitting simulated datasets where we would know the true parameter values. \cr
-(2) \code{true_params} should be generated using the "LCTMC.simulate" package via the \code{gen_true_param()} function.}
-
 \item{parallel_optim}{a list object telling the function whether parallel process should be used. \cr
 The list should contain \strong{two} elements: \cr
 (1) \code{run} a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the \code{cl} argument is ignored. \cr
@@ -123,8 +115,6 @@ A list object containing the following elements:
 \item \strong{init02} a named numeric vector obtained from the \code{gen_inits02_lctmc} functions
 \item \strong{EM} a list object obtained from the \code{EM_lctmc} functions
 \item \strong{SE} a list object obtained from the \code{get_SE_lctmc} functions
-\item \strong{global_optim} a numeric scalar that indicates whether the MLE has converged to the global optimal point.
-See notes on the input argument for \code{test_if_global_optim}.
 \item \strong{K} an integer scalar that is identical to the input argument, \code{K}.
 \item \strong{n_pars} an integer scalar that indicates the number of parameters estimated
 (total number of parameter minus number of constrained parameters).
@@ -145,7 +135,6 @@ The model fitting process essentially breaks down into the following steps:
 \item EM algorithm to obtain tighter estimate
 \item hessian approximation for SE
 \item re-scale parameters back to original scale
-\item (optional) test for global optimal if specified to be tested
 }
 }
 \examples{

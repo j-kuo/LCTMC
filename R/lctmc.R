@@ -43,11 +43,6 @@
 #' (1) `fnscale` a numeric scalar. This value scales the objective function. Additionally, its sign determines whether the algorithm is performing a maximization or minimization task. \cr
 #' (2) `maxit` a numeric scalar. This value specifies the max number of L-BFGS iterations. \cr
 #' (3) `factr` a numeric scalar. This value controls the tolerance of L-BFGS optimization. The smaller in magnitude this argument is the more precise the optimization algorithm will be.
-#' @param test_if_global_optim a list containing two elements: `test` and `true_params`. \cr
-#' (1) `test` is a logical scalar. It indicates whether the function should check whether the MLE is actually a global optimal point.
-#' This is done by comparing the observed log likelihood at MLE vs. the log likelihood at the true parameter value. Hence, the second element of the list is `true_params`.
-#' For this reason, it only makes sense to check when fitting simulated datasets where we would know the true parameter values. \cr
-#' (2) `true_params` should be generated using the "LCTMC.simulate" package via the `gen_true_param()` function.
 #' @param parallel_optim a list object telling the function whether parallel process should be used. \cr
 #' The list should contain **two** elements: \cr
 #' (1) `run` a logical scalar, if TRUE then this function will use parallel processing. If FALSE, then the `cl` argument is ignored. \cr
@@ -60,8 +55,6 @@
 #'   \item **init02** a named numeric vector obtained from the `gen_inits02_lctmc` functions
 #'   \item **EM** a list object obtained from the `EM_lctmc` functions
 #'   \item **SE** a list object obtained from the `get_SE_lctmc` functions
-#'   \item **global_optim** a numeric scalar that indicates whether the MLE has converged to the global optimal point.
-#'           See notes on the input argument for `test_if_global_optim`.
 #'   \item **K** an integer scalar that is identical to the input argument, `K`.
 #'   \item **n_pars** an integer scalar that indicates the number of parameters estimated
 #'           (total number of parameter minus number of constrained parameters).
@@ -78,7 +71,6 @@
 #'   \item EM algorithm to obtain tighter estimate
 #'   \item hessian approximation for SE
 #'   \item re-scale parameters back to original scale
-#'   \item (optional) test for global optimal if specified to be tested
 #' }
 #'
 #' @seealso [fmt_rowwise_trans()]; [gen_inits01_lctmc_2x2()]; [gen_inits02_lctmc_2x2()]; [EM_lctmc_2x2()]; [get_SE_lctmc_2x2()]; [rescale_theta()]
@@ -103,7 +95,6 @@ lctmc_2x2 = function(data = data.frame(),
                      theta.names = list(),
                      EM_controls = list(),
                      optim_controls = list(),
-                     test_if_global_optim = list(test = FALSE, true_params = NA),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_2x2") {
   ### checking
@@ -265,64 +256,6 @@ lctmc_2x2 = function(data = data.frame(),
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
-  ### test if global optimum has been reached by comparing with true parameter values (i.e., only used when evaluating simulation result)
-  global_optim = NULL
-  if (test_if_global_optim$test && K == 3) {
-    ## generate theta names for the bik() function
-    theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
-
-    ## various data objects (non-scaled) ~ this is because true parameter values are not scaled
-    my_df.test = fmt_rowwise_trans(
-      data = data,
-      type = "2x2",
-      X_names = X_names,
-      W_names = W_names,
-      scaling = 1,
-      trace = FALSE
-    )
-    my_df.Xmat.test = my_df.test$Xmat
-    my_df.Wmat.test = my_df.test$Wmat
-    my_df.dt.test = my_df.test$dt
-    my_df.test = my_df.test$df_trans
-
-    ## get true parameter as a named vector
-    mle_tht = my_model.SE$SE$mle_theta
-    names(mle_tht) = my_model.SE$SE$names
-    df_true_tht = align_MLE_2x2(true = test_if_global_optim$true_params, mle = mle_tht, K = K)
-    true_tht = df_true_tht$true_theta
-    names(true_tht) = df_true_tht$names
-
-    ## compute LPY at True params
-    bik_at_true = bik_all_2x2(
-      theta = true_tht,
-      data = my_df.test,
-      Xmat = my_df.Xmat.test,
-      Wmat = my_df.Wmat.test,
-      dt = my_df.dt.test,
-      K = K,
-      P.rs = FALSE,
-      theta.names = theta.names.bik
-    )
-    LPY_at_true = sum(log(Reduce(`+`, bik_at_true)))
-
-    ## compute LPY at MLE params
-    bik_at_mle = bik_all_2x2(
-      theta = mle_tht,
-      data = my_df.test,
-      Xmat = my_df.Xmat.test,
-      Wmat = my_df.Wmat.test,
-      dt = my_df.dt.test,
-      K = K,
-      P.rs = FALSE,
-      theta.names = theta.names.bik
-    )
-    LPY_at_mle = sum(log(Reduce(`+`, bik_at_mle)))
-
-    ## result
-    global_optim = ifelse((LPY_at_true - LPY_at_mle) >= 1, 0, 1)
-  }
-
-
   ### close parallel connection
   if (parallel_optim$run) {
     parallel::stopCluster(cl = parallel_optim$cl)
@@ -339,7 +272,6 @@ lctmc_2x2 = function(data = data.frame(),
     init02 = my_model.init02,
     EM = my_model.EM,
     SE = my_model.SE,
-    global_optim = global_optim,
     K = K,
     n_pars = n_pars,
     X_names = X_names,
@@ -367,7 +299,6 @@ lctmc_3x3 = function(data = data.frame(),
                      theta.names = list(),
                      EM_controls = list(),
                      optim_controls = list(),
-                     test_if_global_optim = list(test = FALSE, true_params = NA),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_3x3") {
   ### checking
@@ -529,64 +460,6 @@ lctmc_3x3 = function(data = data.frame(),
   trace_lctmc_progress(section = "tail2", type = "format", ref_t = t0, MyModelName = MyModelName)
 
 
-  ### test if global optimum has been reached by comparing with true parameter values (i.e., only used when evaluating simulation result)
-  global_optim = NULL
-  if (test_if_global_optim$test && K == 3) {
-    ## generate theta names for the bik() function
-    theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
-
-    ## various data objects (non-scaled) ~ this is because true parameter values are not scaled
-    my_df.test = fmt_rowwise_trans(
-      data = data,
-      type = "3x3",
-      X_names = X_names,
-      W_names = W_names,
-      scaling = 1,
-      trace = FALSE
-    )
-    my_df.Xmat.test = my_df.test$Xmat
-    my_df.Wmat.test = my_df.test$Wmat
-    my_df.dt.test = my_df.test$dt
-    my_df.test = my_df.test$df_trans
-
-    ## get true parameter as a named vector
-    mle_tht = my_model.SE$SE$mle_theta
-    names(mle_tht) = my_model.SE$SE$names
-    df_true_tht = align_MLE_3x3(true = test_if_global_optim$true_params, mle = mle_tht, K = K)
-    true_tht = df_true_tht$true_theta
-    names(true_tht) = df_true_tht$names
-
-    ## compute LPY at True params
-    bik_at_true = bik_all_3x3(
-      theta = true_tht,
-      data = my_df.test,
-      Xmat = my_df.Xmat.test,
-      Wmat = my_df.Wmat.test,
-      dt = my_df.dt.test,
-      K = K,
-      P.rs = FALSE,
-      theta.names = theta.names.bik
-    )
-    LPY_at_true = sum(log(Reduce(`+`, bik_at_true)))
-
-    ## compute LPY at MLE params
-    bik_at_mle = bik_all_3x3(
-      theta = mle_tht,
-      data = my_df.test,
-      Xmat = my_df.Xmat.test,
-      Wmat = my_df.Wmat.test,
-      dt = my_df.dt.test,
-      K = K,
-      P.rs = FALSE,
-      theta.names = theta.names.bik
-    )
-    LPY_at_mle = sum(log(Reduce(`+`, bik_at_mle)))
-
-    ## result
-    global_optim = ifelse((LPY_at_true - LPY_at_mle) >= 1, 0, 1)
-  }
-
-
   ### close parallel connection
   if (parallel_optim$run) {
     parallel::stopCluster(cl = parallel_optim$cl)
@@ -603,7 +476,6 @@ lctmc_3x3 = function(data = data.frame(),
     init02 = my_model.init02,
     EM = my_model.EM,
     SE = my_model.SE,
-    global_optim = global_optim,
     K = K,
     n_pars = n_pars,
     X_names = X_names,

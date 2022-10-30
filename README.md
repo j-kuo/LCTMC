@@ -22,8 +22,9 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
 1. Try for 10 sim, and how about 50?
    * How's the coverage & bias estimate
    * Is there an improvement from by adding the "W" covariates when there are only few observations
-1. Miscelleneous
-   * ~~add badge~~
+1. ~~Issue with `align` functions?~~
+   * ~~When class 1's `alpha0` is not the largest, bias/coverage of other classes seems to be inaccurate~~
+1. Add function to create control objects for `lctmc` functions
 
 ## Authors
 

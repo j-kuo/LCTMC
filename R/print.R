@@ -25,7 +25,6 @@ print.lctmc = function(x, ...){
       n_pars = x$n_pars,
       hess_code = x$SE$hess_code,
       covariance_code = x$SE$covariance_code,
-      global_optim = ifelse(is.null(x$global_optim), NA, x$global_optim),
       run_time = paste(sprintf("%.2f", x$run_time), units(x$run_time), sep = " ")
     )
   )
