@@ -7,7 +7,7 @@
 \method{print}{lctmc}(x, ...)
 }
 \arguments{
-\item{x}{a "lctmc" object obtained from either the \code{lctmc_2x2()} or the \code{lctmc_3x3()} function}
+\item{x}{a "lctmc" object obtained from either the \code{\link[=lctmc_2x2]{lctmc_2x2()}} or the \code{\link[=lctmc_3x3]{lctmc_3x3()}} function}
 
 \item{...}{NULL}
 }

@@ -13,10 +13,10 @@ gen_inits01_lctmc_2x2(
   df_dt,
   K,
   par_constraint,
+  parallel_optim,
   N_sub,
   pct_keep,
-  parallelize,
-  parallel_optim
+  parallelize
 )
 
 gen_inits01_lctmc_3x3(
@@ -26,10 +26,10 @@ gen_inits01_lctmc_3x3(
   df_dt,
   K,
   par_constraint,
+  parallel_optim,
   N_sub,
   pct_keep,
-  parallelize,
-  parallel_optim
+  parallelize
 )
 }
 \arguments{
@@ -49,13 +49,19 @@ This vector's length should be equal to number of rows in the data frame object,
 
 \item{par_constraint}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{N_sub}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
-
-\item{pct_keep}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
-
-\item{parallelize}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
-
 \item{parallel_optim}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
+
+\item{N_sub}{a numeric scalar. This is used for step 1 of initial value generation where the algorithm fits a traditional CTMC model for each individual. \cr
+Fitting the model for \emph{all} individuals might have long run time without improvement in the accuracy of the estimation.
+Thus, using this argument to set a maximum number of individuals to use for the initial value generation could save some computation time.}
+
+\item{pct_keep}{a numeric vector where each element of the vector ranges from 0 to 1.
+This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation.
+The algorithm will consider all percentages specified in this vector. \cr
+For example, for \code{pct_keep = c(0.5)}, after individuals effects are estimated, only the 25th to 75th percentile are fed into the K-Means algorithm to obtain cluster level estimates. \cr
+Additionally, note that the threshold "1" is always appended to \code{pct_keep}, so it will always consider the 100\% case.}
+
+\item{parallelize}{a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized}
 }
 \value{
 A list containing the estimates obtained from the K-means algorithm.

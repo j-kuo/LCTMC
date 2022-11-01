@@ -11,10 +11,8 @@
 #' Best set to w0, w1, w2 to avoid errors
 #' @param scaling a named numeric vector indicating which covariate are scaled by how much. Set to 1 for no scaling. \cr
 #' For example, `scaling = c(x0 = 1, x1 = 0.01, x2 = 1, w0 = 1, w1 = 1, w2 = 1, dt = 0.002)`
-#' @param ... the following are optional parameters\
-#' \describe{
-#'   \item{trace}{a logical scalar, if TRUE, function will print which parameters were scaled. Default is FALSE which does not print messages}
-#' }
+#' @param trace a logical scalar, if TRUE, function will print which parameters were scaled.
+#' Default is FALSE which does not print messages
 #'
 #' @return a list object containing the 4 major data objects needed to perform model fitting. The objects are the following:
 #' \describe{
@@ -33,20 +31,16 @@
 #'   \item each person indicated by the "id" column should have at least 2 observation minimum
 #' }
 #'
-#' @seealso [lctmc_2x2()], [lctmc_3x3()]
+#' @seealso [lctmc_2x2()]; [lctmc_3x3()]; [create_controls()]
 #'
 #' @example inst/examples/ex_fmt_rowwise_trans.R
 
 fmt_rowwise_trans = function(data = data.frame(),
+                             X_names = c("x0"),
+                             W_names = c("x0"),
                              type = c("2x2", "3x3"),
-                             X_names = c("x"),
-                             W_names = c("w"),
-                             scaling = c(x = 1, w = 1),
-                             ...) {
-  ### optional args
-  opt_args = list(...)
-  trace = ifelse(is.null(opt_args$trace), FALSE, opt_args$trace)
-
+                             scaling = c("x0" = 1),
+                             trace = FALSE) {
   ### check (1)
   if (!"id" %in% colnames(data)) {
     stop("`id` should be a column name in `data` serving as the individual level identifier")

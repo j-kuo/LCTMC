@@ -6,17 +6,15 @@
 \usage{
 fmt_rowwise_trans(
   data = data.frame(),
+  X_names = c("x0"),
+  W_names = c("x0"),
   type = c("2x2", "3x3"),
-  X_names = c("x"),
-  W_names = c("w"),
-  scaling = c(x = 1, w = 1),
-  ...
+  scaling = c(x0 = 1),
+  trace = FALSE
 )
 }
 \arguments{
 \item{data}{a data frame object. Data should be stored in long format. See example for data structure}
-
-\item{type}{a character scalar. Equals either "2x2" or "3x3" to indicate the number of category in the outcome variable.}
 
 \item{X_names}{a named character vector. Hosting the names of covariates for the CTMC model. It should be a column in \code{data}. \cr
 Best set to x0, x1, x2 to avoid errors}
@@ -24,13 +22,13 @@ Best set to x0, x1, x2 to avoid errors}
 \item{W_names}{a named character vector. Hosting names of covariates for the latent class component. It should be a column in \code{data}. \cr
 Best set to w0, w1, w2 to avoid errors}
 
+\item{type}{a character scalar. Equals either "2x2" or "3x3" to indicate the number of category in the outcome variable.}
+
 \item{scaling}{a named numeric vector indicating which covariate are scaled by how much. Set to 1 for no scaling. \cr
 For example, \code{scaling = c(x0 = 1, x1 = 0.01, x2 = 1, w0 = 1, w1 = 1, w2 = 1, dt = 0.002)}}
 
-\item{...}{the following are optional parameters\
-\describe{
-\item{trace}{a logical scalar, if TRUE, function will print which parameters were scaled. Default is FALSE which does not print messages}
-}}
+\item{trace}{a logical scalar, if TRUE, function will print which parameters were scaled.
+Default is FALSE which does not print messages}
 }
 \value{
 a list object containing the 4 major data objects needed to perform model fitting. The objects are the following:
@@ -107,5 +105,5 @@ LCTMC:::fmt_rowwise_trans(
 )
 }
 \seealso{
-\code{\link[=lctmc_2x2]{lctmc_2x2()}}, \code{\link[=lctmc_3x3]{lctmc_3x3()}}
+\code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}; \code{\link[=create_controls]{create_controls()}}
 }

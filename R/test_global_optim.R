@@ -16,8 +16,8 @@
 #'
 #' @return A list object of length 3. The elements of this list are:
 #' \describe{
-#'   \item{global_optim}{a logical scalar. TRUE if the \eqn{\log(L)_{mle} - \log(L)_{true} \geq \episilon}, \cr
-#'   where \eqn{\episilon} is the `tol` input argument.}
+#'   \item{global_optim}{a logical scalar. TRUE if the \eqn{\log(L_{mle}) - \log(L_{true}) \geq \epsilon},
+#'   where \eqn{\epsilon} is the `tol` input argument.}
 #'   \item{L_mle}{a numeric scalar. The observed log-likelihood value when evaluated at the MLE.}
 #'   \item{L_true}{a numeric scalar. The observed log-likelihood value when evaluated at the true parameter values.}
 #' }

@@ -2,7 +2,7 @@
 #'
 #' @description Prints estimated coefficient for a latent class CTMC model
 #'
-#' @param x a "lctmc" object obtained from either the `lctmc_2x2()` or the `lctmc_3x3()` function
+#' @param x a "lctmc" object obtained from either the [lctmc_2x2()] or the [lctmc_3x3()] function
 #' @param ... NULL
 #'
 #' @return NULL
@@ -10,7 +10,6 @@
 #' @exportS3Method
 #'
 #' @example inst/examples/ex_print.R
-
 print.lctmc = function(x, ...){
   print(x$SE$SE)
 
@@ -29,3 +28,24 @@ print.lctmc = function(x, ...){
     )
   )
 }
+
+
+#' @title Prints the LCTMC control object
+#'
+#' @description Prints the control elements of a "lctmc_control" object
+#'
+#' @param x a "lctmc_control" object obtained from either the [create_controls()]
+#' @param ... NULL
+#'
+#' @return NULL
+#'
+#' @exportS3Method
+#'
+#' @example inst/examples/ex_print.R
+print.lctmc_control = function(x, ...){
+  # for (c in x) {
+  #   cat()
+  # }
+  print(x)
+}
+

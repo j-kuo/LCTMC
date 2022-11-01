@@ -1,9 +1,9 @@
+# The 'LCTMC' package
+
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/j-kuo/LCTMC/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/j-kuo/LCTMC/actions/workflows/R-CMD-check.yaml)
 [![](https://img.shields.io/badge/R%20version-4.2.1-steelblue.svg)](https://cran.r-project.org/bin/windows/base/old/4.2.1)
 <!-- badges: end -->
-
-# The 'LCTMC' package
 
 This R package allows users to fit a **L**atent class **C**ontinuous-**T**ime **M**arkov **C**hain model to longitudinal categorical data. 
 
