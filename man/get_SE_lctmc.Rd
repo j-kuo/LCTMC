@@ -54,9 +54,11 @@ This vector's length should be equal to number of rows in the data frame object,
 \item{solve.tol}{a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. \cr
 Defaults to \code{(.Machine$double.eps)^2} if not specified.}
 
-\item{symmetric.tol}{a numeric scalar. Tolerane value for checking symmetric matrix. \cr Default is 5e-11}
+\item{symmetric.tol}{a numeric scalar. Tolerance value for checking symmetric matrix. \cr
+Default is 5e-11}
 
-\item{eigen0.tol}{a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10}
+\item{eigen0.tol}{a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr
+Default is 1e-10}
 }
 \value{
 a list object containing 4 elements:

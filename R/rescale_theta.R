@@ -8,11 +8,10 @@
 #' @param scaling a named numeric vector indicating the factor of scaling. \cr
 #' For example (1), if `scaling = c(x1 = 0.5)`, then the coefficient associated with 'x1' are multiplied by a factor of 0.5. \cr
 #' For example (2), if `scaling = c(dt = 0.5)`, then the coefficient associated with 'dt' are added by a factor of log(0.5).
-#' @param ... two optional argument can be supplied:
-#' \itemize{
-#'   \item **mult_vars** a character vector, indicating which columns in `df_theta` needs multiplicative re-scaling
-#'   \item **add_vars** a character vector, indicating which columns in `df_theta` needs additive re-scaling
-#' }
+#' @param mult_vars a character vector, indicating which columns in `df_theta` needs multiplicative re-scaling. \cr
+#' Default is `c("mle_theta", "SE", "L_CI", "U_CI")`
+#' @param add_vars a character vector, indicating which columns in `df_theta` needs additive re-scaling. \cr
+#' Default is `c("mle_theta", "L_CI", "U_CI")`.
 #'
 #' @return A list object containing the 2 elements:
 #' \itemize{
@@ -28,20 +27,11 @@
 #'
 #' @example inst/examples/ex_running_lctmc.R
 
-rescale_theta = function(df_theta = NULL, v_theta = NULL, scaling = numeric(), ...) {
-  ### unpack ...
-  args = list(...)
-  mult_vars = if (is.null(args$mult_vars)) {
-    c("mle_theta", "SE", "L_CI", "U_CI")
-  } else {
-    args$mult_vars
-  }
-  add_vars = if (is.null(args$add_vars)) {
-    c("mle_theta", "L_CI", "U_CI")
-  } else {
-    args$add_vars
-  }
-
+rescale_theta = function(df_theta = NULL,
+                         v_theta = NULL,
+                         scaling = numeric(),
+                         mult_vars = c("mle_theta", "SE", "L_CI", "U_CI"),
+                         add_vars = c("mle_theta", "L_CI", "U_CI")) {
   ### checks
   if (!is.data.frame(df_theta)) {
     stop("`df_theta` should be a data.frame object")

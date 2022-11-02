@@ -19,8 +19,10 @@
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param solve.tol a numeric scalar, typically a small decimal value. It is the tolerance for detecting linear dependencies in the hessian matrix. \cr
 #' Defaults to `(.Machine$double.eps)^2` if not specified.
-#' @param symmetric.tol a numeric scalar. Tolerane value for checking symmetric matrix. \cr Default is 5e-11
-#' @param eigen0.tol a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr Default is 1e-10
+#' @param symmetric.tol a numeric scalar. Tolerance value for checking symmetric matrix. \cr
+#' Default is 5e-11
+#' @param eigen0.tol a numeric scalar. Tolerance value for eigenvalues, any values smaller than this will be treated as 0. \cr
+#' Default is 1e-10
 #'
 #' @return a list object containing 4 elements:
 #' \itemize{

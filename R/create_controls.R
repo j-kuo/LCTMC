@@ -16,32 +16,47 @@
 #'         See [gen_inits01_lctmc_2x2()] for more info}
 #'   \item{parallelize.init01}{controls whether step 1 of initial value generation should be parallelized. \cr
 #'         See [gen_inits01_lctmc_2x2()] for more info}
-#'   \item{arg6}{...}
-#'   \item{arg7}{...}
-#'   \item{arg8}{...}
-#'   \item{arg9}{...}
-#'   \item{arg9}{...}
-#'   \item{arg9}{...}
+#'   \item{which_step1}{controls which kmeans result to use for step 2 of initial value generation. \cr
+#'         See [gen_inits02_lctmc_2x2()] for more info}
+#'   \item{EM.maxit}{controls how many EM interations the algorithm will perform. \cr
+#'         See [EM_lctmc_2x2()] for more info}
+#'   \item{EM.ELL_tol}{controls the convergence tolerance on the expected conditional log-likelihood value. \cr
+#'         See [EM_lctmc_2x2()] for more info}
+#'   \item{EM.LPY_tol}{controls the convergence tolerance on the observed log-likelihood value. \cr
+#'         See [EM_lctmc_2x2()] for more info}
+#'   \item{EM.par_tol}{controls the convergence tolerance on the magnitude change in parameter values. \cr
+#'         See [EM_lctmc_2x2()] for more info}
+#'   \item{LBFGSB.fnscale}{controls the `fnscale` argument for `optim()`. \cr
+#'         See [EM_lctmc_2x2()] & [optim()] for more info}
+#'   \item{LBFGSB.maxit}{controls the `maxit` argument for `optim()`. \cr
+#'         See [EM_lctmc_2x2()] & [optim()] for more info}
+#'   \item{LBFGSB.factr}{controls the `factr` argument for `optim()`. \cr
+#'         See [EM_lctmc_2x2()] & [optim()] for more info}
+#'   \item{solve_tol}{controls the tolerance value for detecting linear dependency when `solve()` is called. \cr
+#'         See [get_SE_lctmc_2x2()] & [solve()] for more info}
+#'   \item{symmetric_tol}{controls the tolerance value when checking if the hessian matrix is symmetric. \cr
+#'         See [get_SE_lctmc_2x2()] for more info}
+#'   \item{eigen0_tol}{controls the tolerance value for treating eigen values as essentially 0. \cr
+#'         See [get_SE_lctmc_2x2()] & [eigen()] for more info}
 #' }
 #'
 #' @return a custom class object that acts like a list. The output contains the following:
 #' \describe{
-#'   \item{fmt_data}{contains elements: `scaling` and `trace`}
-#'   \item{init01}{...}
-#'   \item{init02}{...}
-#'   \item{EM}{...}
-#'   \item{SE}{...}
-#'   \item{rescale}{...}
-#'   \item{type}{controls whether contorls is for a 2x2 model or a 3x3 model.}
+#'   \item{fmt_data}{contains elements: `scaling` and `trace`.}
+#'   \item{init01}{contains elements: `N_sub`, `pct_keep`, and `parallelize.init01`}
+#'   \item{init02}{contains elements: `which_step1`.}
+#'   \item{EM}{contains elements: `EM.maxit`, `EM.ELL_tol`, `EM.LPY_tol`, `EM.par_tol`,
+#'         `LBFGS.fnscale`, `LBFGS.maxit`, and `LBFGSB.factr`.}
+#'   \item{SE}{contains elements: `solve_tol`, `symmetric_tol`, and `eigen0_tol`.}
+#'   \item{rescale}{currently there are no control options for rescaling parameters.}
+#'   \item{type}{controls whether contorls is for a '2x2' model or a '3x3' model.}
 #' }
-#'
-#' @note XXXXXXXXXXXXXXXX
 #'
 #' @seealso [lctmc_2x2()]; [lctmc_3x3()]
 #'
 #' @export
 #'
-#' @example inst/examples/ex_fmt_rowwise_trans.R
+#' @example inst/examples/ex_create_controls.R
 
 create_controls = function(type, ...) {
   ### unpack ...
@@ -82,22 +97,29 @@ create_controls = function(type, ...) {
 
   ### EM controls
   ctrl[["EM"]] = list(
-
+    EM.maxit = control_args$EM.maxit,
+    EM.ELL_tol = control_args$EM.ELL_tol,
+    EM.LPY_tol = control_args$EM.LPY_tol,
+    EM.par_tol = control_args$EM.par_tol,
+    LBFGSB.fnscale = control_args$LBFGSB.fnscale,
+    LBFGSB.maxit = control_args$LBFGSB.maxit,
+    LBFGSB.factr = control_args$LBFGSB.factr
   )
 
   ### SE approx controls
+  control_args$solve_tol = ifelse(is.null(control_args$solve_tol), (.Machine$double.eps)^2, control_args$solve_tol)
+  control_args$symmetric_tol = ifelse(is.null(control_args$symmetric_tol), 5e-11, control_args$symmetric_tol)
+  control_args$eigen0_tol = ifelse(is.null(control_args$eigen0_tol), 1e-10, control_args$eigen0_tol)
   ctrl[["SE"]] = list(
-
+    solve_tol = control_args$solve_tol,
+    symmetric_tol = control_args$symmetric_tol,
+    eigen0_tol = control_args$eigen0_tol
   )
 
   ### SE approx controls
-  ctrl[["rescale"]] = list(
-
-  )
-
-
+  ctrl[["rescale"]] = NULL
 
   ### return
   class(ctrl) = append("lctmc_control", class(ctrl))
-  return(ctrl)
+  ctrl
 }

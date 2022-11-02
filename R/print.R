@@ -43,9 +43,26 @@ print.lctmc = function(x, ...){
 #'
 #' @example inst/examples/ex_print.R
 print.lctmc_control = function(x, ...){
-  # for (c in x) {
-  #   cat()
-  # }
-  print(x)
-}
+  categories = c("fmt_data", "init01", "init02", "EM", "SE", "rescale")
 
+  for (ctg in categories) {
+    if (!is.null(x[[ctg]])) {
+      cat("$", ctg, "\n", sep = "")
+      longest = max(nchar(names(x[[ctg]])))
+
+      for (i in seq_along(x[[ctg]])) {
+        arg = x[[ctg]][[i]]
+        arg_name = names(x[[ctg]])[i]
+        white_space = rep(" ", times = longest-nchar(arg_name)+1)
+        cat("  *", white_space, arg_name, ": ", paste(arg, collapse = ";"), "\n", sep = "")
+      }
+    } else {
+      cat("$", ctg, "\n", sep = "")
+      cat("  NULL", "\n", sep = "")
+    }
+
+    cat(rep("=-=", 16), "\n", sep = "")
+  }
+
+  cat(rep(" ", 13), "Model Type ~ ", x[["type"]], "\n", sep = "")
+}

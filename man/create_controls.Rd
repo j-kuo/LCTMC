@@ -21,82 +21,118 @@ See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 \item{parallelize.init01}{controls whether step 1 of initial value generation should be parallelized. \cr
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
-\item{arg6}{...}
-\item{arg7}{...}
-\item{arg8}{...}
-\item{arg9}{...}
-\item{arg9}{...}
-\item{arg9}{...}
+\item{which_step1}{controls which kmeans result to use for step 2 of initial value generation. \cr
+See \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}} for more info}
+\item{EM.maxit}{controls how many EM interations the algorithm will perform. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
+\item{EM.ELL_tol}{controls the convergence tolerance on the expected conditional log-likelihood value. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
+\item{EM.LPY_tol}{controls the convergence tolerance on the observed log-likelihood value. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
+\item{EM.par_tol}{controls the convergence tolerance on the magnitude change in parameter values. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
+\item{LBFGSB.fnscale}{controls the \code{fnscale} argument for \code{optim()}. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info}
+\item{LBFGSB.maxit}{controls the \code{maxit} argument for \code{optim()}. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info}
+\item{LBFGSB.factr}{controls the \code{factr} argument for \code{optim()}. \cr
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info}
+\item{solve_tol}{controls the tolerance value for detecting linear dependency when \code{solve()} is called. \cr
+See \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}} & \code{\link[=solve]{solve()}} for more info}
+\item{symmetric_tol}{controls the tolerance value when checking if the hessian matrix is symmetric. \cr
+See \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}} for more info}
+\item{eigen0_tol}{controls the tolerance value for treating eigen values as essentially 0. \cr
+See \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}} & \code{\link[=eigen]{eigen()}} for more info}
 }}
 }
 \value{
 a custom class object that acts like a list. The output contains the following:
 \describe{
-\item{fmt_data}{contains elements: \code{scaling} and \code{trace}}
-\item{init01}{...}
-\item{init02}{...}
-\item{EM}{...}
-\item{SE}{...}
-\item{rescale}{...}
-\item{type}{controls whether contorls is for a 2x2 model or a 3x3 model.}
+\item{fmt_data}{contains elements: \code{scaling} and \code{trace}.}
+\item{init01}{contains elements: \code{N_sub}, \code{pct_keep}, and \code{parallelize.init01}}
+\item{init02}{contains elements: \code{which_step1}.}
+\item{EM}{contains elements: \code{EM.maxit}, \code{EM.ELL_tol}, \code{EM.LPY_tol}, \code{EM.par_tol},
+\code{LBFGS.fnscale}, \code{LBFGS.maxit}, and \code{LBFGSB.factr}.}
+\item{SE}{contains elements: \code{solve_tol}, \code{symmetric_tol}, and \code{eigen0_tol}.}
+\item{rescale}{currently there are no control options for rescaling parameters.}
+\item{type}{controls whether contorls is for a '2x2' model or a '3x3' model.}
 }
 }
 \description{
 Create a custom object that acts like a list which serve as object that holds all control
 parameters for fitting the LCTMC model.
 }
-\note{
-XXXXXXXXXXXXXXXX
-}
 \examples{
-# id column
-my_ids = c(1, 1, 1,
-           2, 2,
-           3, 3, 3)
-
-# observation times
-c1 = c(0, 1, 1.5,
-       0, 1,
-       0, 2, 5)
-
-# state at observation time
-c2 = c(1, 2, 2,
-       1, 1,
-       2, 1, 3)
-
-# some covariate data
-x1 = c(rnorm(n = 3), rnorm(n = 2), rnorm(n = 3))
-x2 = c(rep(1, 3), rep(0, 2), rep(1, 3))
-w1 = c(rexp(n = 3, rate = 1), rexp(n = 2, rate = 1), rexp(n = 3, rate = 1))
-w2 = c(rexp(n = 3, rate = 10), rexp(n = 2, rate = 10), rexp(n = 3, rate = 10))
-
-# create data frame
-my_df = data.frame(
-  id = my_ids,
-  obsTime = c1, state_at_obsTime = c2,
-  x1 = x1, x2 = x2,
-  w1 = w1, w2 = w2
+create_controls(
+  # type & aspect
+  type = '2x2',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE
 )
 
-# scaling parameters
-my_scaling = c(x0 = 1, x1 = 0.01, x2 = 5, w0 = 1, w1 = 1000, w2 = 1, dt = 100)
 
-# use function ~ 2x2 variation ~ note the 1-3 transition is not captured
-LCTMC:::fmt_rowwise_trans(
-  data = my_df,
-  type = "2x2",
-  X_names = c("x0", "x1", "x2"),
-  W_names = c("w0", "w1", "w2"),
-  scaling = my_scaling
+create_controls(
+  # type & aspect
+  type = '3x3',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = FALSE
 )
 
-# use function ~ 3x3 variation
-LCTMC:::fmt_rowwise_trans(
-  data = my_df,
-  type = "3x3",
-  X_names = c("x0", "x1", "x2"),
-  W_names = c("w0", "w1", "w2"),
-  scaling = my_scaling
+
+create_controls(
+  # type & aspect
+  type = '2x2',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = TRUE,
+  which_step1 = "best"
+)
+
+
+create_controls(
+  # type & aspect
+  type = '3x3',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = TRUE,
+  which_step1 = "best",
+  EM.maxit = 10,
+  EM.ELL_tol = 0.1,
+  EM.LPY_tol = 0.001,
+  EM.par_tol = 0.001,
+  LBFGSB.fnscale = -1,
+  LBFGSB.maxit = 1e5,
+  LBFGSB.factr = 0.003
+)
+
+
+create_controls(
+  # type & aspect
+  type = '2x2',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = TRUE,
+  which_step1 = "best",
+  EM.maxit = 10,
+  EM.ELL_tol = 0.1,
+  EM.LPY_tol = 0.001,
+  EM.par_tol = 0.001,
+  LBFGSB.fnscale = -1,
+  LBFGSB.maxit = 1e5,
+  LBFGSB.factr = 0.003,
+  solve_tol = 1e-6,
+  # symmetric_tol = 1e-10,
+  eigen0_tol = 1e-10
 )
 }
 \seealso{

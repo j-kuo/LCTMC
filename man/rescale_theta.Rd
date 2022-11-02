@@ -4,7 +4,13 @@
 \alias{rescale_theta}
 \title{Re-scales model parameters}
 \usage{
-rescale_theta(df_theta = NULL, v_theta = NULL, scaling = numeric(), ...)
+rescale_theta(
+  df_theta = NULL,
+  v_theta = NULL,
+  scaling = numeric(),
+  mult_vars = c("mle_theta", "SE", "L_CI", "U_CI"),
+  add_vars = c("mle_theta", "L_CI", "U_CI")
+)
 }
 \arguments{
 \item{df_theta}{a data frame object with data stored in long-format}
@@ -15,11 +21,11 @@ rescale_theta(df_theta = NULL, v_theta = NULL, scaling = numeric(), ...)
 For example (1), if \code{scaling = c(x1 = 0.5)}, then the coefficient associated with 'x1' are multiplied by a factor of 0.5. \cr
 For example (2), if \code{scaling = c(dt = 0.5)}, then the coefficient associated with 'dt' are added by a factor of log(0.5).}
 
-\item{...}{two optional argument can be supplied:
-\itemize{
-\item \strong{mult_vars} a character vector, indicating which columns in \code{df_theta} needs multiplicative re-scaling
-\item \strong{add_vars} a character vector, indicating which columns in \code{df_theta} needs additive re-scaling
-}}
+\item{mult_vars}{a character vector, indicating which columns in \code{df_theta} needs multiplicative re-scaling. \cr
+Default is \code{c("mle_theta", "SE", "L_CI", "U_CI")}}
+
+\item{add_vars}{a character vector, indicating which columns in \code{df_theta} needs additive re-scaling. \cr
+Default is \code{c("mle_theta", "L_CI", "U_CI")}.}
 }
 \value{
 A list object containing the 2 elements:
