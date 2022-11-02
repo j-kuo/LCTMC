@@ -53,7 +53,13 @@ print.lctmc_control = function(x, ...){
       for (i in seq_along(x[[ctg]])) {
         arg = x[[ctg]][[i]]
         arg_name = names(x[[ctg]])[i]
+
         white_space = rep(" ", times = longest-nchar(arg_name)+1)
+        if (length(arg) > 1) {
+          min_arg = sprintf("%.3f", min(arg))
+          max_arg = sprintf("%.3f", max(arg))
+          arg = paste("[", min_arg, "-", max_arg, "] length=", length(arg), sep = "")
+        }
         cat("  *", white_space, arg_name, ": ", paste(arg, collapse = ";"), "\n", sep = "")
       }
     } else {

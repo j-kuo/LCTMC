@@ -29,12 +29,11 @@
 #' The smaller this value, the more precise the estimate, however the longer run time will be needed.
 #' @param par_diff.tol a numeric scalar that is greater than 0. This is the tolerance value for the changes in model parameter by iterations. \cr
 #' The smaller this value, the more precise the estimate, however the longer run time will be needed.
-#' @param L_BFGS_B.ctrl a list object holding the control parameter for the L-BFGS optimization algorithm. \cr
-#' Note that the L-BFGS is utilized during each ECM step, where we attempt to maximize the conditional expected log-likelihood function with respect to a subset of the model parameters. \cr
-#' This list object should contain **three** elements (see `?optim` for more info): \cr
-#' (1) `fnscale` is a negative real number, this is used to scale the value of the objective function. Setting it to negative implies that a maximization is being performed. \cr
-#' (2) `maxit` is the maximum number of iterations the algorithm will run before terminating \cr
-#' (3) `factr` is tolerance parameter for algorithm convergence, the smaller the value, the better accracy but also longer run time
+#' @param LBFGSB.maxit the maximum number of iterations the algorithm will run before terminating.
+#' @param fnscale a negative real number, this is used to scale the value of the objective function.
+#' Setting it to negative implies that a maximization is being performed.
+#' @param factr the tolerance parameter for algorithm convergence. The smaller the value, the better accuracy but also longer run time.
+
 #' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #'
 #' @return A list object containing as many elements as the number of EM iteration that were performed
@@ -77,7 +76,9 @@ EM_lctmc_2x2 = function(EM_inits,
                         ELL_diff.tol,
                         LPY_diff.tol,
                         par_diff.tol,
-                        L_BFGS_B.ctrl,
+                        LBFGSB.maxit,
+                        fnscale,
+                        factr,
                         parallel_optim) {
   ### checks
   if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
@@ -207,7 +208,7 @@ EM_lctmc_2x2 = function(EM_inits,
             out
           },
           method = "L-BFGS-B",
-          control = L_BFGS_B.ctrl,
+          control = list(maxit = LBFGSB.maxit, fnscale = fnscale, factr = factr),
           parallel = list(cl = parallel_optim$cl, forward = TRUE, loginfo = FALSE)
         )
       }
@@ -241,7 +242,7 @@ EM_lctmc_2x2 = function(EM_inits,
             out
           },
           method = "L-BFGS-B",
-          control = L_BFGS_B.ctrl
+          control = list(maxit = LBFGSB.maxit, fnscale = fnscale, factr = factr)
         )
       }
 
@@ -344,7 +345,9 @@ EM_lctmc_3x3 = function(EM_inits,
                         ELL_diff.tol,
                         LPY_diff.tol,
                         par_diff.tol,
-                        L_BFGS_B.ctrl,
+                        LBFGSB.maxit,
+                        fnscale,
+                        factr,
                         parallel_optim) {
   ### checks
   if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
@@ -474,7 +477,7 @@ EM_lctmc_3x3 = function(EM_inits,
             out
           },
           method = "L-BFGS-B",
-          control = L_BFGS_B.ctrl,
+          control = list(maxit = LBFGSB.maxit, fnscale = fnscale, factr = factr),
           parallel = list(cl = parallel_optim$cl, forward = TRUE, loginfo = FALSE)
         )
       }
@@ -508,7 +511,7 @@ EM_lctmc_3x3 = function(EM_inits,
             out
           },
           method = "L-BFGS-B",
-          control = L_BFGS_B.ctrl
+          control = list(maxit = LBFGSB.maxit, fnscale = fnscale, factr = factr)
         )
       }
 

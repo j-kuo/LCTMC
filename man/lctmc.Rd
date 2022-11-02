@@ -10,18 +10,10 @@ lctmc_2x2(
   data = data.frame(),
   X_names = c(),
   W_names = c(),
-  x_scale = c(),
-  w_scale = c(),
-  dt_scale = c(),
   K = integer(),
   par_constraint,
-  N_sub,
-  pct_keep = c(),
-  parallelize = FALSE,
-  which_step1 = c("100\%", "best"),
   theta.names = list(),
-  EM_controls = list(),
-  optim_controls = list(),
+  controls = create_controls(),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_2x2"
 )
@@ -30,18 +22,10 @@ lctmc_3x3(
   data = data.frame(),
   X_names = c(),
   W_names = c(),
-  x_scale = c(),
-  w_scale = c(),
-  dt_scale = c(),
   K = integer(),
   par_constraint,
-  N_sub,
-  pct_keep = c(),
-  parallelize = FALSE,
-  which_step1 = c("100\%", "best"),
   theta.names = list(),
-  EM_controls = list(),
-  optim_controls = list(),
+  controls = create_controls(),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_3x3"
 )
@@ -55,51 +39,16 @@ Best set to x0, x1, x2 to avoid errors}
 \item{W_names}{a named character vector. Hosting names of covariates for the latent class component. It should be a column in \code{data}. \cr
 Best set to w0, w1, w2 to avoid errors}
 
-\item{x_scale}{a named numeric vector. It is a scaling parameters for covariates that affect the CTMC process. \cr
-For example, \code{x_scale = c(x0 = 1, x1 = 1/5, x2 = 1)} would convert x1 from 10 to 2.}
-
-\item{w_scale}{a named numeric vector. It is a scaling parameters for covariates that affect the latent class component of the model  \cr
-For example, \code{w_scale = c(w0 = 1, x1 = 1/3, x2 = 1)} would convert w1 from 12 to 4.}
-
-\item{dt_scale}{a named numeric scalar. It is a scaling parameter for observation time intervals. \cr
-For example, \code{dt_scale = c(dt = 1/10)} would converts a time unit from 10 to 1.}
-
 \item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 Note that the number of latent classes will affect the number of parameters in the model, thus the argument \code{theta.name} should be in sync with \code{K}}
 
 \item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
 
-\item{N_sub}{a numeric scalar. This is used for step 1 of initial value generation where the algorithm fits a traditional CTMC model for each individual. \cr
-Fitting the model for \emph{all} individuals might have long run time without improvement in the accuracy of the estimation.
-Thus, using this argument to set a maximum number of individuals to use for the initial value generation could save some computation time.}
-
-\item{pct_keep}{a numeric vector where each element of the vector ranges from 0 to 1.
-This argument controls what percentage of the individual effect should be used for the K-means algorithm for initial value generation.
-The algorithm will consider all percentages specified in this vector. \cr
-For example, for \code{pct_keep = c(0.5)}, after individuals effects are estimated, only the 25th to 75th percentile are fed into the K-Means algorithm to obtain cluster level estimates. \cr
-Additionally, note that the threshold "1" is always appended to \code{pct_keep}, so it will always consider the 100\% case.}
-
-\item{parallelize}{a logical scalar. Set to TRUE if we want the for-loop for the individual-wise CTMC to be parallelized}
-
-\item{which_step1}{a character scalar. Either "100\%" or "best". The former will use 100\% of the individual CTCM effects to perform the K-means algorithm. \cr
-The latter will compute the \eqn{log(P(Y))} value for all possible K-means result and use the thetas that yields the largest \eqn{log(P(Y))}.}
-
 \item{theta.names}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
-\item{EM_controls}{a list object holding the arguments to tune the EM algorithm.
-The following elements are necessary for running the algorithm: \cr
-(1) \code{maxit} a numeric scalar. This specifies the max number of EM iterations \cr
-(2) \code{ELL_tol} a numeric scalar. This is the tolerance of the conditional expected log likelihood \cr
-(3) \code{LPY_tol} a numeric scalar. This is the tolerance of observed log likelihood, \eqn{log(P(Y))} \cr
-(4) \code{par_tol} a numeric scalar. This is the tolerance of parameter changes per EM iteration \cr \cr
-Note that for all 3 tolerance parameters, the smaller the value, the more accurate the estimate will be. But it will also lead to longer computation time.}
-
-\item{optim_controls}{a list object holding the arguments to control the L-BFGS optimization at each ECM step.
-The following elements are necessary for running the algorithm: \cr
-(1) \code{fnscale} a numeric scalar. This value scales the objective function. Additionally, its sign determines whether the algorithm is performing a maximization or minimization task. \cr
-(2) \code{maxit} a numeric scalar. This value specifies the max number of L-BFGS iterations. \cr
-(3) \code{factr} a numeric scalar. This value controls the tolerance of L-BFGS optimization. The smaller in magnitude this argument is the more precise the optimization algorithm will be.}
+\item{controls}{a "lctmc_control" object obtained from \code{\link[=create_controls]{create_controls()}}. Through this function user will be able to control various
+aspect of the algorithm. See the documentation \code{\link[=create_controls]{create_controls()}} for details on what can be controlled.}
 
 \item{parallel_optim}{a list object telling the function whether parallel process should be used. \cr
 The list should contain \strong{two} elements: \cr

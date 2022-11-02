@@ -19,7 +19,9 @@ EM_lctmc_2x2(
   ELL_diff.tol,
   LPY_diff.tol,
   par_diff.tol,
-  L_BFGS_B.ctrl,
+  LBFGSB.maxit,
+  fnscale,
+  factr,
   parallel_optim
 )
 
@@ -36,7 +38,9 @@ EM_lctmc_3x3(
   ELL_diff.tol,
   LPY_diff.tol,
   par_diff.tol,
-  L_BFGS_B.ctrl,
+  LBFGSB.maxit,
+  fnscale,
+  factr,
   parallel_optim
 )
 }
@@ -76,12 +80,12 @@ The smaller this value, the more precise the estimate, however the longer run ti
 \item{par_diff.tol}{a numeric scalar that is greater than 0. This is the tolerance value for the changes in model parameter by iterations. \cr
 The smaller this value, the more precise the estimate, however the longer run time will be needed.}
 
-\item{L_BFGS_B.ctrl}{a list object holding the control parameter for the L-BFGS optimization algorithm. \cr
-Note that the L-BFGS is utilized during each ECM step, where we attempt to maximize the conditional expected log-likelihood function with respect to a subset of the model parameters. \cr
-This list object should contain \strong{three} elements (see \code{?optim} for more info): \cr
-(1) \code{fnscale} is a negative real number, this is used to scale the value of the objective function. Setting it to negative implies that a maximization is being performed. \cr
-(2) \code{maxit} is the maximum number of iterations the algorithm will run before terminating \cr
-(3) \code{factr} is tolerance parameter for algorithm convergence, the smaller the value, the better accracy but also longer run time}
+\item{LBFGSB.maxit}{the maximum number of iterations the algorithm will run before terminating.}
+
+\item{fnscale}{a negative real number, this is used to scale the value of the objective function.
+Setting it to negative implies that a maximization is being performed.}
+
+\item{factr}{the tolerance parameter for algorithm convergence. The smaller the value, the better accuracy but also longer run time.}
 
 \item{parallel_optim}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 }

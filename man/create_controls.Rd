@@ -21,9 +21,10 @@ See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 \item{parallelize.init01}{controls whether step 1 of initial value generation should be parallelized. \cr
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
-\item{which_step1}{controls which kmeans result to use for step 2 of initial value generation. \cr
-See \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}} for more info}
-\item{EM.maxit}{controls how many EM interations the algorithm will perform. \cr
+\item{which_step1}{a character scalar. Controls which kmeans result to use for step 2 of initial value generation. \cr
+Default is "best" which uses the parameter vector that yields the highest \eqn{\log(P(Y))}.
+The alternative is "all" which uses all of the kmeans estimate without truncating either tail.}
+\item{EM.maxit}{controls how many EM iterations the algorithm will perform. \cr
 See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
 \item{EM.ELL_tol}{controls the convergence tolerance on the expected conditional log-likelihood value. \cr
 See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
