@@ -9,7 +9,7 @@ This R package allows users to fit a **L**atent class **C**ontinuous-**T**ime **
 
 ## Overview
 
-This README is a work in progress at the moment. 
+This package is a work in progress at the moment. 
 
 For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simulate) repository for more info on the latent class CTMC model.
 
@@ -22,9 +22,6 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
 1. Try for 10 sim, and how about 50?
    * How's the coverage & bias estimate
    * Is there an improvement from by adding the "W" covariates when there are only few observations
-1. ~~Issue with `align` functions?~~
-   * ~~When class 1's `alpha0` is not the largest, bias/coverage of other classes seems to be inaccurate~~
-1. Add function to create control objects for `lctmc` functions
 
 ## Authors
 

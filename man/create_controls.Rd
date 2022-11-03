@@ -11,8 +11,10 @@ create_controls(type, ...)
 
 \item{...}{can be the following values:
 \describe{
+\item{data}{certain parameters will require an input data frame to compute the default values. \cr
+Use \code{data} to specify this data frame.}
 \item{scaling}{controls what factor covariate should be scaled to ensure algorithm stability. \cr
-See \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}} for more info}
+See \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}} for more info. Default value depends on \code{data}}
 \item{trace}{controls whether data formatting function should print function details. \cr
 See \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}} for more info}
 \item{N_sub}{controls how many subjects to use for step 1 of initial value generation. \cr
@@ -33,7 +35,7 @@ See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
 \item{EM.par_tol}{controls the convergence tolerance on the magnitude change in parameter values. \cr
 See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
 \item{LBFGSB.fnscale}{controls the \code{fnscale} argument for \code{optim()}. \cr
-See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info}
+See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info. Default value depends on \code{data}.}
 \item{LBFGSB.maxit}{controls the \code{maxit} argument for \code{optim()}. \cr
 See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} & \code{\link[=optim]{optim()}} for more info}
 \item{LBFGSB.factr}{controls the \code{factr} argument for \code{optim()}. \cr

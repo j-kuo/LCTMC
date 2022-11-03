@@ -70,5 +70,7 @@ print.lctmc_control = function(x, ...){
     cat(rep("=-=", 16), "\n", sep = "")
   }
 
-  cat(rep(" ", 13), "Model Type ~ ", x[["type"]], "\n", sep = "")
+  cat("|", rep(" ", 15), "Model Type ~ ", x[["type"]], rep(" ", 15), "| \n", sep = "")
+  cat(rep("===", 16), "\n", sep = "")
 }
+
