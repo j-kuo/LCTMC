@@ -70,8 +70,11 @@ create_controls = function(type, ...) {
     if (is.null(control_args$data)) {
       scaling.default = 1
     } else {
+      temp = Map(f = function(t) t[2:length(t)]-t[1:(length(t)-1)],
+                 split(x = control_args$data$obsTime, f = control_args$data$id))
+      temp = do.call(`c`, temp)
       scaling.default = c(
-        dt = 10/max(control_args$data$obsTime),
+        dt = 1/max(temp),
         sapply(control_args$data[c("x1", "x2", "w1", "w2")], function(x) 1/max(x))
       )
       scaling.default = abs(scaling.default)

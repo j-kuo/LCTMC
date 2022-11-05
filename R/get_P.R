@@ -45,12 +45,13 @@ get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15) {
   p21 = q21 * K_exp
   p22 = 1 - p21
 
+
   # output as df
   data.frame(
-    # P 1 --> {1,2}
+    # from 1 --> {1,2}
     P11 = p11,
     P12 = p12,
-    # P 2 --> {1,2}
+    # from 2 --> {1,2}
     P21 = p21,
     P22 = p22
   )
@@ -59,11 +60,14 @@ get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15) {
 #' @rdname get_P
 get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15) {
   # naive solution to deal with undefined cases
-  q23[q23 <= tol] = tol
+  q21[q21 <= tol] = tol
+
+  q12[q12 <= tol & q23 <= tol] = tol
+  q23[q12 <= tol & q23 <= tol] = tol
 
   # constants for both
   K = q12 + q21 + q23
-  discr = sqrt(K^2 - 4*q12*q23)
+  discr = sqrt(K^2 - 4*q12*q23) # sqrt( (x-z)^2 + 2xy + 2yz )
   r1 = (-K + discr) / 2
   r2 = (-K - discr) / 2
 
@@ -72,7 +76,7 @@ get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15) {
   B = -1 - A
   A_exp = A * exp(r1*dt)
   B_exp = B * exp(r2*dt)
-  p12 = (r1*A_exp + r2*B_exp) / q23
+  p12 = (r1*A_exp + r2*B_exp) / q23 # r1*A*exp(r1*dt)/q23 + r2*B*exp(r2*dt)/q23
   p13 = A_exp + B_exp + 1
   p11 = 1 - p12 - p13
 
@@ -82,19 +86,19 @@ get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15) {
   C_exp = C * exp(r1*dt)
   D_exp = D * exp(r2*dt)
   CD_exp = C_exp + D_exp
-  p22 = (r1*C_exp + r2*D_exp) / q23 # 1 - p21 - p23
-  p23 = CD_exp + 1 # C_exp + D_exp + 1
-  p21 = -p22 - CD_exp # -(r1*C_exp + r2*D_exp) / q23 - C_exp - D_exp
+  p22 = (r1*C_exp + r2*D_exp) / q23 # r1*C*exp(r1*dt)/q23 + r2*D*exp(r2*dt)/q23
+  p23 = CD_exp + 1
+  p21 = -p22 - CD_exp
 
 
   # output as df
   data.frame(
-    # P 1 --> {1,2,3}
+    # from 1 --> {1,2,3}
     P11 = p11,
     P12 = p12,
     P13 = p13,
     P13_exact = p12*q23,
-    # P 2 --> {1,2,3}
+    # from 2 --> {1,2,3}
     P21 = p21,
     P22 = p22,
     P23 = p23,
