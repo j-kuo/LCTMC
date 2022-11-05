@@ -69,6 +69,9 @@ gen_inits01_lctmc_2x2 = function(df,
     stop("`pct_keep` must be between 0 and 1, inclusive")
   }
 
+  ### theta names for bik
+  theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
+
   ### if "1" is not in `pct_keep`, append it
   pct_keep = append(pct_keep, 1)
   pct_keep = unique(pct_keep)
@@ -240,7 +243,6 @@ gen_inits01_lctmc_2x2 = function(df,
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
-  theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
   step1_out.log_PY = sapply(
     X = step1_out[-length(step1_out)],
     FUN = function(x) {
@@ -258,6 +260,7 @@ gen_inits01_lctmc_2x2 = function(df,
         P.rs = FALSE,
         theta.names = theta.names.bik
       )
+      y = impute_bik(x = y)
       ## `bi = y$bi1 + y$bi2 + ... y$biK`
       bi = Reduce(`+`, y)
       sum(log(bi))
@@ -307,6 +310,9 @@ gen_inits01_lctmc_3x3 = function(df,
   if (!all(pct_keep >= 0 & pct_keep <= 1)) {
     stop("`pct_keep` must be between 0 and 1, inclusive")
   }
+
+  ### theta names for bik
+  theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
 
   ### if "1" is not in `pct_keep`, append it
   pct_keep = append(pct_keep, 1)
@@ -479,7 +485,6 @@ gen_inits01_lctmc_3x3 = function(df,
 
   ### STEP 1  ~~>  determine the best option from Step 1
   constraint_index = names(par_constraint)[names(par_constraint) %in% names(step1_out[[1]]$theta)]
-  theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
   step1_out.log_PY = sapply(
     X = step1_out[-length(step1_out)],
     FUN = function(x) {
@@ -497,6 +502,7 @@ gen_inits01_lctmc_3x3 = function(df,
         P.rs = FALSE,
         theta.names = theta.names.bik
       )
+      y = impute_bik(x = y)
       ## `bi = y$bi1 + y$bi2 + ... y$biK`
       bi = Reduce(`+`, y)
       sum(log(bi))

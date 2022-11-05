@@ -10,10 +10,9 @@
 #' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. \cr
 #' Best set to w0, w1, w2 to avoid errors
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
-#' Note that the number of latent classes will affect the number of parameters in the model, thus the argument `theta.name` should be in sync with `K`
+#' Note that the number of latent classes will affect the number of parameters in the model.
 #' @param par_constraint a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 #' For example, `c(alpha1.1 = 0)` constraints the parameter 'alpha1.1' to be a constant 0. **NOTE:** Current version of the code will *only* work with constrains equal to 0.
-#' @param theta.names See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param controls a "lctmc_control" object obtained from [create_controls()]. Through this function user will be able to control various
 #' aspect of the algorithm. See the documentation [create_controls()] for details on what can be controlled.
 #' @param parallel_optim a list object telling the function whether parallel process should be used. \cr
@@ -30,7 +29,7 @@
 #'   \item **SE** a list object obtained from the `get_SE_lctmc` functions
 #'   \item **K** an integer scalar that is identical to the input argument, `K`.
 #'   \item **n_pars** an integer scalar that indicates the number of parameters estimated
-#'           (total number of parameter minus number of constrained parameters).
+#'         (total number of parameter minus number of constrained parameters).
 #'   \item **X_names** a character vector equivalent to the input argument `X_names`
 #'   \item **W_names** a character vector equivalent to the input argument `W_names`
 #'   \item **run_time** a "difftime" object. Indicating the total algorithm run time.
@@ -46,7 +45,8 @@
 #'   \item re-scale parameters back to original scale
 #' }
 #'
-#' @seealso [fmt_rowwise_trans()]; [gen_inits01_lctmc_2x2()]; [gen_inits02_lctmc_2x2()]; [EM_lctmc_2x2()]; [get_SE_lctmc_2x2()]; [rescale_theta()]
+#' @seealso [fmt_rowwise_trans()]; [gen_inits01_lctmc_2x2()]; [gen_inits02_lctmc_2x2()];
+#' [EM_lctmc_2x2()]; [get_SE_lctmc_2x2()]; [rescale_theta()]
 #'
 #' @example inst/examples/ex_running_lctmc.R
 NULL
@@ -58,16 +58,12 @@ lctmc_2x2 = function(data = data.frame(),
                      W_names = c(),
                      K = integer(),
                      par_constraint,
-                     theta.names = list(),
                      controls = create_controls(),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_2x2") {
   ### checking
   if (!all(names(controls$fmt_data$scaling) %in% c("dt", X_names, W_names))) {
     stop("names of `scaling` must match with variable names specified in `X_names` and `W_names`")
-  }
-  if (!all(names(par_constraint) %in% unlist(theta.names))) {
-    stop("some constrained parameters are not specified in the `theta.names` argument")
   }
   if (any(par_constraint != 0)) {
     stop("Currently the 'LCTMC' package only supports constraints equal to 0")
@@ -159,7 +155,6 @@ lctmc_2x2 = function(data = data.frame(),
   my_model.EM = EM_lctmc_2x2(
     # theta
     EM_inits = my_model.init02,
-    theta.names = theta.names,
     par_constraint = par_constraint,
     K = K,
     # data
@@ -168,7 +163,7 @@ lctmc_2x2 = function(data = data.frame(),
     df_Wmat = my_df.Wmat,
     df_dt = my_df.dt,
     # controls (EM parts)
-    EM.maxit = controls$EM$maxit,
+    EM.maxit = controls$EM$EM.maxit,
     ELL_diff.tol = controls$EM$EM.ELL_tol,
     LPY_diff.tol = controls$EM$EM.LPY_tol,
     par_diff.tol = controls$EM$EM.par_tol,
@@ -229,7 +224,7 @@ lctmc_2x2 = function(data = data.frame(),
 
   ### misc. output for convenience
   data = data.frame(data)
-  n_pars = length(unlist(theta.names)) - length(par_constraint)
+  n_pars = nrow(my_model.SE$Covariance)
   tf = Sys.time()
 
   ### output
@@ -255,16 +250,12 @@ lctmc_3x3 = function(data = data.frame(),
                      W_names = c(),
                      K = integer(),
                      par_constraint,
-                     theta.names = list(),
                      controls = create_controls(),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_3x3") {
   ### checking
   if (!all(names(controls$fmt_data$scaling) %in% c("dt", X_names, W_names))) {
     stop("names of `scaling` must match with variable names specified in `X_names` and `W_names`")
-  }
-  if (!all(names(par_constraint) %in% unlist(theta.names))) {
-    stop("some constrained parameters are not specified in the `theta.names` argument")
   }
   if (any(par_constraint != 0)) {
     stop("Currently the 'LCTMC' package only supports constraints equal to 0")
@@ -279,7 +270,7 @@ lctmc_3x3 = function(data = data.frame(),
   ### starting time
   t0 = Sys.time()
   cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
-  cat("--------------------\n\n", sep = "")
+  cat("-------------------- \n\n", sep = "")
 
   ### process data + scaling if any
   trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
@@ -356,7 +347,6 @@ lctmc_3x3 = function(data = data.frame(),
   my_model.EM = EM_lctmc_3x3(
     # theta
     EM_inits = my_model.init02,
-    theta.names = theta.names,
     par_constraint = par_constraint,
     K = K,
     # data
@@ -426,7 +416,7 @@ lctmc_3x3 = function(data = data.frame(),
 
   ### misc. output for convenience
   data = data.frame(data)
-  n_pars = length(unlist(theta.names)) - length(par_constraint)
+  n_pars = nrow(my_model.SE$Covariance)
   tf = Sys.time()
 
   ### output

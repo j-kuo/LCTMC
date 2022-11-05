@@ -8,6 +8,8 @@
 #' @param q21 a numeric vector for the transition rate from stage 2 to 1
 #' @param q23 a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)
 #' @param dt a vector of numeric values for the time interval between observations
+#' @param tol a numeric scalar. Tolerance for some quantities computed within the `get_P()` functions.
+#' When the quantities are less than or equal to `tol`, then they are defaulted to `tol`
 #'
 #' @return a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
 #' For the 2x2 case, the possible transitions are `1-1, 1-2, 2-1, 2-2`,
@@ -16,9 +18,11 @@
 #' and the corresponding transition probabilities are: `P11, P12, P13, P21, P22, P23`.
 #' In the case of exactly-observed data on **state 3**, the transition densities are `P13_exact, P23_exact`.
 #'
-#' @note The input argument should be of the same length, or their lengths should be multiples of one another. \cr
-#' In addition, this function does not need to depend on the number of latent classes because what we are computing is
-#' the transition probability conditioned on the given latent class.
+#' @note The probabilities will be undefined when \eqn{q_{21}=0} and \eqn{q_{12} = q_{23} \geq 0}.
+#' Thus, we've implemented a naive solution which applies the constrain \eqn{q_{21} \geq 10^{-12}}. \cr\cr
+#' Additionally, the input argument should be of the same length, or their lengths should be multiples of one another.
+#' Final note, this function does not need to depend on the number of latent classes because what we are computing is
+#' the transition probability conditioned on the given latent class. \cr
 #'
 #' @seealso [Li_2x2()]; [bik_all_2x2()]
 #'
@@ -26,9 +30,11 @@
 NULL
 
 #' @rdname get_P
-get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c()) {
+get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15) {
   # constants for both
   K = q12 + q21
+  K[K <= tol] = tol
+
   K_exp = (1-exp(-K*dt)) / K
 
   # compute P11 and P12
@@ -51,7 +57,10 @@ get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c()) {
 }
 
 #' @rdname get_P
-get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c()) {
+get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15) {
+  # naive solution to deal with undefined cases
+  q23[q23 <= tol] = tol
+
   # constants for both
   K = q12 + q21 + q23
   discr = sqrt(K^2 - 4*q12*q23)

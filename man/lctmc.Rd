@@ -12,7 +12,6 @@ lctmc_2x2(
   W_names = c(),
   K = integer(),
   par_constraint,
-  theta.names = list(),
   controls = create_controls(),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_2x2"
@@ -24,7 +23,6 @@ lctmc_3x3(
   W_names = c(),
   K = integer(),
   par_constraint,
-  theta.names = list(),
   controls = create_controls(),
   parallel_optim = list(run = FALSE, cl = NA),
   MyModelName = "lctmc_3x3"
@@ -40,12 +38,10 @@ Best set to x0, x1, x2 to avoid errors}
 Best set to w0, w1, w2 to avoid errors}
 
 \item{K}{an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
-Note that the number of latent classes will affect the number of parameters in the model, thus the argument \code{theta.name} should be in sync with \code{K}}
+Note that the number of latent classes will affect the number of parameters in the model.}
 
 \item{par_constraint}{a named numeric vector to indicate which parameter is constrained. Set equal to NULL for unconstrained model. \cr
 For example, \code{c(alpha1.1 = 0)} constraints the parameter 'alpha1.1' to be a constant 0. \strong{NOTE:} Current version of the code will \emph{only} work with constrains equal to 0.}
-
-\item{theta.names}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
 \item{controls}{a "lctmc_control" object obtained from \code{\link[=create_controls]{create_controls()}}. Through this function user will be able to control various
 aspect of the algorithm. See the documentation \code{\link[=create_controls]{create_controls()}} for details on what can be controlled.}
@@ -100,65 +96,44 @@ The model fitting process essentially breaks down into the following steps:
 \dontrun{
   ## this is a 2x2 example, with 3 latent classes
   data("example_df2x2", package = "LCTMC")
+  ctrl_2x2 = LCTMC::create_controls(type = "2x2", data = example_df2x2)
+
   model_2x2 = LCTMC::lctmc_2x2(
     # data
     data = example_df2x2,
-    # any scaling transformation
-    dt_scale = c(dt = 1/365),
-    x_scale = c(x0 = 1, x1 = 1/7, x2 = 1),
-    w_scale = c(w0 = 1, w1 = 1/9, w2 = 1),
     # general model specification
     K = 2L,
     X_names = c('x0', 'x1', 'x2'),
     W_names = c('w0', 'w1', 'w2'),
     par_constraint = c(alpha1.1 = 0, alpha2.1 = 0),
-    # controls ~ gen_inits
-    N_sub = Inf,
-    pct_keep = seq(0.40, 1.00, 0.001),
-    parallelize = TRUE,
-    which_step1 = "best",
-    # controls ~ EM
-    theta.names = LCTMC::gen_theta_names(K = 2L, type = "2x2", purpose = "em"),
-    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
-    optim_controls = list(fnscale = -nrow(example_df2x2), maxit = 1e8, factr = 1e-4),
     # misc.
-    test_if_global_optim = list(test = FALSE, true_params = NA),
+    controls = ctrl_2x2,
     parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
-    MyModelName = "My 2x2 (K2) Model"
+    MyModelName = "My 2x2 (K2) model"
   )
 
   # - # - # - # - # - # - # - # - #
 
   ## this is a 3x3 example, with 3 latent classes
   data("example_df3x3", package = "LCTMC")
+  ctrl_3x3 = LCTMC::create_controls(type = "3x3", data = example_df3x3)
+
   model_3x3 = LCTMC::lctmc_3x3(
     # data
     data = example_df3x3,
-    # any scaling transformation
-    dt_scale = c(dt = 1/365),
-    x_scale = c(x0 = 1, x1 = 1/8, x2 = 1),
-    w_scale = c(w0 = 1, w1 = 1/8, w2 = 1),
     # general model specification
     K = 2L,
     X_names = c('x0', 'x1', 'x2'),
     W_names = c('w0', 'w1', 'w2'),
     par_constraint = NULL,
-    # controls ~ gen_inits
-    N_sub = Inf,
-    pct_keep = seq(0.40, 1.00, 0.001),
-    parallelize = TRUE,
-    which_step1 = "best",
-    # controls ~ EM
-    theta.names = LCTMC::gen_theta_names(K = 2L, type = "3x3", purpose = "em"),
-    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
-    optim_controls = list(fnscale = -nrow(example_df3x3), maxit = 1e8, factr = 1e-4),
     # misc.
-    test_if_global_optim = list(test = FALSE, true_params = NA),
-    parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
+    controls = ctrl_3x3,
+    parallel_optim = list(run = T, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
     MyModelName = "My 3x3 (K2) Model"
   )
 }
 }
 \seealso{
-\code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}; \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}}; \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}}; \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}}; \code{\link[=rescale_theta]{rescale_theta()}}
+\code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}}; \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}}; \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}};
+\code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}}; \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}}; \code{\link[=rescale_theta]{rescale_theta()}}
 }

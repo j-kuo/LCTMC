@@ -6,9 +6,9 @@
 \alias{get_P_3x3}
 \title{Computes transition probabilities}
 \usage{
-get_P_2x2(q12 = c(), q21 = c(), q23 = NA, dt = c())
+get_P_2x2(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15)
 
-get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c())
+get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15)
 }
 \arguments{
 \item{q12}{a numeric vector for the transition rate from stage 1 to 2}
@@ -18,6 +18,9 @@ get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c())
 \item{q23}{a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)}
 
 \item{dt}{a vector of numeric values for the time interval between observations}
+
+\item{tol}{a numeric scalar. Tolerance for some quantities computed within the \code{get_P()} functions.
+When the quantities are less than or equal to \code{tol}, then they are defaulted to \code{tol}}
 }
 \value{
 a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
@@ -32,9 +35,11 @@ Computes the transition probabilities for the respective CTMC model (2x2 or 3x3)
 The only transition rates in this model are \eqn{q_{12}, q_{21} > 0}
 }
 \note{
-The input argument should be of the same length, or their lengths should be multiples of one another. \cr
-In addition, this function does not need to depend on the number of latent classes because what we are computing is
-the transition probability conditioned on the given latent class.
+The probabilities will be undefined when \eqn{q_{21}=0} and \eqn{q_{12} = q_{23} \geq 0}.
+Thus, we've implemented a naive solution which applies the constrain \eqn{q_{21} \geq 10^{-12}}. \cr\cr
+Additionally, the input argument should be of the same length, or their lengths should be multiples of one another.
+Final note, this function does not need to depend on the number of latent classes because what we are computing is
+the transition probability conditioned on the given latent class. \cr
 }
 \examples{
 # 2x2 case ------------------

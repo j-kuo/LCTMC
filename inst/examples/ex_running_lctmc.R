@@ -11,61 +11,39 @@
 \dontrun{
   ## this is a 2x2 example, with 3 latent classes
   data("example_df2x2", package = "LCTMC")
+  ctrl_2x2 = LCTMC::create_controls(type = "2x2", data = example_df2x2)
+
   model_2x2 = LCTMC::lctmc_2x2(
     # data
     data = example_df2x2,
-    # any scaling transformation
-    dt_scale = c(dt = 1/365),
-    x_scale = c(x0 = 1, x1 = 1/7, x2 = 1),
-    w_scale = c(w0 = 1, w1 = 1/9, w2 = 1),
     # general model specification
     K = 2L,
     X_names = c('x0', 'x1', 'x2'),
     W_names = c('w0', 'w1', 'w2'),
     par_constraint = c(alpha1.1 = 0, alpha2.1 = 0),
-    # controls ~ gen_inits
-    N_sub = Inf,
-    pct_keep = seq(0.40, 1.00, 0.001),
-    parallelize = TRUE,
-    which_step1 = "best",
-    # controls ~ EM
-    theta.names = LCTMC::gen_theta_names(K = 2L, type = "2x2", purpose = "em"),
-    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
-    optim_controls = list(fnscale = -nrow(example_df2x2), maxit = 1e8, factr = 1e-4),
     # misc.
-    test_if_global_optim = list(test = FALSE, true_params = NA),
+    controls = ctrl_2x2,
     parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
-    MyModelName = "My 2x2 (K2) Model"
+    MyModelName = "My 2x2 (K2) model"
   )
 
   # - # - # - # - # - # - # - # - #
 
   ## this is a 3x3 example, with 3 latent classes
   data("example_df3x3", package = "LCTMC")
+  ctrl_3x3 = LCTMC::create_controls(type = "3x3", data = example_df3x3)
+
   model_3x3 = LCTMC::lctmc_3x3(
     # data
     data = example_df3x3,
-    # any scaling transformation
-    dt_scale = c(dt = 1/365),
-    x_scale = c(x0 = 1, x1 = 1/8, x2 = 1),
-    w_scale = c(w0 = 1, w1 = 1/8, w2 = 1),
     # general model specification
     K = 2L,
     X_names = c('x0', 'x1', 'x2'),
     W_names = c('w0', 'w1', 'w2'),
     par_constraint = NULL,
-    # controls ~ gen_inits
-    N_sub = Inf,
-    pct_keep = seq(0.40, 1.00, 0.001),
-    parallelize = TRUE,
-    which_step1 = "best",
-    # controls ~ EM
-    theta.names = LCTMC::gen_theta_names(K = 2L, type = "3x3", purpose = "em"),
-    EM_controls = list(maxit = 50, ELL_tol = 1e-1, LPY_tol = 1e-3, par_tol = 1e-3),
-    optim_controls = list(fnscale = -nrow(example_df3x3), maxit = 1e8, factr = 1e-4),
     # misc.
-    test_if_global_optim = list(test = FALSE, true_params = NA),
-    parallel_optim = list(run = TRUE, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
+    controls = ctrl_3x3,
+    parallel_optim = list(run = T, cl = parallel::makeCluster(spec = parallel::detectCores()-1)),
     MyModelName = "My 3x3 (K2) Model"
   )
 }

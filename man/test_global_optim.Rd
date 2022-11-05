@@ -43,9 +43,6 @@ This function is specifically meant to be used during a simulation study. \cr
 Currently, this function only supports when \code{K = 3} as the 'LCTMC.simulate' package only
 simulates the case of 3 latent classes.
 }
-\examples{
-## TO BE ADDED ##
-}
 \seealso{
 \code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}
 }

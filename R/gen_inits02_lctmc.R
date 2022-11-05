@@ -81,7 +81,7 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
           P.rs = FALSE,
           theta.names = theta.names.bik
         )
-        y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
+        y = impute_bik(x = y)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
         ## return
@@ -109,7 +109,7 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
           P.rs = FALSE,
           theta.names = theta.names.bik
         )
-        y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
+        y = impute_bik(x = y)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
         ## return
@@ -161,7 +161,7 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
           P.rs = FALSE,
           theta.names = theta.names.bik
         )
-        y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
+        y = impute_bik(x = y)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
         ## return
@@ -189,7 +189,7 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
           P.rs = FALSE,
           theta.names = theta.names.bik
         )
-        y = impute_bik(y, eps = 1e-3, EPS = 1e-24)
+        y = impute_bik(x = y)
         ## `bi = y$bi1 + y$bi2 + ... + y$biK`
         bi = Reduce(`+`, y)
         ## return

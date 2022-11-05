@@ -104,7 +104,7 @@ create_controls = function(type, ...) {
   ctrl$type = type
 
   ### format data controls
-  control_args$trace = ifelse(is.null(control_args$trace), FALSE, control_args$trace)
+  control_args$trace = ifelse(is.null(control_args$trace), TRUE, control_args$trace)
   ctrl[["fmt_data"]] = list(
     scaling = control_args$scaling,
     trace = control_args$trace

@@ -29,8 +29,6 @@
 #' @export
 #'
 #' @seealso [lctmc_2x2()]; [lctmc_3x3()]
-#'
-#' @example inst/examples/ex_test_global_optim.R
 test_global_optim = function(m, true_param, tol, data) {
   UseMethod("test_global_optim")
 }
@@ -75,7 +73,6 @@ test_global_optim.lctmc_2x2 = function(m, true_param, tol, data) {
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_at_true = impute_bik(x = bik_at_true, eps = 1e-3, EPS = 1e-24)
   LPY_at_true = sum(log(Reduce(`+`, bik_at_true)))
 
   ## compute LPY at MLE params
@@ -89,7 +86,6 @@ test_global_optim.lctmc_2x2 = function(m, true_param, tol, data) {
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_at_mle = impute_bik(x = bik_at_mle, eps = 1e-3, EPS = 1e-24)
   LPY_at_mle = sum(log(Reduce(`+`, bik_at_mle)))
 
   ## result
@@ -140,7 +136,6 @@ test_global_optim.lctmc_3x3 = function(m, true_param, tol, data) {
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_at_true = impute_bik(x = bik_at_true, eps = 1e-3, EPS = 1e-24)
   LPY_at_true = sum(log(Reduce(`+`, bik_at_true)))
 
   ## compute LPY at MLE params
@@ -154,7 +149,6 @@ test_global_optim.lctmc_3x3 = function(m, true_param, tol, data) {
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_at_mle = impute_bik(x = bik_at_mle, eps = 1e-3, EPS = 1e-24)
   LPY_at_mle = sum(log(Reduce(`+`, bik_at_mle)))
 
   ## result

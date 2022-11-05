@@ -70,6 +70,9 @@ get_SE_lctmc_2x2 = function(em,
     stop("`em` should be a custom class list object 'lctmc_2x2.EM' obtained from `EM_lctmc_2x2()`")
   }
 
+  ### theta names for bik
+  theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
+
   ### extract the EM run with best log(P(Y)) value
   best_index = sapply(em, function(x) x$LPY_value)
   best_index = max(which(best_index == max(best_index))) # in case of ties, get the last index
@@ -86,7 +89,6 @@ get_SE_lctmc_2x2 = function(em,
   mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
 
   ### numerical derivative to get Hessian matrix
-  theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
   hess = numDeriv::hessian(
     func = function(x) {
       ## theta vector, adding back the constrained elements
@@ -102,7 +104,7 @@ get_SE_lctmc_2x2 = function(em,
         K = K,
         theta.names = theta.names.bik
       )
-      bik_all.mle = impute_bik(bik_all.mle, eps = 1e-3, EPS = 1e-24)
+      bik_all.mle = impute_bik(x = bik_all.mle)
       ## sum over all class
       bi = Reduce(`+`, bik_all.mle)
       ## return
@@ -193,6 +195,9 @@ get_SE_lctmc_3x3 = function(em,
     stop("`em` should be a custom class list object 'lctmc_3x3.EM' obtained from `EM_lctmc_3x3()`")
   }
 
+  ### theta names for bik
+  theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
+
   ### extract the EM run with best log(P(Y)) value
   best_index = sapply(em, function(x) x$LPY_value)
   best_index = max(which(best_index == max(best_index))) # in case of ties, get the last index
@@ -209,7 +214,6 @@ get_SE_lctmc_3x3 = function(em,
   mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
 
   ### numerical derivative to get Hessian matrix
-  theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
   hess = numDeriv::hessian(
     func = function(x) {
       ## theta vector, adding back the constrained elements
@@ -225,7 +229,7 @@ get_SE_lctmc_3x3 = function(em,
         K = K,
         theta.names = theta.names.bik
       )
-      bik_all.mle = impute_bik(bik_all.mle, eps = 1e-3, EPS = 1e-24)
+      bik_all.mle = impute_bik(x = bik_all.mle)
       ## sum over all class
       bi = Reduce(`+`, bik_all.mle)
       ## return

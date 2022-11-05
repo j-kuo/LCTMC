@@ -18,11 +18,9 @@
 #' This vector's length should be equal to number of rows in the data frame object, `df`
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
-#' @param theta.names a list of character vectors, where each element of this list is a character vector specifying the names of model parameters. \cr
-#' Note: model parameters grouped within the same element will be simultaneously optimized during the ECM step.
 #' @param EM.maxit a numeric scalar. Use this argument to specify the maximum iteration the EM algorithm.
 #' Setting this variable too large will cause longer run time if optimal point is harder to reach. However, too low will lead to non-optimal points.
-#' Typically, somewhere between 100-300 iterations is adequate depending on the problem.
+#' Typically, somewhere between 20-50 iterations is adequate depending on the problem.
 #' @param ELL_diff.tol a numeric scalar that is greater than 0. This is the tolerance value for the expected conditional log-likelihood. \cr
 #' The smaller this value, the more precise the estimate, however the longer run time will be needed.
 #' @param LPY_diff.tol a numeric scalar that is greater than 0. This is the tolerance value for the log observed likelihood, \eqn{log(P(Y))}. \cr
@@ -33,7 +31,6 @@
 #' @param fnscale a negative real number, this is used to scale the value of the objective function.
 #' Setting it to negative implies that a maximization is being performed.
 #' @param factr the tolerance parameter for algorithm convergence. The smaller the value, the better accuracy but also longer run time.
-
 #' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #'
 #' @return A list object containing as many elements as the number of EM iteration that were performed
@@ -71,7 +68,6 @@ EM_lctmc_2x2 = function(EM_inits,
                         df_dt,
                         K,
                         par_constraint,
-                        theta.names,
                         EM.maxit,
                         ELL_diff.tol,
                         LPY_diff.tol,
@@ -90,15 +86,15 @@ EM_lctmc_2x2 = function(EM_inits,
   if (!is.numeric(df_dt)) {
     stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
-  if (length(EM_inits) != length(unlist(theta.names))) {
-    stop("Mis-matching dimensions in `EM_inits` and `theta.names`")
-  }
+
+  ### initialize
+  t0 = Sys.time()
 
   ### run optim in parallel (?)
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
-  ### initialize
-  t0 = Sys.time()
+  ### ECM steps & theta names for bik
+  ECM_sets = gen_theta_names(K = K, type = "2x2", purpose = "em")
   theta.names.bik = gen_theta_names(K = K, type = "2x2", purpose = "bik")
 
   ### apply constraints to initial values
@@ -116,7 +112,7 @@ EM_lctmc_2x2 = function(EM_inits,
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
+  bik_all.old = impute_bik(x = bik_all.old)
 
   ### step 1: compute log(P(Y)) and ELL
   denom.0 = Reduce(`+`, bik_all.old)
@@ -143,7 +139,7 @@ EM_lctmc_2x2 = function(EM_inits,
     # increment while-loop counter + msg
     EM.i = EM.i + 1
     cat(" * ", rep("~", 97), "\n", sep = "")
-    cat("   Starting EM Step:", rep(" ", 4-nchar(EM.i)), EM.i, " - - - (with ", length(theta.names), " sub-steps) ",
+    cat("   Starting EM Step:", rep(" ", 4-nchar(EM.i)), EM.i, " - - - (with ", length(ECM_sets), " sub-steps) ",
         "\n", rep(" ", 3), sep = "")
 
     # function evaluated at OLD theta
@@ -163,7 +159,7 @@ EM_lctmc_2x2 = function(EM_inits,
         P.rs = FALSE,
         theta.names = theta.names.bik
       )
-      bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
+      bik_all.old = impute_bik(x = bik_all.old)
       # get denom
       denom.old = Reduce(`+`, bik_all.old)
     } else {
@@ -173,10 +169,10 @@ EM_lctmc_2x2 = function(EM_inits,
     }
 
     # optim
-    for (p.i in seq_along(theta.names)) {
+    for (p.i in seq_along(ECM_sets)) {
       # print message for current ECM step -- within step `EM.i`
       cat(p.i, ".. ", sep = "")
-      p = theta.names[[p.i]]
+      p = ECM_sets[[p.i]]
       # if running parallel, need to export variable
       if (parallel_optim$run) {
         opt = optim2(
@@ -198,7 +194,7 @@ EM_lctmc_2x2 = function(EM_inits,
               P.rs = FALSE,
               theta.names = theta.names.bik
             )
-            bik_all.theta = impute_bik(x = bik_all.theta, eps = 1e-3, EPS = 1e-24)
+            bik_all.theta = impute_bik(x = bik_all.theta)
 
             # compute expected log likelihood given obs. data
             numer = Reduce(`+`, Map(f = function(x, y) x*log(y), bik_all.old, bik_all.theta))
@@ -232,7 +228,7 @@ EM_lctmc_2x2 = function(EM_inits,
               P.rs = FALSE,
               theta.names = theta.names.bik
             )
-            bik_all.theta = impute_bik(x = bik_all.theta, eps = 1e-3, EPS = 1e-24)
+            bik_all.theta = impute_bik(x = bik_all.theta)
 
             # compute expected loglikelihood given obs. data
             numer = Reduce(`+`, Map(f = function(x, y) x*log(y), bik_all.old, bik_all.theta))
@@ -264,7 +260,7 @@ EM_lctmc_2x2 = function(EM_inits,
       P.rs = FALSE,
       theta.names = theta.names.bik
     )
-    b = impute_bik(x = b, eps = 1e-3, EPS = 1e-24)
+    b = impute_bik(x = b)
     LPY_curr = sum(log(Reduce(`+`, b)))
 
     # print message for ending `EM.i` step
@@ -340,7 +336,6 @@ EM_lctmc_3x3 = function(EM_inits,
                         df_dt,
                         K,
                         par_constraint,
-                        theta.names,
                         EM.maxit,
                         ELL_diff.tol,
                         LPY_diff.tol,
@@ -359,15 +354,15 @@ EM_lctmc_3x3 = function(EM_inits,
   if (!is.numeric(df_dt)) {
     stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
-  if (length(EM_inits) != length(unlist(theta.names))) {
-    stop("Mis-matching dimensions in `EM_inits` and `theta.names`")
-  }
+
+  ### initialize
+  t0 = Sys.time()
 
   ### run optim in parallel (?)
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
-  ### initialize
-  t0 = Sys.time()
+  ### ECM steps & theta names for bik
+  ECM_sets = gen_theta_names(K = K, type = "3x3", purpose = "em")
   theta.names.bik = gen_theta_names(K = K, type = "3x3", purpose = "bik")
 
   ### apply constraints to initial values
@@ -385,7 +380,7 @@ EM_lctmc_3x3 = function(EM_inits,
     P.rs = FALSE,
     theta.names = theta.names.bik
   )
-  bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
+  bik_all.old = impute_bik(x = bik_all.old)
 
   ### step 1: compute log(P(Y)) and ELL
   denom.0 = Reduce(`+`, bik_all.old)
@@ -412,7 +407,7 @@ EM_lctmc_3x3 = function(EM_inits,
     # increment while-loop counter + msg
     EM.i = EM.i + 1
     cat(" * ", rep("~", 97), "\n", sep = "")
-    cat("   Starting EM Step:", rep(" ", 4-nchar(EM.i)), EM.i, " - - - (with ", length(theta.names), " sub-steps) ",
+    cat("   Starting EM Step:", rep(" ", 4-nchar(EM.i)), EM.i, " - - - (with ", length(ECM_sets), " sub-steps) ",
         "\n", rep(" ", 3), sep = "")
 
     # function evaluated at OLD theta
@@ -432,7 +427,7 @@ EM_lctmc_3x3 = function(EM_inits,
         P.rs = FALSE,
         theta.names = theta.names.bik
       )
-      bik_all.old = impute_bik(x = bik_all.old, eps = 1e-3, EPS = 1e-24)
+      bik_all.old = impute_bik(x = bik_all.old)
       # get denom
       denom.old = Reduce(`+`, bik_all.old)
     } else {
@@ -442,10 +437,10 @@ EM_lctmc_3x3 = function(EM_inits,
     }
 
     # optim
-    for (p.i in seq_along(theta.names)) {
+    for (p.i in seq_along(ECM_sets)) {
       # print message for current ECM step -- within step `EM.i`
       cat(p.i, ".. ", sep = "")
-      p = theta.names[[p.i]]
+      p = ECM_sets[[p.i]]
       # if running parallel, need to export variable
       if (parallel_optim$run) {
         opt = optim2(
@@ -467,7 +462,7 @@ EM_lctmc_3x3 = function(EM_inits,
               P.rs = FALSE,
               theta.names = theta.names.bik
             )
-            bik_all.theta = impute_bik(x = bik_all.theta, eps = 1e-3, EPS = 1e-24)
+            bik_all.theta = impute_bik(x = bik_all.theta)
 
             # compute expected log likelihood given obs. data
             numer = Reduce(`+`, Map(f = function(x, y) x*log(y), bik_all.old, bik_all.theta))
@@ -501,7 +496,7 @@ EM_lctmc_3x3 = function(EM_inits,
               P.rs = FALSE,
               theta.names = theta.names.bik
             )
-            bik_all.theta = impute_bik(x = bik_all.theta, eps = 1e-3, EPS = 1e-24)
+            bik_all.theta = impute_bik(x = bik_all.theta)
 
             # compute expected loglikelihood given obs. data
             numer = Reduce(`+`, Map(f = function(x, y) x*log(y), bik_all.old, bik_all.theta))
@@ -533,7 +528,7 @@ EM_lctmc_3x3 = function(EM_inits,
       P.rs = FALSE,
       theta.names = theta.names.bik
     )
-    b = impute_bik(x = b, eps = 1e-3, EPS = 1e-24)
+    b = impute_bik(x = b)
     LPY_curr = sum(log(Reduce(`+`, b)))
 
     # print message for ending `EM.i` step
