@@ -6,9 +6,27 @@
 \alias{get_P_3x3}
 \title{Computes transition probabilities}
 \usage{
-get_P_2x2(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15)
+get_P_2x2(
+  q12 = numeric(),
+  q21 = numeric(),
+  q23 = NA,
+  log_q12 = numeric(),
+  log_q21 = numeric(),
+  log_q23 = NA,
+  dt = numeric(),
+  tol = 1e-15
+)
 
-get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15)
+get_P_3x3(
+  q12 = numeric(),
+  q21 = numeric(),
+  q23 = numeric(),
+  log_q12 = numeric(),
+  log_q21 = numeric(),
+  log_q23 = numeric(),
+  dt = numeric(),
+  tol = 1e-15
+)
 }
 \arguments{
 \item{q12}{a numeric vector for the transition rate from stage 1 to 2}
@@ -16,6 +34,12 @@ get_P_3x3(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15)
 \item{q21}{a numeric vector for the transition rate from stage 2 to 1}
 
 \item{q23}{a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)}
+
+\item{log_q12}{a numeric vector for the \strong{log} transition rate from stage 1 to 2}
+
+\item{log_q21}{a numeric vector for the \strong{log} transition rate from stage 2 to 1}
+
+\item{log_q23}{a numeric vector for the \strong{log} transition rate from stage 2 to 3 (only applicable to 3x3 models)}
 
 \item{dt}{a vector of numeric values for the time interval between observations}
 
@@ -51,8 +75,11 @@ q21 = c(1, 2, 3)
 time_diffs = c(1, 5, 10)
 
 # compute
-LCTMC:::get_P_2x2(q12 = q12, q21 = q21,
-                  dt = time_diffs)
+LCTMC:::get_P_2x2(
+  q12 = q12,
+  q21 = q21,
+  dt = time_diffs
+)
 
 
 # 3x3 case ------------------
@@ -65,8 +92,12 @@ q23 = c(1, 1, 1)
 time_diffs = c(1, 5, 10)
 
 # compute
-LCTMC:::get_P_3x3(q12 = q12, q21 = q21, q23 = q23,
-                  dt = time_diffs)
+LCTMC:::get_P_3x3(
+  q12 = q12,
+  q21 = q21,
+  q23 = q23,
+  dt = time_diffs
+)
 }
 \seealso{
 \code{\link[=Li_2x2]{Li_2x2()}}; \code{\link[=bik_all_2x2]{bik_all_2x2()}}

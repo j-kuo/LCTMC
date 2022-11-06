@@ -63,14 +63,20 @@ bik_all_2x2 = function(theta = c(),
       e.pi.list[[k]] = 1
     }
 
-    # betas for transition 1 --> 2
-    q.12_k = exp(as.numeric(Xmat %*% theta[theta.names[[k]]$q12]))
+    # log transition rates
+    log_q.12_k = Xmat %*% theta[theta.names[[k]]$q12]
+    log_q.21_k = Xmat %*% theta[theta.names[[k]]$q21]
 
-    # betas for transition 2 --> 1
-    q.21_k = exp(as.numeric(Xmat %*% theta[theta.names[[k]]$q21]))
+    # transition rates
+    q.12_k = exp(log_q.12_k)
+    q.21_k = exp(log_q.21_k)
 
     # P.rs
-    P.rs_k = get_P_2x2(dt = dt, q12 = q.12_k, q21 = q.21_k)
+    P.rs_k = get_P_2x2(
+      q12 = q.12_k,
+      q21 = q.21_k,
+      dt = dt
+    )
     P.rs.list[[k]] = P.rs_k
   }
 
@@ -120,17 +126,23 @@ bik_all_3x3 = function(theta = c(),
       e.pi.list[[k]] = 1
     }
 
-    # betas for transition 1 --> 2
-    q.12_k = exp(as.numeric(Xmat %*% theta[theta.names[[k]]$q12]))
+    # log transition rates
+    log_q.12_k = Xmat %*% theta[theta.names[[k]]$q12]
+    log_q.21_k = Xmat %*% theta[theta.names[[k]]$q21]
+    log_q.23_k = Xmat %*% theta[theta.names[[k]]$q23]
 
-    # betas for transition 2 --> 1
-    q.21_k = exp(as.numeric(Xmat %*% theta[theta.names[[k]]$q21]))
-
-    # betas for transition 2 --> 3
-    q.23_k = exp(as.numeric(Xmat %*% theta[theta.names[[k]]$q23]))
+    # transition rates
+    q.12_k = exp(log_q.12_k)
+    q.21_k = exp(log_q.21_k)
+    q.23_k = exp(log_q.23_k)
 
     # P.rs
-    P.rs_k = get_P_3x3(dt = dt, q12 = q.12_k, q21 = q.21_k, q23 = q.23_k)
+    P.rs_k = get_P_3x3(
+      q12 = q.12_k,
+      q21 = q.21_k,
+      q23 = q.23_k,
+      dt = dt
+    )
     P.rs.list[[k]] = P.rs_k
   }
 

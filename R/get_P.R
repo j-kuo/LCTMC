@@ -7,6 +7,9 @@
 #' @param q12 a numeric vector for the transition rate from stage 1 to 2
 #' @param q21 a numeric vector for the transition rate from stage 2 to 1
 #' @param q23 a numeric vector for the transition rate from stage 2 to 3 (only applicable to 3x3 models)
+#' @param log_q12 a numeric vector for the **log** transition rate from stage 1 to 2
+#' @param log_q21 a numeric vector for the **log** transition rate from stage 2 to 1
+#' @param log_q23 a numeric vector for the **log** transition rate from stage 2 to 3 (only applicable to 3x3 models)
 #' @param dt a vector of numeric values for the time interval between observations
 #' @param tol a numeric scalar. Tolerance for some quantities computed within the `get_P()` functions.
 #' When the quantities are less than or equal to `tol`, then they are defaulted to `tol`
@@ -30,7 +33,14 @@
 NULL
 
 #' @rdname get_P
-get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15) {
+get_P_2x2 = function(q12 = numeric(),
+                     q21 = numeric(),
+                     q23 = NA,
+                     log_q12 = numeric(),
+                     log_q21 = numeric(),
+                     log_q23 = NA,
+                     dt = numeric(),
+                     tol = 1e-15) {
   # constants for both
   K = q12 + q21
   K[K <= tol] = tol
@@ -58,35 +68,36 @@ get_P_2x2 = function(q12 = c(), q21 = c(), q23 = NA, dt = c(), tol = 1e-15) {
 }
 
 #' @rdname get_P
-get_P_3x3 = function(q12 = c(), q21 = c(), q23 = c(), dt = c(), tol = 1e-15) {
-  # naive solution to deal with undefined cases
-  q21[q21 <= tol] = tol
-
-  q12[q12 <= tol & q23 <= tol] = tol
-  q23[q12 <= tol & q23 <= tol] = tol
-
+get_P_3x3 = function(q12 = numeric(),
+                     q21 = numeric(),
+                     q23 = numeric(),
+                     log_q12 = numeric(),
+                     log_q21 = numeric(),
+                     log_q23 = numeric(),
+                     dt = numeric(),
+                     tol = 1e-15) {
   # constants for both
   K = q12 + q21 + q23
-  discr = sqrt(K^2 - 4*q12*q23) # sqrt( (x-z)^2 + 2xy + 2yz )
+  discr = sqrt(K^2 - 4*q12*q23)
   r1 = (-K + discr) / 2
   r2 = (-K - discr) / 2
 
   # transition from state 1
   A = r2 / discr
   B = -1 - A
-  A_exp = A * exp(r1*dt)
-  B_exp = B * exp(r2*dt)
-  p12 = (r1*A_exp + r2*B_exp) / q23 # r1*A*exp(r1*dt)/q23 + r2*B*exp(r2*dt)/q23
+  A_exp = A*exp(r1*dt)
+  B_exp = B*exp(r2*dt)
+  p12 = (r1*A_exp + r2*B_exp) / q23
   p13 = A_exp + B_exp + 1
   p11 = 1 - p12 - p13
 
   # transitions from state 2
   C = (q23 + r2) / discr
   D = -1 - C
-  C_exp = C * exp(r1*dt)
-  D_exp = D * exp(r2*dt)
+  C_exp = C*exp(r1*dt)
+  D_exp = D*exp(r2*dt)
   CD_exp = C_exp + D_exp
-  p22 = (r1*C_exp + r2*D_exp) / q23 # r1*C*exp(r1*dt)/q23 + r2*D*exp(r2*dt)/q23
+  p22 = (r1*C_exp + r2*D_exp) / q23
   p23 = CD_exp + 1
   p21 = -p22 - CD_exp
 

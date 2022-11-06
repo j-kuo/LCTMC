@@ -48,12 +48,19 @@ indiv_ctmc_2x2 = function(subject_list, df, Xmat, dt, trace) {
       par = par_init,
       fn = function(par) {
         # compute rates & P mat
-        q12 = exp(as.numeric(Xmat.i %*% par[1:3]))
-        q21 = exp(as.numeric(Xmat.i %*% par[4:6]))
-        P = get_P_2x2(dt = dt.i, q12 = q12, q21 = q21)
+        log_q12 = as.numeric(Xmat.i %*% par[1:3])
+        log_q21 = as.numeric(Xmat.i %*% par[4:6])
+        q12 = exp(log_q12)
+        q21 = exp(log_q21)
+        P = get_P_2x2(
+          q12 = q12,
+          q21 = q21,
+          dt = dt.i
+        )
 
         # log-likelihood
-        L.ij = df.i$trans.1_1 * P$P11 + df.i$trans.1_2 * P$P12 + df.i$trans.2_1 * P$P21 + df.i$trans.2_2 * P$P22
+        L.ij = df.i$trans.1_1 * P$P11 + df.i$trans.1_2 * P$P12 +
+          df.i$trans.2_1 * P$P21 + df.i$trans.2_2 * P$P22
 
         # impute
         L.ij[is.na(L.ij)] = -1
@@ -119,10 +126,18 @@ indiv_ctmc_3x3 = function(subject_list, df, Xmat, dt, trace) {
       par = par_init,
       fn = function(par) {
         # compute rates & P mat
-        q12 = exp(as.numeric(Xmat.i %*% par[1:3]))
-        q21 = exp(as.numeric(Xmat.i %*% par[4:6]))
-        q23 = exp(as.numeric(Xmat.i %*% par[7:9]))
-        P = get_P_3x3(dt = dt.i, q12 = q12, q21 = q21, q23 = q23)
+        log_q12 = as.numeric(Xmat.i %*% par[1:3])
+        log_q21 = as.numeric(Xmat.i %*% par[4:6])
+        log_q23 = as.numeric(Xmat.i %*% par[7:9])
+        q12 = exp(log_q12)
+        q21 = exp(log_q21)
+        q23 = exp(log_q23)
+        P = get_P_3x3(
+          q12 = q12,
+          q21 = q21,
+          q23 = q23,
+          dt = dt.i
+        )
 
         # log-likelihood
         L.ij = df.i$trans.1_1*P$P11 + df.i$trans.1_2*P$P12 + df.i$trans.1_3*P$P13_exact +
