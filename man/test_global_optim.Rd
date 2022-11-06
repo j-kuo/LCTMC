@@ -6,26 +6,29 @@
 \alias{test_global_optim.lctmc_3x3}
 \title{Compare log likelihood between MLE and true parameters}
 \usage{
-test_global_optim(m, true_param, tol, data)
+test_global_optim(m, data, true_param, tol)
 
-\method{test_global_optim}{lctmc_2x2}(m, true_param, tol, data)
+\method{test_global_optim}{lctmc_2x2}(m, data, true_param, tol)
 
-\method{test_global_optim}{lctmc_3x3}(m, true_param, tol, data)
+\method{test_global_optim}{lctmc_3x3}(m, data, true_param, tol)
 }
 \arguments{
 \item{m}{a 'lctmc_2x2' or 'lctmc_3x3' object obtained from the \code{lctmc} functions}
 
+\item{data}{a data.frame object. This should be the data set that the LCTMC model fitted on.}
+
 \item{true_param}{a list object housing the true parameter values. This object can be obtained from
-the 'LCTMC.simulate' package via the \code{gen_true_param()} function.}
+the 'LCTMC.simulate' package via the \code{gen_true_param()} function. \cr
+If this argument is left unspecified, then the function will only return statistics for the MLE and local optimum result. \cr
+See \strong{Note} section regarding number of latent classes, \code{m$K}.}
 
 \item{tol}{a numeric scalar. Tolerance value when comparing the log-likelihood values.
 The smaller this value, the more precise the comparison.}
-
-\item{data}{a data.frame object. This should be the data set that the LCTMC model fitted on.}
 }
 \value{
-A list object of length 3. The elements of this list are:
+A list object of length 4. The elements of this list are:
 \describe{
+\item{local_optim}{a logical scalar. TRUE if \code{covariance_code} and \code{hess_code} both equals to 2},
 \item{global_optim}{a logical scalar. TRUE if the \eqn{\log(L_{mle}) - \log(L_{true}) \geq \epsilon},
 where \eqn{\epsilon} is the \code{tol} input argument.}
 \item{L_mle}{a numeric scalar. The observed log-likelihood value when evaluated at the MLE.}
@@ -42,6 +45,26 @@ If the MLE is truly a maximum likelihood estimate, then it should yield a larger
 This function is specifically meant to be used during a simulation study. \cr
 Currently, this function only supports when \code{K = 3} as the 'LCTMC.simulate' package only
 simulates the case of 3 latent classes.
+}
+\examples{
+## 2x2 example
+data("example_df2x2", package = "LCTMC")
+data("model_2x2", package = "LCTMC")
+
+LCTMC::test_global_optim(
+  m = model_2x2,
+  data = example_df2x2
+)
+
+
+## 3x3 example
+data("example_df3x3", package = "LCTMC")
+data("model_3x3", package = "LCTMC")
+
+LCTMC::test_global_optim(
+  m = model_3x3,
+  data = example_df3x3
+)
 }
 \seealso{
 \code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}

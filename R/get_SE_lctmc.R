@@ -169,12 +169,18 @@ get_SE_lctmc_2x2 = function(em,
   z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
 
   ### compute SE: SQRT( diag of -H^(-1) )
-  df.theta = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
-  df.theta$L_CI = df.theta$mle_theta - z_crit * df.theta$SE
-  df.theta$U_CI = df.theta$mle_theta + z_crit * df.theta$SE
+  df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
+  df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+  df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
+  df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
 
   ### output
-  out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
+  out = list(
+    SE = df.theta_with_se,
+    covariance_code = covariance_code,
+    hess_code = hess_code,
+    Covariance = cov_mat
+  )
   class(out) = append("lctmc_2x2.SE", class(out))
   return(out)
 }
@@ -294,13 +300,18 @@ get_SE_lctmc_3x3 = function(em,
   z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
 
   ### compute SE: SQRT( diag of -H^(-1) )
-  df.theta = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
-  df.theta$L_CI = df.theta$mle_theta - z_crit * df.theta$SE
-  df.theta$U_CI = df.theta$mle_theta + z_crit * df.theta$SE
+  df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
+  df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+  df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
+  df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
 
   ### output
-  out = list(SE = df.theta, covariance_code = covariance_code, hess_code = hess_code, Covariance = cov_mat)
+  out = list(
+    SE = df.theta_with_se,
+    covariance_code = covariance_code,
+    hess_code = hess_code,
+    Covariance = cov_mat
+  )
   class(out) = append("lctmc_3x3.SE", class(out))
   return(out)
 }
-

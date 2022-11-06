@@ -1,7 +1,7 @@
 Package: LCTMC
 Title: Latent Class Continuous-Time Markov Chain
-Date: 2022.10.28
-Version: 1.0.5
+Date: 2022.11.06
+Version: 1.1.0
 Authors@R: c(
     person("Jacky", "Kuo", email = "jacky.kuo@uth.tmc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6825-9938")),
     person("Wenyaw", "Chan", email = "", role = c("ths"), comment = ""))
@@ -10,4 +10,5 @@ License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
+Depends: R (>= 3.5.0)
 Imports: collapse, nnet, numDeriv, optimParallel, doParallel, foreach

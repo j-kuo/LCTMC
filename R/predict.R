@@ -109,7 +109,7 @@ predict.lctmc_2x2 = function(object, ...) {
     model_param = lctmc$SE$SE$mle_theta
     names(model_param) = lctmc$SE$SE$names
   } else if (param.type == "kmeans") {
-    model_param = lctmc$init01$step1_full
+    model_param = lctmc$init01$step1_full$theta
   } else {
     stop("`param.type` should be either 'mle' or 'kmeans'")
   }
@@ -331,7 +331,7 @@ predict.lctmc_3x3 = function(object, ...) {
     model_param = lctmc$SE$SE$mle_theta
     names(model_param) = lctmc$SE$SE$names
   } else if (param.type == "kmeans") {
-    model_param = lctmc$init01$step1_full
+    model_param = lctmc$init01$step1_full$theta
   } else {
     stop("`param.type` should be either 'mle' or 'kmeans'")
   }

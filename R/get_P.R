@@ -11,8 +11,6 @@
 #' @param log_q21 a numeric vector for the **log** transition rate from stage 2 to 1
 #' @param log_q23 a numeric vector for the **log** transition rate from stage 2 to 3 (only applicable to 3x3 models)
 #' @param dt a vector of numeric values for the time interval between observations
-#' @param tol a numeric scalar. Tolerance for some quantities computed within the `get_P()` functions.
-#' When the quantities are less than or equal to `tol`, then they are defaulted to `tol`
 #'
 #' @return a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
 #' For the 2x2 case, the possible transitions are `1-1, 1-2, 2-1, 2-2`,
@@ -22,12 +20,13 @@
 #' In the case of exactly-observed data on **state 3**, the transition densities are `P13_exact, P23_exact`.
 #'
 #' @note The probabilities will be undefined when \eqn{q_{21}=0} and \eqn{q_{12} = q_{23} \geq 0}.
-#' Thus, we've implemented a naive solution which applies the constrain \eqn{q_{21} \geq 10^{-12}}. \cr\cr
-#' Additionally, the input argument should be of the same length, or their lengths should be multiples of one another.
-#' Final note, this function does not need to depend on the number of latent classes because what we are computing is
-#' the transition probability conditioned on the given latent class. \cr
+#' Thus, a naive solution is implemented via the `impute_bik()` function which defaults NA values to some small values as penalty. \cr\cr
+#' As far as function specification goes, the input argument should be of the same length to ensure regular behavior.
+#' Additionally, this function does not need to depend on the number of latent classes because what we are computing is
+#' the transition probability conditioned on the given latent class. \cr\cr
+#' At the moment, the log rates are not being used as part of the computation.
 #'
-#' @seealso [Li_2x2()]; [bik_all_2x2()]
+#' @seealso [Li_2x2()]; [bik_all_2x2()]; [impute_bik()]
 #'
 #' @example inst/examples/ex_get_P.R
 NULL
@@ -39,12 +38,9 @@ get_P_2x2 = function(q12 = numeric(),
                      log_q12 = numeric(),
                      log_q21 = numeric(),
                      log_q23 = NA,
-                     dt = numeric(),
-                     tol = 1e-15) {
+                     dt = numeric()) {
   # constants for both
   K = q12 + q21
-  K[K <= tol] = tol
-
   K_exp = (1-exp(-K*dt)) / K
 
   # compute P11 and P12
@@ -74,8 +70,7 @@ get_P_3x3 = function(q12 = numeric(),
                      log_q12 = numeric(),
                      log_q21 = numeric(),
                      log_q23 = numeric(),
-                     dt = numeric(),
-                     tol = 1e-15) {
+                     dt = numeric()) {
   # constants for both
   K = q12 + q21 + q23
   discr = sqrt(K^2 - 4*q12*q23)

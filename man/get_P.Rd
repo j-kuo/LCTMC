@@ -13,8 +13,7 @@ get_P_2x2(
   log_q12 = numeric(),
   log_q21 = numeric(),
   log_q23 = NA,
-  dt = numeric(),
-  tol = 1e-15
+  dt = numeric()
 )
 
 get_P_3x3(
@@ -24,8 +23,7 @@ get_P_3x3(
   log_q12 = numeric(),
   log_q21 = numeric(),
   log_q23 = numeric(),
-  dt = numeric(),
-  tol = 1e-15
+  dt = numeric()
 )
 }
 \arguments{
@@ -42,9 +40,6 @@ get_P_3x3(
 \item{log_q23}{a numeric vector for the \strong{log} transition rate from stage 2 to 3 (only applicable to 3x3 models)}
 
 \item{dt}{a vector of numeric values for the time interval between observations}
-
-\item{tol}{a numeric scalar. Tolerance for some quantities computed within the \code{get_P()} functions.
-When the quantities are less than or equal to \code{tol}, then they are defaulted to \code{tol}}
 }
 \value{
 a data.frame object with each column being one of the transition probability in the respective model. \cr\cr
@@ -60,10 +55,11 @@ The only transition rates in this model are \eqn{q_{12}, q_{21} > 0}
 }
 \note{
 The probabilities will be undefined when \eqn{q_{21}=0} and \eqn{q_{12} = q_{23} \geq 0}.
-Thus, we've implemented a naive solution which applies the constrain \eqn{q_{21} \geq 10^{-12}}. \cr\cr
-Additionally, the input argument should be of the same length, or their lengths should be multiples of one another.
-Final note, this function does not need to depend on the number of latent classes because what we are computing is
-the transition probability conditioned on the given latent class. \cr
+Thus, a naive solution is implemented via the \code{impute_bik()} function which defaults NA values to some small values as penalty. \cr\cr
+As far as function specification goes, the input argument should be of the same length to ensure regular behavior.
+Additionally, this function does not need to depend on the number of latent classes because what we are computing is
+the transition probability conditioned on the given latent class. \cr\cr
+At the moment, the log rates are not being used as part of the computation.
 }
 \examples{
 # 2x2 case ------------------
@@ -100,5 +96,5 @@ LCTMC:::get_P_3x3(
 )
 }
 \seealso{
-\code{\link[=Li_2x2]{Li_2x2()}}; \code{\link[=bik_all_2x2]{bik_all_2x2()}}
+\code{\link[=Li_2x2]{Li_2x2()}}; \code{\link[=bik_all_2x2]{bik_all_2x2()}}; \code{\link[=impute_bik]{impute_bik()}}
 }
