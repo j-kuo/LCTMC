@@ -15,12 +15,12 @@ For now, please see the ['LCTMC.simulate'](https://github.com/j-kuo/LCTMC.simula
 
 ## Work in Progress
 
-1. Can model run smoothly for all 3 scenarios?
-   1. 2x2 model (only "X" covariate)
-   1. 3x3 model (only "X" covariate)
-   1. 3x3 model ("X" and "W" covariate)
-1. Try for 10 sim, and how about 50?
-   * How's the coverage & bias estimate
+1. ~~Can model run smoothly for all 3 scenarios?~~ (Yes)
+   1. ~~2x2 model (only "X" covariate)~~
+   1. ~~3x3 model (only "X" covariate)~~
+   1. ~~3x3 model ("X" and "W" covariate)~~
+1. ~~Try for 10 sim, and how about 50?~~ (Good)
+   * ~~How's the coverage & bias estimate~~ (coverage 70%-98%, bias between -1 & 1)
    * Is there an improvement from by adding the "W" covariates when there are only few observations
 
 ## Authors
