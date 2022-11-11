@@ -21,11 +21,15 @@ See \code{\link[=fmt_rowwise_trans]{fmt_rowwise_trans()}} for more info}
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 \item{pct_keep}{controls how much of left/right tail should be truncated for the k-means algorithm. \cr
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
-\item{parallelize.init01}{controls whether step 1 of initial value generation should be parallelized. \cr
+\item{init01.parallelize}{controls whether step 1 of initial value generation should be parallelized. \cr
 See \code{\link[=gen_inits01_lctmc_2x2]{gen_inits01_lctmc_2x2()}} for more info}
 \item{which_step1}{a character scalar. Controls which kmeans result to use for step 2 of initial value generation. \cr
 Default is "best" which uses the parameter vector that yields the highest \eqn{\log(P(Y))}.
 The alternative is "all" which uses all of the kmeans estimate without truncating either tail.}
+\item{init02.maxit}{a numeric scalar. Controls the maximum number of iteration for step 2 of initial value generation. \cr
+See \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}} for more info.}
+\item{init02.factr}{a numeric scalar. Controls the convergence tolerance number for step 2 of initial value generation. \cr
+See \code{\link[=gen_inits02_lctmc_2x2]{gen_inits02_lctmc_2x2()}} for more info.}
 \item{EM.maxit}{controls how many EM iterations the algorithm will perform. \cr
 See \code{\link[=EM_lctmc_2x2]{EM_lctmc_2x2()}} for more info}
 \item{EM.ELL_tol}{controls the convergence tolerance on the expected conditional log-likelihood value. \cr
@@ -52,8 +56,8 @@ See \code{\link[=get_SE_lctmc_2x2]{get_SE_lctmc_2x2()}} & \code{\link[=eigen]{ei
 a custom class object that acts like a list. The output contains the following:
 \describe{
 \item{fmt_data}{contains elements: \code{scaling} and \code{trace}.}
-\item{init01}{contains elements: \code{N_sub}, \code{pct_keep}, and \code{parallelize.init01}}
-\item{init02}{contains elements: \code{which_step1}.}
+\item{init01}{contains elements: \code{N_sub}, \code{pct_keep}, and \code{init01.parallelize}}
+\item{init02}{contains elements: \code{which_step1}, \code{maxit}, and \code{factr}}
 \item{EM}{contains elements: \code{EM.maxit}, \code{EM.ELL_tol}, \code{EM.LPY_tol}, \code{EM.par_tol},
 \code{LBFGS.fnscale}, \code{LBFGS.maxit}, and \code{LBFGSB.factr}.}
 \item{SE}{contains elements: \code{solve_tol}, \code{symmetric_tol}, and \code{eigen0_tol}.}
@@ -126,6 +130,31 @@ create_controls(
   pct_keep = seq(0.4, 1, 0.1),
   parallelize.init01 = TRUE,
   which_step1 = "best",
+  EM.maxit = 10,
+  EM.ELL_tol = 0.1,
+  EM.LPY_tol = 0.001,
+  EM.par_tol = 0.001,
+  LBFGSB.fnscale = -1,
+  LBFGSB.maxit = 1e5,
+  LBFGSB.factr = 0.003,
+  solve_tol = 1e-6,
+  # symmetric_tol = 1e-10,
+  eigen0_tol = 1e-10
+)
+
+
+
+create_controls(
+  # type & aspect
+  type = '3x3',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = TRUE,
+  which_step1 = "best",
+  init02.maxit = 12345,
+  init02.factr = 1e-10,
   EM.maxit = 10,
   EM.ELL_tol = 0.1,
   EM.LPY_tol = 0.001,

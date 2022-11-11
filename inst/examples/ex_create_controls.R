@@ -69,3 +69,28 @@ create_controls(
   # symmetric_tol = 1e-10,
   eigen0_tol = 1e-10
 )
+
+
+
+create_controls(
+  # type & aspect
+  type = '3x3',
+  # ...
+  scaling = c(x1 = 1),
+  trace = FALSE,
+  pct_keep = seq(0.4, 1, 0.1),
+  parallelize.init01 = TRUE,
+  which_step1 = "best",
+  init02.maxit = 12345,
+  init02.factr = 1e-10,
+  EM.maxit = 10,
+  EM.ELL_tol = 0.1,
+  EM.LPY_tol = 0.001,
+  EM.par_tol = 0.001,
+  LBFGSB.fnscale = -1,
+  LBFGSB.maxit = 1e5,
+  LBFGSB.factr = 0.003,
+  solve_tol = 1e-6,
+  # symmetric_tol = 1e-10,
+  eigen0_tol = 1e-10
+)

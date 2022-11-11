@@ -23,6 +23,10 @@
 #' @param K an integer scalar. Use this variable to tell the function how many latent classes there should be. \cr
 #' @param par_constraint See documentation in [lctmc_2x2()] or [lctmc_3x3()]
 #' @param parallel_optim See documentation in [lctmc_2x2()] or [lctmc_3x3()]
+#' @param LBFGSB.maxit a numeric scalar. This is the maximum number of iterations set for the L-BFGS-B algorithm.
+#' See the `maxit` argument under [optim()]'s **Details** section for more info.
+#' @param LBFGSB.factr a numeric scalar. This is the convergence tolerance value for the L-BFGS-B algorithm.
+#' See the `factr` argument under [optim()]'s **Details** section for more info.
 #'
 #' @return a named numeric vector. This is the vector of model parameters that maximizes the observed data log-likelihood function (see **Note** section).
 #'
@@ -55,7 +59,9 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
                                  df_dt,
                                  K,
                                  par_constraint,
-                                 parallel_optim) {
+                                 parallel_optim,
+                                 LBFGSB.maxit,
+                                 LBFGSB.factr) {
   ### run optim in parallel (?)
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
@@ -88,7 +94,7 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5),
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = LBFGSB.maxit, factr = LBFGSB.factr),
       parallel = list(cl = parallel_optim$cl, forward = FALSE, loginfo = FALSE)
     )
   }
@@ -116,7 +122,7 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5)
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = LBFGSB.maxit, factr = LBFGSB.factr)
     )
   }
   step2_out = step2_out$par
@@ -135,8 +141,11 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
                                  df_dt,
                                  K,
                                  par_constraint,
-                                 parallel_optim) {
-  ### run optim in parallel (?)
+                                 parallel_optim,
+                                 LBFGSB.maxit,
+                                 LBFGSB.factr) {
+  ### run optim in parallel (?),
+
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
   ### constants needed for optimization
@@ -168,7 +177,7 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5),
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = LBFGSB.maxit, factr = LBFGSB.factr),
       parallel = list(cl = parallel_optim$cl, forward = FALSE, loginfo = FALSE)
     )
   }
@@ -196,7 +205,7 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
         sum(log(bi))
       },
       method = "L-BFGS-B",
-      control = list(fnscale = -length(df_dt), trace = 1, maxit = 1000, factr = 1e-5)
+      control = list(fnscale = -length(df_dt), trace = 1, maxit = LBFGSB.maxit, factr = LBFGSB.factr)
     )
   }
   step2_out = step2_out$par

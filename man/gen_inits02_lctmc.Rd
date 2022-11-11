@@ -14,7 +14,9 @@ gen_inits02_lctmc_2x2(
   df_dt,
   K,
   par_constraint,
-  parallel_optim
+  parallel_optim,
+  LBFGSB.maxit,
+  LBFGSB.factr
 )
 
 gen_inits02_lctmc_3x3(
@@ -25,7 +27,9 @@ gen_inits02_lctmc_3x3(
   df_dt,
   K,
   par_constraint,
-  parallel_optim
+  parallel_optim,
+  LBFGSB.maxit,
+  LBFGSB.factr
 )
 }
 \arguments{
@@ -49,6 +53,12 @@ This vector's length should be equal to number of rows in the data frame object,
 \item{par_constraint}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
 
 \item{parallel_optim}{See documentation in \code{\link[=lctmc_2x2]{lctmc_2x2()}} or \code{\link[=lctmc_3x3]{lctmc_3x3()}}}
+
+\item{LBFGSB.maxit}{a numeric scalar. This is the maximum number of iterations set for the L-BFGS-B algorithm.
+See the \code{maxit} argument under \code{\link[=optim]{optim()}}'s \strong{Details} section for more info.}
+
+\item{LBFGSB.factr}{a numeric scalar. This is the convergence tolerance value for the L-BFGS-B algorithm.
+See the \code{factr} argument under \code{\link[=optim]{optim()}}'s \strong{Details} section for more info.}
 }
 \value{
 a named numeric vector. This is the vector of model parameters that maximizes the observed data log-likelihood function (see \strong{Note} section).

@@ -16,11 +16,15 @@
 #'         See [gen_inits01_lctmc_2x2()] for more info}
 #'   \item{pct_keep}{controls how much of left/right tail should be truncated for the k-means algorithm. \cr
 #'         See [gen_inits01_lctmc_2x2()] for more info}
-#'   \item{parallelize.init01}{controls whether step 1 of initial value generation should be parallelized. \cr
+#'   \item{init01.parallelize}{controls whether step 1 of initial value generation should be parallelized. \cr
 #'         See [gen_inits01_lctmc_2x2()] for more info}
 #'   \item{which_step1}{a character scalar. Controls which kmeans result to use for step 2 of initial value generation. \cr
 #'         Default is "best" which uses the parameter vector that yields the highest \eqn{\log(P(Y))}.
 #'         The alternative is "all" which uses all of the kmeans estimate without truncating either tail.}
+#'   \item{init02.maxit}{a numeric scalar. Controls the maximum number of iteration for step 2 of initial value generation. \cr
+#'         See [gen_inits02_lctmc_2x2()] for more info.}
+#'   \item{init02.factr}{a numeric scalar. Controls the convergence tolerance number for step 2 of initial value generation. \cr
+#'         See [gen_inits02_lctmc_2x2()] for more info.}
 #'   \item{EM.maxit}{controls how many EM iterations the algorithm will perform. \cr
 #'         See [EM_lctmc_2x2()] for more info}
 #'   \item{EM.ELL_tol}{controls the convergence tolerance on the expected conditional log-likelihood value. \cr
@@ -46,8 +50,8 @@
 #' @return a custom class object that acts like a list. The output contains the following:
 #' \describe{
 #'   \item{fmt_data}{contains elements: `scaling` and `trace`.}
-#'   \item{init01}{contains elements: `N_sub`, `pct_keep`, and `parallelize.init01`}
-#'   \item{init02}{contains elements: `which_step1`.}
+#'   \item{init01}{contains elements: `N_sub`, `pct_keep`, and `init01.parallelize`}
+#'   \item{init02}{contains elements: `which_step1`, `maxit`, and `factr`}
 #'   \item{EM}{contains elements: `EM.maxit`, `EM.ELL_tol`, `EM.LPY_tol`, `EM.par_tol`,
 #'         `LBFGS.fnscale`, `LBFGS.maxit`, and `LBFGSB.factr`.}
 #'   \item{SE}{contains elements: `solve_tol`, `symmetric_tol`, and `eigen0_tol`.}
@@ -118,17 +122,21 @@ create_controls = function(type, ...) {
   if (is.null(control_args$pct_keep)) {
     control_args$pct_keep = seq(0.4, 1.0, 0.001)
   }
-  control_args$parallelize.init01 = ifelse(is.null(control_args$parallelize.init01), TRUE, control_args$parallelize.init01)
+  control_args$init01.parallelize = ifelse(is.null(control_args$init01.parallelize), TRUE, control_args$init01.parallelize)
   ctrl[["init01"]] = list(
     N_sub = control_args$N_sub,
     pct_keep = control_args$pct_keep,
-    parallelize = control_args$parallelize.init01
+    parallelize = control_args$init01.parallelize
   )
 
   ### init 02 controls
   control_args$which_step1 = ifelse(is.null(control_args$which_step1), "best", control_args$which_step1)
+  control_args$init02.maxit = ifelse(is.null(control_args$init02.maxit), 1000, control_args$init02.maxit)
+  control_args$init02.factr = ifelse(is.null(control_args$init02.factr), 1e-5, control_args$init02.factr)
   ctrl[["init02"]] = list(
-    which_step1 = control_args$which_step1
+    which_step1 = control_args$which_step1,
+    maxit = control_args$init02.maxit,
+    factr = control_args$init02.factr
   )
 
   ### EM controls

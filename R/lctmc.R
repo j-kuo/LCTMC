@@ -141,7 +141,9 @@ lctmc_2x2 = function(data = data.frame(),
     df_dt = my_df.dt,
     K = K,
     par_constraint = par_constraint,
-    parallel_optim = parallel_optim
+    parallel_optim = parallel_optim,
+    LBFGSB.maxit = controls$init02$maxit,
+    LBFGSB.factr = controls$init02$factr
   )
 
   trace_lctmc_progress(section = "tail1", type = "init2", ref_t = t0, MyModelName = MyModelName)
@@ -333,7 +335,9 @@ lctmc_3x3 = function(data = data.frame(),
     df_dt = my_df.dt,
     K = K,
     par_constraint = par_constraint,
-    parallel_optim = parallel_optim
+    parallel_optim = parallel_optim,
+    LBFGSB.maxit = controls$init02$maxit,
+    LBFGSB.factr = controls$init02$factr
   )
 
   trace_lctmc_progress(section = "tail1", type = "init2", ref_t = t0, MyModelName = MyModelName)
