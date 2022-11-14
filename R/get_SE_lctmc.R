@@ -81,98 +81,120 @@ get_SE_lctmc_2x2 = function(em,
   df.theta = align_MLE_2x2(mle = em[[best_index]]$pars_value, K = K)
   df.theta = df.theta[!colnames(df.theta) %in% c("true_theta")]
 
-  ### msg
-  cat(" * best EM run occurred at step ", best_index, "/", length(em), "\n", sep = "")
 
-  ### get vector of the MLE (without constrained elements)
-  mle = df.theta$mle_theta[!(df.theta$names %in% names(par_constraint))]
-  mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
+  ### try Catch rest of SE estimation
+  df.theta_with_se = df.theta # this is a place holder
+  tryCatch(
+    expr = {
+      ## msg
+      cat(" * entering `tryCatch()` ... \n", sep = "")
+      cat(" * best EM run occurred at step ", best_index, "/", length(em), "\n", sep = "")
 
-  ### numerical derivative to get Hessian matrix
-  hess = numDeriv::hessian(
-    func = function(x) {
-      ## theta vector, adding back the constrained elements
-      names(x) = mle.names
-      x = append(x, par_constraint)
-      ## compute log(P(Y))
-      bik_all.mle = bik_all_2x2(
-        theta = x,
-        data = df,
-        Xmat = df_Xmat,
-        Wmat = df_Wmat,
-        dt = df_dt,
-        K = K,
-        theta.names = theta.names.bik
+      ## get vector of the MLE (without constrained elements)
+      mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
+      mle = df.theta$mle_theta[!(df.theta$names %in% names(par_constraint))]
+      names(mle) = mle.names
+
+      ## numerical derivative to get Hessian matrix
+      hess = numDeriv::hessian(
+        func = function(x) {
+          # theta vector, adding back the constrained elements
+          x = append(x, par_constraint)
+          # compute log(P(Y))
+          bik_all.mle = bik_all_2x2(
+            theta = x,
+            data = df,
+            Xmat = df_Xmat,
+            Wmat = df_Wmat,
+            dt = df_dt,
+            K = K,
+            theta.names = theta.names.bik
+          )
+          bik_all.mle = impute_bik(x = bik_all.mle)
+          # sum over all class
+          bi = Reduce(`+`, bik_all.mle)
+          # return
+          sum(log(bi))
+        },
+        x = mle,
+        method.args = list(r = 4) # use 6 for more accuracy but longer run time
       )
-      bik_all.mle = impute_bik(x = bik_all.mle)
-      ## sum over all class
-      bi = Reduce(`+`, bik_all.mle)
-      ## return
-      sum(log(bi))
+
+      ## Hessian and covariance matrix
+      colnames(hess) = rownames(hess) = mle.names
+      cov_mat = -1 * solve(a = hess, tol = solve.tol)
+
+      ## check for covariance matrix
+      covariance_code = -1
+      if (isSymmetric(cov_mat, tol = symmetric.tol)) {
+        # eigenvalues
+        covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
+        covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
+
+        # check definiteness
+        if (all(covariance.eigen > 0)) {
+          covariance_code = 2
+          cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
+        } else if (all(covariance.eigen >= 0)) {
+          covariance_code = 1
+          cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
+        } else {
+          covariance_code = 0
+          cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
+        }
+      }
+
+      ## check for hessian matrix
+      hess_code = -1
+      if (isSymmetric(hess, tol = symmetric.tol)) {
+        # eigenvalues
+        hess.eigen = eigen(hess, only.values = TRUE)$values
+        hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
+
+        # check definiteness
+        if (all(hess.eigen < 0)) {
+          hess_code = 2
+        } else if (all(hess.eigen <= 0)) {
+          hess_code = 1
+        } else {
+          hess_code = 0
+        }
+
+        # does the hessian matrix agree with covariance matrix (?)
+        if (hess_code == covariance_code) {
+          cat(" * the hessian matrix is in agreement with the covariance matrix \n")
+        } else {
+          cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
+        }
+      }
+
+      ## a data frame with parameter names & respective SE
+      df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
+
+      ## alpha=0.05 critical value
+      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
+
+      ## compute SE: SQRT( diag of -H^(-1) )
+      df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
+      df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+      df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
+      df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
     },
-    x = mle,
-    method.args = list(r = 4) # use 6 for more accuracy but longer run time
+    error = function(e) {
+      message("SE estimation failed with the following error: \n")
+      message(e, "\n")
+    }
   )
 
-  ### Hessian and covariance matrix
-  colnames(hess) = rownames(hess) = mle.names
-  cov_mat = -1 * solve(a = hess, tol = solve.tol)
 
-  ### check for covariance matrix
-  covariance_code = -1
-  if (isSymmetric(cov_mat, tol = symmetric.tol)) {
-    ## eigenvalues
-    covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
-    covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
-
-    ## check definiteness
-    if (all(covariance.eigen > 0)) {
-      covariance_code = 2
-      cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
-    } else if (all(covariance.eigen >= 0)) {
-      covariance_code = 1
-      cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
-    } else {
-      covariance_code = 0
-      cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
-    }
+  ### in case estimation fails, SE, L_CI, U_CI will be NULL, set to NA
+  if (is.null(df.theta_with_se$SE)) {
+    df.theta_with_se$SE = NA
+    df.theta_with_se$L_CI = NA
+    df.theta_with_se$U_CI = NA
+    covariance_code = hess_code = -2
+    cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
   }
-
-  ### check for hessian matrix
-  hess_code = -1
-  if (isSymmetric(hess, tol = symmetric.tol)) {
-    ## eigenvalues
-    hess.eigen = eigen(hess, only.values = TRUE)$values
-    hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
-
-    ## check definiteness
-    if (all(hess.eigen < 0)) {
-      hess_code = 2
-    } else if (all(hess.eigen <= 0)) {
-      hess_code = 1
-    } else {
-      hess_code = 0
-    }
-
-    ## does the hessian matrix agree with covariance matrix (?)
-    if (hess_code == covariance_code) {
-      cat(" * the hessian matrix is in agreement with the covariance matrix \n")
-    } else {
-      cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
-    }
-  }
-
-  ### a data frame with parameter names & respective SEs
-  df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
-
-  ### alpha=0.05 critical value
-  z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
-
-  ### compute SE: SQRT( diag of -H^(-1) )
-  df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
-  df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
-  df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
-  df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
 
   ### output
   out = list(
@@ -212,98 +234,120 @@ get_SE_lctmc_3x3 = function(em,
   df.theta = align_MLE_3x3(mle = em[[best_index]]$pars_value, K = K)
   df.theta = df.theta[!colnames(df.theta) %in% c("true_theta")]
 
-  ### msg
-  cat(" * best EM run occurred at step ", best_index, "/", length(em), "\n", sep = "")
 
-  ### get vector of the MLE (without constrained elements)
-  mle = df.theta$mle_theta[!(df.theta$names %in% names(par_constraint))]
-  mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
+  ### try Catch rest of SE estimation
+  df.theta_with_se = df.theta # this is a place holder
+  tryCatch(
+    expr = {
+      ## msg
+      cat(" * entering `tryCatch()` ... \n", sep = "")
+      cat(" * best EM run occurred at step ", best_index, "/", length(em), "\n", sep = "")
 
-  ### numerical derivative to get Hessian matrix
-  hess = numDeriv::hessian(
-    func = function(x) {
-      ## theta vector, adding back the constrained elements
-      names(x) = mle.names
-      x = append(x, par_constraint)
-      ## compute log(P(Y))
-      bik_all.mle = bik_all_3x3(
-        theta = x,
-        data = df,
-        Xmat = df_Xmat,
-        Wmat = df_Wmat,
-        dt = df_dt,
-        K = K,
-        theta.names = theta.names.bik
+      ## get vector of the MLE (without constrained elements)
+      mle.names = df.theta$names[!(df.theta$names %in% names(par_constraint))]
+      mle = df.theta$mle_theta[!(df.theta$names %in% names(par_constraint))]
+      names(mle) = mle.names
+
+      ## numerical derivative to get Hessian matrix
+      hess = numDeriv::hessian(
+        func = function(x) {
+          # theta vector, adding back the constrained elements
+          x = append(x, par_constraint)
+          # compute log(P(Y))
+          bik_all.mle = bik_all_3x3(
+            theta = x,
+            data = df,
+            Xmat = df_Xmat,
+            Wmat = df_Wmat,
+            dt = df_dt,
+            K = K,
+            theta.names = theta.names.bik
+          )
+          bik_all.mle = impute_bik(x = bik_all.mle)
+          # sum over all class
+          bi = Reduce(`+`, bik_all.mle)
+          # return
+          sum(log(bi))
+        },
+        x = mle,
+        method.args = list(r = 4) # use 6 for more accuracy but longer run time
       )
-      bik_all.mle = impute_bik(x = bik_all.mle)
-      ## sum over all class
-      bi = Reduce(`+`, bik_all.mle)
-      ## return
-      sum(log(bi))
+
+      ## Hessian and covariance matrix
+      colnames(hess) = rownames(hess) = mle.names
+      cov_mat = -1 * solve(a = hess, tol = solve.tol)
+
+      ## check for covariance matrix
+      covariance_code = -1
+      if (isSymmetric(cov_mat, tol = symmetric.tol)) {
+        # eigenvalues
+        covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
+        covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
+
+        # check definiteness
+        if (all(covariance.eigen > 0)) {
+          covariance_code = 2
+          cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
+        } else if (all(covariance.eigen >= 0)) {
+          covariance_code = 1
+          cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
+        } else {
+          covariance_code = 0
+          cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
+        }
+      }
+
+      ## check for hessian matrix
+      hess_code = -1
+      if (isSymmetric(hess, tol = symmetric.tol)) {
+        # eigenvalues
+        hess.eigen = eigen(hess, only.values = TRUE)$values
+        hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
+
+        # check definiteness
+        if (all(hess.eigen < 0)) {
+          hess_code = 2
+        } else if (all(hess.eigen <= 0)) {
+          hess_code = 1
+        } else {
+          hess_code = 0
+        }
+
+        # does the hessian matrix agree with covariance matrix (?)
+        if (hess_code == covariance_code) {
+          cat(" * the hessian matrix is in agreement with the covariance matrix \n")
+        } else {
+          cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
+        }
+      }
+
+      ## a data frame with parameter names & respective SE
+      df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
+
+      ## alpha=0.05 critical value
+      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
+
+      ## compute SE: SQRT( diag of -H^(-1) )
+      df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
+      df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+      df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
+      df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
     },
-    x = mle,
-    method.args = list(r = 4) # use 6 for more accuracy but longer run time
+    error = function(e) {
+      message("SE estimation failed with the following error: \n")
+      message(e, "\n")
+    }
   )
 
-  ### Hessian and covariance matrix
-  colnames(hess) = rownames(hess) = mle.names
-  cov_mat = -1 * solve(a = hess, tol = solve.tol)
 
-  ### check for covariance matrix
-  covariance_code = -1
-  if (isSymmetric(cov_mat, tol = symmetric.tol)) {
-    ## eigenvalues
-    covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
-    covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
-
-    ## check definiteness
-    if (all(covariance.eigen > 0)) {
-      covariance_code = 2
-      cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
-    } else if (all(covariance.eigen >= 0)) {
-      covariance_code = 1
-      cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
-    } else {
-      covariance_code = 0
-      cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
-    }
+  ### in case estimation fails, SE, L_CI, U_CI will be NULL, set to NA
+  if (is.null(df.theta_with_se$SE)) {
+    df.theta_with_se$SE = NA
+    df.theta_with_se$L_CI = NA
+    df.theta_with_se$U_CI = NA
+    covariance_code = hess_code = -2
+    cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
   }
-
-  ### check for hessian matrix
-  hess_code = -1
-  if (isSymmetric(hess, tol = symmetric.tol)) {
-    ## eigenvalues
-    hess.eigen = eigen(hess, only.values = TRUE)$values
-    hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
-
-    ## check definiteness
-    if (all(hess.eigen < 0)) {
-      hess_code = 2
-    } else if (all(hess.eigen <= 0)) {
-      hess_code = 1
-    } else {
-      hess_code = 0
-    }
-
-    ## does the hessian matrix agree with covariance matrix (?)
-    if (hess_code == covariance_code) {
-      cat(" * the hessian matrix is in agreement with the covariance matrix \n")
-    } else {
-      cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
-    }
-  }
-
-  ### a data frame with parameter names & respective SEs
-  df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
-
-  ### alpha=0.05 critical value
-  z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
-
-  ### compute SE: SQRT( diag of -H^(-1) )
-  df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
-  df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
-  df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
-  df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
 
   ### output
   out = list(

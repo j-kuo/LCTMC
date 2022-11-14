@@ -84,10 +84,9 @@ This is the final step of fitting a latent class CTMC model (i.e., scaling estim
       MyModelName = paste("My 2x2 (K=", k, ") model", sep = "")
     )
 
-    m2x2_list[[paste("k=", k, sep = "")]] = m2x2
+    m2x2_list[[paste("k", k, sep = "")]] = m2x2
   }
 
-  names(m2x2_list) = paste("k=", 1:4, sep = "")
   BIC = sapply(
     X = m2x2_list[-1],
     FUN = function(x) {
@@ -127,10 +126,9 @@ This is the final step of fitting a latent class CTMC model (i.e., scaling estim
       MyModelName = paste("My 3x3 (K=", k, ") model", sep = "")
     )
 
-    m3x3_list[[k]] = m3x3
+    m3x3_list[[paste("k", k, sep = "")]] = m3x3
   }
 
-  names(m3x3_list) = paste("k=", 1:4, sep = "")
   BIC = sapply(
     X = m3x3_list[-1],
     FUN = function(x) {
