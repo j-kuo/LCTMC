@@ -62,18 +62,20 @@ Default is 1e-10}
 }
 \value{
 a list object containing 4 elements:
-\itemize{
-\item \code{SE} is a data frame object containing columns for: the MLE, the approximated SE, and the 95\% confidence interval for the MLE
-\item \code{covariance_code} a numeric scalar that can take be one of three values. \cr
+\describe{
+\item{SE}{a data frame object containing columns for:
+\eqn{\hat{\theta}_{mle}}, \eqn{SE(\hat{\theta}_{mle})}, the 95\% CI, and the Wald's test \eqn{p} value
+for testing \eqn{H_{o}: \hat{\theta}_{mle} = 0}}
+\item{covariance_code}{a numeric scalar that can take be one of three values: \cr
 0: when the covariance matrix is neither positive definite or semi positive definite \cr
 1: when the covariance matrix is semi positive definite \cr
-2: when the covariance matrix is positive definite
-\item \code{hess_code} similar to \code{covariance_code} \cr
+2: when the covariance matrix is positive definite}
+\item{hess_code}{similar to \code{covariance_code}: \cr
 0: when the hessian is neither negative definite or semi negative definite (saddle point) \cr
 1: when the covariance matrix is semi positive definite (inconclusive result) \cr
-2: when the covariance matrix is positive definite (a local optimal point)
-\item \code{Covariance} a matrix object which is the estimated variance covariance matrix for the estimated parameters. \cr
-Note that the estimated SE is simply square root of the diagonal elements.
+2: when the covariance matrix is positive definite (a local optimal point)}
+\item{Covariance}{a matrix object which is the estimated variance covariance matrix for the estimated parameters. \cr
+Note that \eqn{SE(\hat{\theta}_{mle})} is simply square root of the diagonal elements.}
 }
 }
 \description{

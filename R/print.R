@@ -11,12 +11,24 @@
 #'
 #' @example inst/examples/ex_print.R
 print.lctmc = function(x, ...){
+  ## make significance symbols
+  x$SE$SE$Sig. = "  ??"
+  x$SE$SE$Sig. = ifelse(x$SE$SE$Wald_P < 0.990, "    ", x$SE$SE$Sig.)
+  x$SE$SE$Sig. = ifelse(x$SE$SE$Wald_P < 0.100, "+   ", x$SE$SE$Sig.)
+  x$SE$SE$Sig. = ifelse(x$SE$SE$Wald_P < 0.050, "*   ", x$SE$SE$Sig.)
+  x$SE$SE$Sig. = ifelse(x$SE$SE$Wald_P < 0.010, "**  ", x$SE$SE$Sig.)
+  x$SE$SE$Sig. = ifelse(x$SE$SE$Wald_P < 0.001, "*** ", x$SE$SE$Sig.)
+  x$SE$SE$Sig. = ifelse(is.na(x$SE$SE$Wald_P), "    ", x$SE$SE$Sig.)
+
+  ## print estimation
   print(x$SE$SE)
 
+  ## break
   dot_length = nchar(nrow(x$SE$SE)) + 5*(1 + nchar("beta2.23_3")) + 7
   cat(rep(".", times = dot_length), "\n", sep = "")
   cat(rep(".", times = dot_length), "\n", sep = "")
 
+  ## print summary
   print(
     data.frame(
       type = ifelse(any(grepl(pattern = "2x2", class(x))), "2x2", "3x3"),

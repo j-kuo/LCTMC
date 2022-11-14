@@ -25,18 +25,20 @@
 #' Default is 1e-10
 #'
 #' @return a list object containing 4 elements:
-#' \itemize{
-#'   \item `SE` is a data frame object containing columns for: the MLE, the approximated SE, and the 95% confidence interval for the MLE
-#'   \item `covariance_code` a numeric scalar that can take be one of three values. \cr
-#'          0: when the covariance matrix is neither positive definite or semi positive definite \cr
-#'          1: when the covariance matrix is semi positive definite \cr
-#'          2: when the covariance matrix is positive definite
-#'   \item `hess_code` similar to `covariance_code` \cr
-#'          0: when the hessian is neither negative definite or semi negative definite (saddle point) \cr
-#'          1: when the covariance matrix is semi positive definite (inconclusive result) \cr
-#'          2: when the covariance matrix is positive definite (a local optimal point)
-#'   \item `Covariance` a matrix object which is the estimated variance covariance matrix for the estimated parameters. \cr
-#'          Note that the estimated SE is simply square root of the diagonal elements.
+#' \describe{
+#'   \item{SE}{a data frame object containing columns for:
+#'         \eqn{\hat{\theta}_{mle}}, \eqn{SE(\hat{\theta}_{mle})}, the 95% CI, and the Wald's test \eqn{p} value
+#'         for testing \eqn{H_{o}: \hat{\theta}_{mle} = 0}}
+#'   \item{covariance_code}{a numeric scalar that can take be one of three values: \cr
+#'         0: when the covariance matrix is neither positive definite or semi positive definite \cr
+#'         1: when the covariance matrix is semi positive definite \cr
+#'         2: when the covariance matrix is positive definite}
+#'   \item{hess_code}{similar to `covariance_code`: \cr
+#'         0: when the hessian is neither negative definite or semi negative definite (saddle point) \cr
+#'         1: when the covariance matrix is semi positive definite (inconclusive result) \cr
+#'         2: when the covariance matrix is positive definite (a local optimal point)}
+#'   \item{Covariance}{a matrix object which is the estimated variance covariance matrix for the estimated parameters. \cr
+#'         Note that \eqn{SE(\hat{\theta}_{mle})} is simply square root of the diagonal elements.}
 #' }
 #'
 #' @note This is step five out of six for fitting a latent class CTMC model (i.e., SE approximation via the hessian matrix). \cr\cr
@@ -171,14 +173,17 @@ get_SE_lctmc_2x2 = function(em,
       ## a data frame with parameter names & respective SE
       df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
 
-      ## alpha=0.05 critical value
-      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
-
       ## compute SE: SQRT( diag of -H^(-1) )
       df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
       df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+      ## compute Conf. Interval
+      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
       df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
       df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
+      ## compute P: mle/se(mle) ~ N(0,1)
+      z_score = df.theta_with_se$mle_theta/df.theta_with_se$SE
+      wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
+      df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
     },
     error = function(e) {
       message("SE estimation failed with the following error: \n")
@@ -192,6 +197,7 @@ get_SE_lctmc_2x2 = function(em,
     df.theta_with_se$SE = NA
     df.theta_with_se$L_CI = NA
     df.theta_with_se$U_CI = NA
+    df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
   }
@@ -324,14 +330,17 @@ get_SE_lctmc_3x3 = function(em,
       ## a data frame with parameter names & respective SE
       df.se = data.frame(names = colnames(cov_mat), SE = sqrt(diag(cov_mat)))
 
-      ## alpha=0.05 critical value
-      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
-
       ## compute SE: SQRT( diag of -H^(-1) )
       df.theta_with_se = merge(df.theta, df.se, by = 'names', all.x = TRUE, sort = FALSE)
       df.theta_with_se = df.theta_with_se[match(df.theta$names, df.theta_with_se$names), ]
+      ## compute Conf. Interval
+      z_crit = stats::qnorm(p = 1 - 0.05/2, lower.tail = TRUE, log.p = FALSE)
       df.theta_with_se$L_CI = df.theta_with_se$mle_theta - z_crit * df.theta_with_se$SE
       df.theta_with_se$U_CI = df.theta_with_se$mle_theta + z_crit * df.theta_with_se$SE
+      ## compute P: mle/se(mle) ~ N(0,1)
+      z_score = df.theta_with_se$mle_theta/df.theta_with_se$SE
+      wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
+      df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
     },
     error = function(e) {
       message("SE estimation failed with the following error: \n")
@@ -345,6 +354,7 @@ get_SE_lctmc_3x3 = function(em,
     df.theta_with_se$SE = NA
     df.theta_with_se$L_CI = NA
     df.theta_with_se$U_CI = NA
+    df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
   }
