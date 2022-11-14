@@ -225,8 +225,9 @@ lctmc_2x2 = function(data = data.frame(),
   }
 
   ### misc. output for convenience
-  data = data.frame(data)
   n_pars = nrow(my_model.SE$Covariance)
+  n_indiv = length(unique(data$id))
+  n_trans = length(my_df.dt)
   tf = Sys.time()
 
   ### output
@@ -237,6 +238,8 @@ lctmc_2x2 = function(data = data.frame(),
     SE = my_model.SE,
     K = K,
     n_pars = n_pars,
+    n_indiv = n_indiv,
+    n_trans = n_trans,
     X_names = X_names,
     W_names = W_names,
     run_time = difftime(tf, t0, units = 'hour')
@@ -419,8 +422,9 @@ lctmc_3x3 = function(data = data.frame(),
   }
 
   ### misc. output for convenience
-  data = data.frame(data)
   n_pars = nrow(my_model.SE$Covariance)
+  n_indiv = length(unique(data$id))
+  n_trans = length(my_df.dt)
   tf = Sys.time()
 
   ### output
@@ -431,6 +435,8 @@ lctmc_3x3 = function(data = data.frame(),
     SE = my_model.SE,
     K = K,
     n_pars = n_pars,
+    n_indiv = n_indiv,
+    n_trans = n_trans,
     X_names = X_names,
     W_names = W_names,
     run_time = difftime(tf, t0, units = 'hour')

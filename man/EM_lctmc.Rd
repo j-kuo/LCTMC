@@ -135,7 +135,7 @@ Within each EM step, subsets of parameters are optimize one set at a time, the n
   ctrl_2x2 = LCTMC::create_controls(type = "2x2", data = example_df2x2)
 
   m2x2_list = list()
-  for (k in 2:4) {
+  for (k in as.integer(2:4)) {
     m2x2 = LCTMC::lctmc_2x2(
       # data
       data = example_df2x2,
@@ -160,7 +160,7 @@ Within each EM step, subsets of parameters are optimize one set at a time, the n
     FUN = function(x) {
       log_like = LCTMC::test_global_optim(m = x, data = example_df2x2)$L_mle
       k = x$n_pars
-      n = nrow(example_df2x2) - length(unique(example_df2x2$id))
+      n = x$n_trans
       -2*log_like + k*log(n)
     }
   )
@@ -176,7 +176,7 @@ Within each EM step, subsets of parameters are optimize one set at a time, the n
   ctrl_3x3 = LCTMC::create_controls(type = "3x3", data = example_df3x3)
 
   m3x3_list = list()
-  for (k in 2:4) {
+  for (k in as.integer(2:4)) {
     m3x3 = LCTMC::lctmc_3x3(
       # data
       data = example_df3x3,
@@ -202,7 +202,7 @@ Within each EM step, subsets of parameters are optimize one set at a time, the n
     FUN = function(x) {
       log_like = LCTMC::test_global_optim(m = x, data = example_df3x3)$L_mle
       k = x$n_pars
-      n = nrow(example_df3x3) - length(unique(example_df3x3$id))
+      n = x$n_trans
       -2*log_like + k*log(n)
     }
   )
