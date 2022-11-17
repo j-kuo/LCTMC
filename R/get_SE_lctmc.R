@@ -67,9 +67,18 @@ get_SE_lctmc_2x2 = function(em,
                             solve.tol = (.Machine$double.eps)^2,
                             symmetric.tol = 5e-11,
                             eigen0.tol = 1e-10) {
-  ### perform checks
+  ### checks
   if (!("lctmc_2x2.EM" %in% class(em))) {
     stop("`em` should be a custom class list object 'lctmc_2x2.EM' obtained from `EM_lctmc_2x2()`")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
 
   ### theta names for bik
@@ -127,47 +136,56 @@ get_SE_lctmc_2x2 = function(em,
       cov_mat = -1 * solve(a = hess, tol = solve.tol)
 
       ## check for covariance matrix
-      covariance_code = -1
       if (isSymmetric(cov_mat, tol = symmetric.tol)) {
         # eigenvalues
         covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
         covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
 
+        # strict symmetric check
+        strict_is_symm = isSymmetric(cov_mat, tol = symmetric.tol * 1e-3)
+
         # check definiteness
-        if (all(covariance.eigen > 0)) {
+        if (strict_is_symm && all(covariance.eigen > 0)) {
           covariance_code = 2
           cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
-        } else if (all(covariance.eigen >= 0)) {
+        } else if (strict_is_symm && all(covariance.eigen >= 0)) {
           covariance_code = 1
           cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
         } else {
           covariance_code = 0
           cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
+          cat("    or the covariance matrix is near parameter space boundary \n")
         }
+      } else {
+        covariance_code = -1
       }
 
       ## check for hessian matrix
-      hess_code = -1
       if (isSymmetric(hess, tol = symmetric.tol)) {
         # eigenvalues
         hess.eigen = eigen(hess, only.values = TRUE)$values
         hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
 
+        # strict symmetric check
+        strict_is_symm = isSymmetric(hess, tol = symmetric.tol * 1e-3)
+
         # check definiteness
-        if (all(hess.eigen < 0)) {
+        if (strict_is_symm && all(hess.eigen < 0)) {
           hess_code = 2
-        } else if (all(hess.eigen <= 0)) {
+        } else if (strict_is_symm && all(hess.eigen <= 0)) {
           hess_code = 1
         } else {
           hess_code = 0
         }
+      } else {
+        hess_code = -1
+      }
 
-        # does the hessian matrix agree with covariance matrix (?)
-        if (hess_code == covariance_code) {
-          cat(" * the hessian matrix is in agreement with the covariance matrix \n")
-        } else {
-          cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
-        }
+      ## does the hessian matrix agree with covariance matrix (?)
+      if (hess_code == covariance_code) {
+        cat(" * the hessian matrix is in agreement with the covariance matrix \n")
+      } else {
+        cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
       }
 
       ## a data frame with parameter names & respective SE
@@ -185,10 +203,7 @@ get_SE_lctmc_2x2 = function(em,
       wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
       df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
     },
-    error = function(e) {
-      message("SE estimation failed with the following error: \n")
-      message(e, "\n")
-    }
+    error = function(e) message("SE estimation failed with the following error: \n", e)
   )
 
 
@@ -200,6 +215,7 @@ get_SE_lctmc_2x2 = function(em,
     df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
+    rownames(cov_mat) = colnames(cov_mat) = df.theta_with_se$names
   }
 
   ### output
@@ -224,9 +240,18 @@ get_SE_lctmc_3x3 = function(em,
                             solve.tol = (.Machine$double.eps)^2,
                             symmetric.tol = 5e-11,
                             eigen0.tol = 1e-10) {
-  ### perform checks
+  ### checks
   if (!("lctmc_3x3.EM" %in% class(em))) {
     stop("`em` should be a custom class list object 'lctmc_3x3.EM' obtained from `EM_lctmc_3x3()`")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
 
   ### theta names for bik
@@ -284,47 +309,56 @@ get_SE_lctmc_3x3 = function(em,
       cov_mat = -1 * solve(a = hess, tol = solve.tol)
 
       ## check for covariance matrix
-      covariance_code = -1
       if (isSymmetric(cov_mat, tol = symmetric.tol)) {
         # eigenvalues
         covariance.eigen = eigen(cov_mat, only.values = TRUE)$values
         covariance.eigen[abs(covariance.eigen) < eigen0.tol] = 0
 
+        # strict symmetric check
+        strict_is_symm = isSymmetric(cov_mat, tol = symmetric.tol * 1e-3)
+
         # check definiteness
-        if (all(covariance.eigen > 0)) {
+        if (strict_is_symm && all(covariance.eigen > 0)) {
           covariance_code = 2
           cat(" * the covariance matrix is positive definite ~ at least a local maxima is reached \n")
-        } else if (all(covariance.eigen >= 0)) {
+        } else if (strict_is_symm && all(covariance.eigen >= 0)) {
           covariance_code = 1
           cat(" * the covariance matrix is positive semi-definite ~ this is inconclusive \n")
         } else {
           covariance_code = 0
           cat(" * the covariance matrix is not positive (semi-)definite ~ this is a saddle point \n")
+          cat("    or the covariance matrix is near parameter space boundary \n")
         }
+      } else {
+        covariance_code = -1
       }
 
       ## check for hessian matrix
-      hess_code = -1
       if (isSymmetric(hess, tol = symmetric.tol)) {
         # eigenvalues
         hess.eigen = eigen(hess, only.values = TRUE)$values
         hess.eigen[abs(hess.eigen) < eigen0.tol] = 0
 
+        # strict symmetric check
+        strict_is_symm = isSymmetric(hess, tol = symmetric.tol * 1e-3)
+
         # check definiteness
-        if (all(hess.eigen < 0)) {
+        if (strict_is_symm && all(hess.eigen < 0)) {
           hess_code = 2
-        } else if (all(hess.eigen <= 0)) {
+        } else if (strict_is_symm && all(hess.eigen <= 0)) {
           hess_code = 1
         } else {
           hess_code = 0
         }
+      } else {
+        hess_code = -1
+      }
 
-        # does the hessian matrix agree with covariance matrix (?)
-        if (hess_code == covariance_code) {
-          cat(" * the hessian matrix is in agreement with the covariance matrix \n")
-        } else {
-          cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
-        }
+      ## does the hessian matrix agree with covariance matrix (?)
+      if (hess_code == covariance_code) {
+        cat(" * the hessian matrix is in agreement with the covariance matrix \n")
+      } else {
+        cat(" * the hessian matrix is NOT in agreement with the covariance matrix \n")
       }
 
       ## a data frame with parameter names & respective SE
@@ -342,10 +376,7 @@ get_SE_lctmc_3x3 = function(em,
       wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
       df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
     },
-    error = function(e) {
-      message("SE estimation failed with the following error: \n")
-      message(e, "\n")
-    }
+    error = function(e) message("SE estimation failed with the following error: \n", e)
   )
 
 
@@ -357,6 +388,7 @@ get_SE_lctmc_3x3 = function(em,
     df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
+    rownames(cov_mat) = colnames(cov_mat) = df.theta_with_se$names
   }
 
   ### output

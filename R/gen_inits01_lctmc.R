@@ -64,9 +64,18 @@ gen_inits01_lctmc_2x2 = function(df,
                                  N_sub,
                                  pct_keep,
                                  parallelize) {
-  ### check specifications
+  ### checks
   if (!all(pct_keep >= 0 & pct_keep <= 1)) {
     stop("`pct_keep` must be between 0 and 1, inclusive")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
 
   ### theta names for bik
@@ -306,9 +315,18 @@ gen_inits01_lctmc_3x3 = function(df,
                                  N_sub,
                                  pct_keep,
                                  parallelize) {
-  ### check specifications
+  ### checks
   if (!all(pct_keep >= 0 & pct_keep <= 1)) {
     stop("`pct_keep` must be between 0 and 1, inclusive")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
   }
 
   ### theta names for bik

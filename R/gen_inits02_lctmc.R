@@ -62,6 +62,20 @@ gen_inits02_lctmc_2x2 = function(step2_inits,
                                  parallel_optim,
                                  LBFGSB.maxit,
                                  LBFGSB.factr) {
+  ### checks
+  if (!is.numeric(step2_inits) || is.null(names(step2_inits))) {
+     stop("`step2_inits` should be a named numeric vector")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
+  }
+
   ### run optim in parallel (?)
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
@@ -144,8 +158,21 @@ gen_inits02_lctmc_3x3 = function(step2_inits,
                                  parallel_optim,
                                  LBFGSB.maxit,
                                  LBFGSB.factr) {
-  ### run optim in parallel (?),
+  ### checks
+  if (!is.numeric(step2_inits) || is.null(names(step2_inits))) {
+    stop("`step2_inits` should be a named numeric vector")
+  }
+  if ((nrow(df) != nrow(df_Xmat)) || (nrow(df_Xmat) != length(df_dt))) {
+    stop("Mis-matching dimensions in either `df`, `df_Xmat`, or `df_dt`")
+  }
+  if (length(unique(df$id)) != nrow(df_Wmat)) {
+    stop("Number of unique ID in `df` does not matches with number of individuals in `df_Wmat`")
+  }
+  if (!is.numeric(df_dt)) {
+    stop("`df_dt` must be a numeric vector (indicating time intervals)")
+  }
 
+  ### run optim in parallel (?),
   optim2 = ifelse(parallel_optim$run, optimParallel::optimParallel, stats::optim)
 
   ### constants needed for optimization

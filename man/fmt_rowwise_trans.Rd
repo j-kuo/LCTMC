@@ -24,7 +24,7 @@ Best set to w0, w1, w2 to avoid errors}
 
 \item{type}{a character scalar. Equals either "2x2" or "3x3" to indicate the number of category in the outcome variable.}
 
-\item{scaling}{a named numeric vector indicating which covariate are scaled by how much. Set to 1 for no scaling. \cr
+\item{scaling}{a named numeric vector indicating which covariates are scaled by how much. Set to 1 for no scaling. \cr
 For example, \code{scaling = c(x0 = 1, x1 = 0.01, x2 = 1, w0 = 1, w1 = 1, w2 = 1, dt = 0.002)}}
 
 \item{trace}{a logical scalar, if TRUE, function will print which parameters were scaled.
@@ -41,17 +41,9 @@ a list object containing the 4 major data objects needed to perform model fittin
 }
 \description{
 Takes a data frame object in long format and convert into a row-wise transition format.
-Input data should meet certain requirements indicated in the \strong{Note} section
 }
 \note{
-This is the first step out of six of fitting a latent class CTMC model (i.e., data preparation). \cr\cr
-Four conditions of the input data frame, \code{data}, are checked. If any fails, then error will be returned
-\enumerate{
-\item there must be a column named "id" in the input data
-\item there must be columns named "state_at_obsTime" and "obsTime" in the input data
-\item input data cannot have columns named "x0" and "w0" as these are reserved for the function to create a intercept term variable
-\item each person indicated by the "id" column should have at least 2 observation minimum
-}
+This is the first step out of six of fitting a latent class CTMC model (i.e., data preparation).
 }
 \examples{
 # id column

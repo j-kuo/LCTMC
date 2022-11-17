@@ -1,7 +1,6 @@
 #' @title Formats data for model fitting
 #'
 #' @description Takes a data frame object in long format and convert into a row-wise transition format.
-#' Input data should meet certain requirements indicated in the **Note** section
 #'
 #' @param data a data frame object. Data should be stored in long format. See example for data structure
 #' @param type a character scalar. Equals either "2x2" or "3x3" to indicate the number of category in the outcome variable.
@@ -9,7 +8,7 @@
 #' Best set to x0, x1, x2 to avoid errors
 #' @param W_names a named character vector. Hosting names of covariates for the latent class component. It should be a column in `data`. \cr
 #' Best set to w0, w1, w2 to avoid errors
-#' @param scaling a named numeric vector indicating which covariate are scaled by how much. Set to 1 for no scaling. \cr
+#' @param scaling a named numeric vector indicating which covariates are scaled by how much. Set to 1 for no scaling. \cr
 #' For example, `scaling = c(x0 = 1, x1 = 0.01, x2 = 1, w0 = 1, w1 = 1, w2 = 1, dt = 0.002)`
 #' @param trace a logical scalar, if TRUE, function will print which parameters were scaled.
 #' Default is FALSE which does not print messages
@@ -22,14 +21,7 @@
 #'   \item{df_trans}{a data.frame object containing the binary transition indicator variables}
 #' }
 #'
-#' @note This is the first step out of six of fitting a latent class CTMC model (i.e., data preparation). \cr\cr
-#' Four conditions of the input data frame, `data`, are checked. If any fails, then error will be returned
-#' \enumerate{
-#'   \item there must be a column named "id" in the input data
-#'   \item there must be columns named "state_at_obsTime" and "obsTime" in the input data
-#'   \item input data cannot have columns named "x0" and "w0" as these are reserved for the function to create a intercept term variable
-#'   \item each person indicated by the "id" column should have at least 2 observation minimum
-#' }
+#' @note This is the first step out of six of fitting a latent class CTMC model (i.e., data preparation).
 #'
 #' @seealso [lctmc_2x2()]; [lctmc_3x3()]; [create_controls()]
 #'
@@ -41,37 +33,6 @@ fmt_rowwise_trans = function(data = data.frame(),
                              type = c("2x2", "3x3"),
                              scaling = c("x0" = 1),
                              trace = FALSE) {
-  ### check (1)
-  if (!"id" %in% colnames(data)) {
-    stop("`id` should be a column name in `data` serving as the individual level identifier")
-  }
-  if (!all(c("state_at_obsTime", "obsTime") %in% colnames(data))) {
-    stop("`state_at_obsTime` and `obsTime` should be column names in `data`")
-  }
-  if (any(c('x0', 'w0') %in% colnames(data))) {
-    stop("`x0` and `w0` cannot be column names in `data`. These are reserved for the intercept terms")
-  }
-  if (length(type) != 1 || !(type %in% c("2x2", "3x3"))) {
-    stop("`type` should be a length 1 character vector. Equals either '2x2' or '3x3'")
-  }
-
-  ### check (2) ... compute N per id
-  temp = do.call(`c`, Map(`nrow`, split(x = data, f = data$id)))
-  temp_obs_count = unname(temp)
-  temp_id = names(temp)
-
-  ### check (2) ... error if anyone has less than 2 obs
-  if (any(temp_obs_count == 1)) {
-    x = as.character(temp_id[temp_obs_count == 1])
-
-    if (length(x) > 1) {
-      err_msg = paste("ID=(", x[1], ", ", x[2], ", and possibly others) only have 1 observation in the input data frame.", sep = "")
-    } else {
-      err_msg = paste("ID=(", x, ") only have 1 observation in the input data frame.", sep = "")
-    }
-    stop(paste(err_msg, "\n  ",  "All `data$id` should have at least two observations", sep = ""))
-  }
-
   ### `arrange` by ID
   data = data[order(data$id), ]
 

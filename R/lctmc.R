@@ -61,24 +61,17 @@ lctmc_2x2 = function(data = data.frame(),
                      controls = create_controls(),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_2x2") {
-  ### checking
-  if (!all(names(controls$fmt_data$scaling) %in% c("dt", X_names, W_names))) {
-    stop("names of `scaling` must match with variable names specified in `X_names` and `W_names`")
-  }
-  if (any(par_constraint != 0)) {
-    stop("Currently the 'LCTMC' package only supports constraints equal to 0")
-  }
-  if (K <= 1 || !is.integer(K)) {
-    stop("`K` should be greater than 1, and it should be of an 'integer' class object (e.g., K = 3L)")
-  }
-  if ((length(controls$init02$which_step1) != 1) || !(controls$init02$which_step1 %in% c("all", "best"))) {
-    stop("`which_step1` should be a length 1, either '100%' or 'best'")
-  }
+  ### specification checks
+  check_f = match.call()
+  check_f[[1]] = as.name("check_lctmc")
+  eval(check_f)
+
 
   ### starting time
   t0 = Sys.time()
   cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
   cat("--------------------\n\n", sep = "")
+
 
   ### process data + scaling if any
   trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
@@ -258,24 +251,17 @@ lctmc_3x3 = function(data = data.frame(),
                      controls = create_controls(),
                      parallel_optim = list(run = FALSE, cl = NA),
                      MyModelName = "lctmc_3x3") {
-  ### checking
-  if (!all(names(controls$fmt_data$scaling) %in% c("dt", X_names, W_names))) {
-    stop("names of `scaling` must match with variable names specified in `X_names` and `W_names`")
-  }
-  if (any(par_constraint != 0)) {
-    stop("Currently the 'LCTMC' package only supports constraints equal to 0")
-  }
-  if (K <= 1 || !is.integer(K)) {
-    stop("`K` should be greater than 1, and it should be of an 'integer' class object (e.g., K = 3L)")
-  }
-  if ((length(controls$init02$which_step1) != 1) || !(controls$init02$which_step1 %in% c("all", "best"))) {
-    stop("`which_step1` should be a length 1, either '100%' or 'best'")
-  }
+  ### specification checks
+  check_f = match.call()
+  check_f[[1]] = as.name("check_lctmc")
+  eval(check_f)
+
 
   ### starting time
   t0 = Sys.time()
   cat("RUN DATE: ", as.character(Sys.Date()), "\n", sep = "")
   cat("-------------------- \n\n", sep = "")
+
 
   ### process data + scaling if any
   trace_lctmc_progress(section = "header1", type = "format", MyModelName = MyModelName)
