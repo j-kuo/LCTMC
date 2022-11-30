@@ -202,20 +202,26 @@ get_SE_lctmc_2x2 = function(em,
       z_score = df.theta_with_se$mle_theta/df.theta_with_se$SE
       wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
       df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
+
+      ## temp indicator end of try catch
+      df.theta_with_se$temp = "good"
+      cat(" * End of `tryCatch()` reached \n")
     },
     error = function(e) message("SE estimation failed with the following error: \n", e)
   )
 
 
   ### in case estimation fails, SE, L_CI, U_CI will be NULL, set to NA
-  if (is.null(df.theta_with_se$SE)) {
+  if (is.null(df.theta_with_se$temp)) {
     df.theta_with_se$SE = NA
     df.theta_with_se$L_CI = NA
     df.theta_with_se$U_CI = NA
     df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
-    rownames(cov_mat) = colnames(cov_mat) = df.theta_with_se$names
+    rownames(cov_mat) = colnames(cov_mat) = mle.names
+  } else {
+    df.theta_with_se$temp = NULL
   }
 
   ### output
@@ -375,20 +381,26 @@ get_SE_lctmc_3x3 = function(em,
       z_score = df.theta_with_se$mle_theta/df.theta_with_se$SE
       wald_p = 2*stats::pnorm(q = abs(z_score), lower.tail = FALSE)
       df.theta_with_se$Wald_P = ifelse(wald_p < 1e-24, 1e-24, wald_p)
+
+      ## temp indicator end of try catch
+      df.theta_with_se$temp = "good"
+      cat(" * End of `tryCatch()` reached \n")
     },
     error = function(e) message("SE estimation failed with the following error: \n", e)
   )
 
 
   ### in case estimation fails, SE, L_CI, U_CI will be NULL, set to NA
-  if (is.null(df.theta_with_se$SE)) {
+  if (is.null(df.theta_with_se$temp)) {
     df.theta_with_se$SE = NA
     df.theta_with_se$L_CI = NA
     df.theta_with_se$U_CI = NA
     df.theta_with_se$Wald_P = NA
     covariance_code = hess_code = -2
     cov_mat = matrix(NA, nrow = length(mle), ncol = length(mle))
-    rownames(cov_mat) = colnames(cov_mat) = df.theta_with_se$names
+    rownames(cov_mat) = colnames(cov_mat) = mle.names
+  } else {
+    df.theta_with_se$temp = NULL
   }
 
   ### output
