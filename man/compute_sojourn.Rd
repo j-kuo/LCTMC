@@ -55,9 +55,9 @@ compute_sojourn(m = model_3x3, x1 = 1, x2 = 1)
 
 # Rate Ratios ---------
 # 2x2
-compute_RR(m = model_2x2, x1 = 1, x2 = 1)
+compute_RR(m = model_2x2, x1 = 1, x2 = 1, ci_method = 'delta')
 # 3x3
-compute_RR(m = model_3x3, x1 = 1, x2 = 1)
+compute_RR(m = model_3x3, x1 = 1, x2 = 1, ci_method = 'delta')
 
 
 # Transition Probability ---------

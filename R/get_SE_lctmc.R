@@ -225,6 +225,7 @@ get_SE_lctmc_2x2 = function(em,
   }
 
   ### output
+  rownames(df.theta_with_se) = NULL
   out = list(
     SE = df.theta_with_se,
     covariance_code = covariance_code,
@@ -404,6 +405,7 @@ get_SE_lctmc_3x3 = function(em,
   }
 
   ### output
+  rownames(df.theta_with_se) = NULL
   out = list(
     SE = df.theta_with_se,
     covariance_code = covariance_code,

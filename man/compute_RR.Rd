@@ -6,11 +6,11 @@
 \alias{compute_RR.lctmc_3x3}
 \title{Compute transition rate ratios (RR)}
 \usage{
-compute_RR(m, x1, x2)
+compute_RR(m, x1, x2, ci_method)
 
-\method{compute_RR}{lctmc_2x2}(m, x1, x2)
+\method{compute_RR}{lctmc_2x2}(m, x1, x2, ci_method)
 
-\method{compute_RR}{lctmc_3x3}(m, x1, x2)
+\method{compute_RR}{lctmc_3x3}(m, x1, x2, ci_method)
 }
 \arguments{
 \item{m}{a 'lctmc_2x2' or 'lctmc_3x3' object obtained from the \code{lctmc} functions}
@@ -18,6 +18,8 @@ compute_RR(m, x1, x2)
 \item{x1}{a numeric scalar. It is the covariate corresponding to the parameters \code{beta1.12_k}, \code{beta1.21_k}, and \code{beta1.23_k}}
 
 \item{x2}{a numeric scalar. It is the covariate corresponding to the parameters \code{beta2.12_k}, \code{beta2.21_k}, and \code{beta2.23_k}}
+
+\item{ci_method}{a character scalar. Either the "delta" method or "endpoint" method.}
 }
 \value{
 A list object of length two.
@@ -67,9 +69,9 @@ compute_sojourn(m = model_3x3, x1 = 1, x2 = 1)
 
 # Rate Ratios ---------
 # 2x2
-compute_RR(m = model_2x2, x1 = 1, x2 = 1)
+compute_RR(m = model_2x2, x1 = 1, x2 = 1, ci_method = 'delta')
 # 3x3
-compute_RR(m = model_3x3, x1 = 1, x2 = 1)
+compute_RR(m = model_3x3, x1 = 1, x2 = 1, ci_method = 'delta')
 
 
 # Transition Probability ---------

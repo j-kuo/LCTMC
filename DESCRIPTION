@@ -1,11 +1,11 @@
 Package: LCTMC
 Title: Latent Class Continuous-Time Markov Chain
-Date: 2022.11.06
-Version: 1.1.0
+Date: 2022.12.08
+Version: 1.1.1
 Authors@R: c(
     person("Jacky", "Kuo", email = "jacky.kuo@uth.tmc.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6825-9938")),
     person("Wenyaw", "Chan", email = "", role = c("ths"), comment = ""))
-Description: Fits a latent class continuous-time Markov chain model for longitudinal binary and 3-category outcomes. This model estimates the transition rates to move between disease states while assuming that K number of latent classes exists among the population. Each latent class characterized by difference in magnitude of the baseline transition rates and the transition rate ratios. The 'LCTMC' package fits the model through via a direct optimization approach and also the Expectation-Maximization algorithm. 
+Description: Fits a latent class continuous-time Markov chain model for censored longitudinal binary and 3-category outcomes. This model utilizes the transition rates to move between levels of a categorical variable to perform latent clustering at the individual-level. Assuming that K latent classes exists among the population, each class is characterized by difference in magnitude of the baseline transition rates and the transition rate ratios. The 'LCTMC' package fits the model through via a direct optimization approach and also the Expectation-Maximization algorithm.
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
