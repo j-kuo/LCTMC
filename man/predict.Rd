@@ -15,114 +15,87 @@
 
 \item{...}{the following argument must be specified as part of \code{...}
 \describe{
-\item{df_pred}{a data.frame object containing two columns: 'id' and 'obsTime'. \cr
-The first is the identifier for each individual and the second is a numeric continuous variable, indicating the future time point that we wish to predict the disease status.
-This time variable should be greater than the individual-wise maximum time specified in the \code{df_past} data frame}
-\item{df_past}{a data.frame object containing the history of observed disease status. This is used to perform latent clustering as well as predict disease state at a future time point}
-\item{param.type}{a character scalar. Either "mle" or "kmeans". \cr
-If "mle" then the estimated MLE of the latent class CTMC is used as the parameter for prediction. If "kmeans" then Step 1 of the initial value generation process (K-Means algorithm) is used as the prediction parameters.}
+\item{df_past}{a data.frame object containing the history of observed disease status. \cr
+This is used to perform latent clustering as well as predict disease state at a future time point}
+\item{pred_threshold}{a numeric value between 0 and 1. By specifying this threshold, the predicted class will be assigned as the class with probability \cr
+greater than this threshold \strong{and} has the largest probability mass. Defaults to 0.}
 }}
 }
 \value{
-A list object containing two elements:
-\itemize{
-\item \strong{df_pred.lc} is the predicted latent class classification. The predicted class is the class with the largest probability mass.
-\item \strong{df_pred.ds} is the predicted disease status. This should be the same size as the input argument \code{df_pred} with an additional column added for the predicted class at the respective observation time.
-}
+A data.frame object containing the predicted latent class.
 }
 \description{
-Input a "lctmc" object and performs two types of prediction via the estimated model: \cr
-\enumerate{
-\item predicts the latent cluster classification. \cr
-\item predicts the disease status at a user specified time
-}
+Input an "lctmc" model object and individuals' disease history. This function will predict the individuals' latent class.
 }
 \note{
-In the \code{df_pred} data frame, there should only be one ID per person and "obsTime" must be a future time point relative to the \code{df_past} data frame.
 The \code{df_past} data frame should contain the disease history of each person that is to be predicted. \cr
 All covariates (x0, x1, x2, w0, w1, w2) should be included as well in the \code{df_past} data frame.
 }
 \examples{
-# load data ---------
+# load data
 data("df_to_predict", package = "LCTMC")
 data("model_2x2", package = "LCTMC")
 
-# data creation ---------
-  ### disease history ~
-   ## get df past
-  my_df_past = df_to_predict$`2x2`
-  my_df_past = split(x = my_df_past, f = my_df_past$id)
-
-  ### disease history ~
-   ## filter out the last observation for each ID number
-  my_df_past = lapply(
-    X = my_df_past,
-    FUN = function(d) {
-      d[d$obsTime < max(d$obsTime), ]
-    }
-  )
-  my_df_past = do.call(`rbind`, my_df_past)
-  rownames(my_df_past) = NULL
+# create data sets (full data)
+my_df_past.full = df_to_predict$`2x2`
 
 
-  ### future time point to predict on ~
-   ## create data frame
-  my_df_predict = df_to_predict$`2x2`[c("id", "obsTime", "state_at_obsTime")]
-  my_df_predict = split(x = my_df_predict, f = my_df_predict$id)
-
-  ### future time point to predict on ~
-   ## filter out the last observation for each ID number
-  my_df_predict = lapply(
-    X = my_df_predict,
-    FUN = function(d) {
-      d[d$obsTime == max(d$obsTime), ]
-    }
-  )
-  my_df_predict.answer = do.call(`rbind`, my_df_predict)
-  my_df_predict = my_df_predict.answer[c("id", "obsTime")]
-  rownames(my_df_predict.answer) = rownames(my_df_predict) = NULL
+# create data sets (truncated, 3 obs per person)
+my_df_past.only3 = lapply(
+  X = split(x = my_df_past.full, f = my_df_past.full$id),
+  FUN = function(d) {
+    d = d[1:3, ]
+    d
+  }
+)
+my_df_past.only3 = do.call(`rbind`, my_df_past.only3)
 
 
-# predict --------
-  ### run function
-  my_predictions = predict(
-    object = model_2x2,
-    df_past = my_df_past, df_pred = my_df_predict,
-    param.type = "mle"
-  )
+# create data sets (truncated, 6 obs per person)
+my_df_past.only6 = lapply(
+  X = split(x = my_df_past.full, f = my_df_past.full$id),
+  FUN = function(d) {
+    d = d[1:6, ]
+    d
+  }
+)
+my_df_past.only6 = do.call(`rbind`, my_df_past.only6)
 
 
-  ### check result ~
-  ## disease state
-  check_result2 = merge(
-    my_predictions$df_pred.ds[c("id", "pred_state")],
-    my_df_predict.answer[c("id", "state_at_obsTime")],
-    by = "id"
-  )
-  table(check_result2$state_at_obsTime, check_result2$pred_state)
-  mean(check_result2$state_at_obsTime == check_result2$pred_state)
+# predict (1) ~ only 3 obs per person in disease history
+my_predictions = predict(
+  object = model_2x2,
+  df_past = my_df_past.only3,
+  pred_threshold = 0.7
+)
+table(my_predictions$pred_class, my_predictions$pred_class_strict)
 
 
-  ### check result ~
-   ## latent class
-  check_result1 = merge(
-    my_predictions$df_pred.lc[c("id", "pred_class")],
-    unique(df_to_predict$`2x2`[c("id", "latent_class")]),
-    by = "id"
-  )
-  table(check_result1$pred_class, check_result1$latent_class)
-  mean(check_result1$pred_class == check_result1$latent_class)
+# predict (2) ~ only 6 obs per person in disease history
+my_predictions = predict(
+  object = model_2x2,
+  df_past = my_df_past.only6,
+  pred_threshold = 0.7
+)
+table(my_predictions$pred_class, my_predictions$pred_class_strict)
 
-# --------------------------------------------------------------------------- #
-# ## NOTE: #### #### #### #
-# ##  * Even though the cross-table shows 0\% accuracy, it is actually 100\%.
-# ##  * As latent class's labels are meaningless,
-# ##     it only matters if the corresponding transition rates are aligned
-# ##     (see `LCTMC::align_MLE_2x2` for more info)
-# ##  * the lctmc_2x2() and lctmc_3x3() functions will always
-# ##     assign the class with greatest `alpha0` estimate as class 1
-# ##     and the class with smallest `alpha0` as the last class, `K`.
-# --------------------------------------------------------------------------- #
+
+# predict (3) ~ max obs per person in disease history
+my_predictions = predict(
+  object = model_2x2,
+  df_past = my_df_past.full,
+  pred_threshold = 0.7
+)
+table(my_predictions$pred_class, my_predictions$pred_class_strict)
+
+
+# predict (4) ~ extreme threshold criteria, leading to all NA predictions
+my_predictions = predict(
+  object = model_2x2,
+  df_past = my_df_past.only6,
+  pred_threshold = 0.9999
+)
+table(my_predictions$pred_class, my_predictions$pred_class_strict)
 }
 \seealso{
 \code{\link[=lctmc_2x2]{lctmc_2x2()}}; \code{\link[=lctmc_3x3]{lctmc_3x3()}}
